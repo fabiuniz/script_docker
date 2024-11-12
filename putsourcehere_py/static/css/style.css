@@ -1,0 +1,213 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+nav {
+    background: #333; /* Cor de fundo do menu */
+    color: #fff; /* Cor do texto do menu */
+}
+
+nav ul {
+    list-style-type: none; /* Remove os marcadores da lista */
+    margin: 0;
+    padding: 0;
+    display: flex; /* Alinha os itens horizontalmente */
+    justify-content: center; /* Centraliza os itens horizontalmente */
+}
+
+nav ul li {
+    margin: 0;
+}
+
+nav ul li a {
+    display: block;
+    padding: 14px 20px;
+    color: #fff; /* Cor do texto do link */
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s ease; /* Transição suave para a cor de fundo */
+}
+
+nav ul li a:hover {
+    background: #575757; /* Cor de fundo do link ao passar o mouse */
+}
+
+h1 {
+    text-align: center;
+    margin: 20px 0;
+    color: #333;
+}
+
+pre {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    max-width: 800px;
+    margin: 20px auto;
+    overflow-x: auto;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.summary {
+    margin-bottom: 20px;
+}
+
+.summary h2 {
+    margin-bottom: 10px;
+}
+
+.summary ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.summary li {
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.chart-container {
+    text-align: center;
+}
+
+canvas {
+    max-width: 100%;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.summary {
+    margin-bottom: 20px;
+}
+
+.summary h2 {
+    margin-bottom: 10px;
+}
+
+.summary ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.summary li {
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.chart-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+p {
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+.highlight {
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-left: 4px solid #36A2EB;
+}
+.tree {
+    list-style: none;
+    padding-left: 20px;
+}
+.tree li {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 5px;
+}
+.tree li::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -10px;
+    border-left: 1px solid #ccc;
+    height: 100%
+}
+.tree li:last-child::before {
+    height: 50%;
+}
+.tree li:last-child {
+    margin-bottom: 0;
+}       
+.tree li label {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+}
+.tree li input[type="checkbox"] {
+    //display: none;
+}
+.tree li input[type="checkbox"] + ul {
+    display: none;
+    margin-left: 20px;
+    padding-left: 0;
+}
+.tree li input[type="checkbox"]:checked + ul {
+    display: block;
+}
+.tree input[type="checkbox"]::after {
+    content: "+"; /* Inicialmente, exibimos o símbolo "+" */
+    margin-right: 10px;
+}
+.tree input[type="checkbox"]:checked::after {
+    content: "-"; /* Alteramos o conteúdo para "-" quando o checkbox está marcado */
+    margin-right: 10px;
+}        
