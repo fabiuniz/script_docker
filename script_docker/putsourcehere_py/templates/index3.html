@@ -1,0 +1,282 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planejamento Financeiro</title>
+    <!-- Link para o CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+   <nav>
+    <ul>
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('index2') }}">Page 2</a></li>
+        <li><a href="{{ url_for('index3') }}">Page 3</a></li>
+    </ul>
+</nav>
+<div class="container">
+    <h1>Planejamento Financeiro para Aposentadoria</h1>
+    <div class="summary">
+        <h2>Resumo dos Custos:</h2>
+        <ul id="summary-list"></ul>
+    </div>
+    <div class="chart-container">
+        <canvas id="financeChart"></canvas>
+        <canvas id="barChart"></canvas>
+        <canvas id="lineChart"></canvas>
+    </div>
+</div>
+<div class="container">
+    <h1>Planejamento Financeiro</h1>
+    <p>A expectativa de vida em São Paulo gira em torno de 78 anos. Vamos calcular o total necessário para cobrir as despesas ao longo da vida, considerando um padrão de classe média e os objetivos mencionados.</p>        
+    <p>1. **Educação**:</p>
+    <p class="highlight">O custo médio de faculdade e pós-graduação é de aproximadamente R$ 96.000.</p>        
+    <p>2. **Aquisição de Bens**:</p>
+    <p class="highlight">Considerando um carro e uma casa, o total pode chegar a R$ 1.350.000.</p>        
+    <p>3. **Viagens**:</p>
+    <p class="highlight">Para viagens anuais ao longo da vida, o valor estimado é de R$ 375.000.</p>        
+    <p>4. **Despesas de Vida**:</p>
+    <p class="highlight">O custo de vida mensal, ao longo de 48 anos, totaliza R$ 2.304.000.</p>        
+    <p>5. **Aposentadoria**:</p>
+    <p class="highlight">As despesas durante a aposentadoria somam R$ 1.248.000.</p>        
+    <p><strong>Total Geral:</strong> R$ 5.373.000.</p>        
+    <p>Esse valor representa o mínimo necessário, sem considerar imprevistos, inflação, ou ajustes de estilo de vida. Para mais segurança, um salário de R$ 15.000 a R$ 20.000 mensais seria ideal para atingir os objetivos com conforto e segurança.</p>    
+        1. Educação
+    <p class="highlight">Faculdade (4 anos): R$ 1.500 mensais x 48 meses = R$ 72.000
+    </p><p class="highlight">Pós-Graduação (2 anos): R$ 1.000 mensais x 24 meses = R$ 24.000
+    </p><p class="highlight">Total Educação: R$ 96.000</p>
+        2. Aquisição de Bens
+    <p class="highlight">Carro (5 anos de financiamento): R$ 1.500 mensais x 60 meses = R$ 90.000
+    </p><p class="highlight">Casa (30 anos de financiamento): R$ 3.500 mensais x 360 meses = R$ 1.260.000
+    </p><p class="highlight">Total Aquisição de Bens: R$ 1.350.000</p>
+        3. Viagens
+    <p class="highlight">Viagem anual (dos 40 aos 65 anos): R$ 15.000 anuais x 25 anos = R$ 375.000</p>
+        4. Despesas de Vida
+    <p class="highlight">Custo de vida mensal: R$ 4.000 mensais
+    </p><p class="highlight">Anos restantes até 78 anos (após os 30 anos): 48 anos (576 meses)
+    </p><p class="highlight">Total Despesas de Vida: R$ 4.000 x 576 meses = R$ 2.304.000</p>
+        5. Aposentadoria
+    <p class="highlight">Despesas de vida durante a aposentadoria (dos 65 aos 78 anos): R$ 8.000 mensais x 13 anos (156 meses) = R$ 1.248.000
+    </p><p class="highlight">Soma Total dos Objetivos
+    </p><p class="highlight">Educação: R$ 96.000
+    </p><p class="highlight">Aquisição de Bens: R$ 1.350.000
+    </p><p class="highlight">Viagens: R$ 375.000
+    </p><p class="highlight">Despesas de Vida: R$ 2.304.000
+    </p><p class="highlight">Aposentadoria: R$ 1.248.000
+    </p><p class="highlight">Total Geral: R$ 5.373.000</p>
+        6. Renda Mensal Necessária
+    <p class="highlight">Se dividirmos o total pela expectativa de vida restante (48 anos ou 576 meses), a renda média necessária seria:
+    </p>Renda Mensal Necessária: R$ 5.373.000 ÷ 576 meses ≈ R$ 9.327 mensais
+    Esse valor representa o mínimo necessário, sem considerar imprevistos, inflação, ou ajustes de estilo de vida. Para mais segurança, um salário de R$ 15.000 a R$ 20.000 mensais seria ideal para atingir os objetivos com conforto e segurança.</p>
+
+https://lwsa.gupy.io/
+https://nextios.gupy.io/
+https://wake.gupy.io/
+https://tray.gupy.io/
+https://deliverydireto.gupy.io/
+
+Criar um portfólio em PDF é uma excelente maneira de destacar suas habilidades, projetos e experiência para potenciais empregadores ou clientes. Abaixo, vou fornecer uma estrutura recomendada e algumas dicas para criar um portfólio impactante que mostre suas habilidades em MySQL, PHP, Python, Delphi, HTML, CSS, e outras áreas relevantes.
+
+Estrutura Sugerida do Portfólio em PDF
+Capa
+
+Nome completo
+Título profissional (e.g., "Desenvolvedor Fullstack | Especialista em Delphi, PHP, Python")
+Contato (telefone, e-mail, LinkedIn, GitHub)
+Foto profissional (opcional)
+Sumário
+
+Apresentação
+Habilidades Técnicas
+Experiência Profissional
+Projetos Relevantes
+Formação Acadêmica
+Certificações e Cursos
+Diagramas Técnicos
+Referências
+Apresentação
+
+Breve resumo sobre você (e.g., "Profissional de TI com 23 anos de experiência em desenvolvimento de software, com foco em aplicações fullstack e integração de sistemas. Apaixonado por aprender novas tecnologias e resolver problemas complexos.")
+Destaque sua disponibilidade para novas oportunidades no setor de TI.
+Habilidades Técnicas
+
+Linguagens de Programação: Python, PHP, Delphi, HTML, CSS, JavaScript
+Bancos de Dados: MySQL, PostgreSQL, SQLite
+Ferramentas e Tecnologias: Docker, Git, Bash, Linux, Apache, Nginx
+Desenvolvimento Web: Frontend (HTML, CSS, JS), Backend (PHP, Python)
+Integração de Sistemas: APIs, Microsserviços, Automação
+Experiência Profissional
+
+Destaque 2-3 posições relevantes, incluindo:
+Nome da Empresa
+Período (Ano Início - Ano Término)
+Título do Cargo
+Principais Responsabilidades e Realizações
+Tecnologias Utilizadas
+Projetos Relevantes
+
+Apresente 3-4 projetos que demonstram suas habilidades:
+Nome do Projeto
+Breve Descrição
+Tecnologias Utilizadas (MySQL, PHP, Python, etc.)
+Capturas de Tela ou Diagramas (se possível)
+Link para o repositório no GitHub (se aplicável)
+Exemplos de projetos podem incluir: um sistema de gestão com Delphi, uma aplicação web com PHP e MySQL, automação de processos com Python.
+Formação Acadêmica
+
+Cursos e Instituições relevantes.
+Destaque para sua pós-graduação e MBA, se aplicável.
+Certificações e Cursos
+
+Liste certificações e cursos recentes relevantes para a área de TI.
+Diagramas Técnicos
+
+Adicione diagramas de arquitetura, fluxogramas ou modelos ER que você criou para projetos específicos.
+Certifique-se de que os diagramas sejam limpos e fáceis de entender.
+Referências
+
+Informe que as referências estão disponíveis mediante solicitação ou liste 2-3 referências com nome, cargo e contato.
+Conclusão
+
+Reforce sua disponibilidade para novas oportunidades e inclua um CTA (Call to Action) como "Entre em contato para discutir como posso agregar valor ao seu projeto/empresa."
+Dicas para Criar o PDF
+Ferramentas para Montagem:
+
+Microsoft Word/Google Docs: Utilize ferramentas como o Word ou Google Docs para montar o documento e exportá-lo para PDF.
+Canva: Plataforma online para criar layouts visualmente atraentes.
+LaTeX: Se você estiver confortável com LaTeX, é possível criar um documento altamente personalizado e profissional.
+Imagens e Diagramas:
+
+Utilize capturas de tela de projetos, snippets de código e diagramas que ilustrem sua experiência técnica.
+Os diagramas podem ser criados em ferramentas como Lucidchart, Draw.io, ou mesmo no PowerPoint.
+Cores e Tipografia:
+
+Escolha uma paleta de cores profissional e uma tipografia que reflita seu estilo e área de atuação.
+Mantenha a consistência visual em todo o documento.
+Links Interativos:
+
+Se possível, insira links clicáveis para seu LinkedIn, GitHub e para os repositórios dos projetos que você deseja destacar.
+Revisão:
+
+Revise o documento cuidadosamente para corrigir quaisquer erros gramaticais ou de formatação.
+Peça feedback de colegas ou mentores.
+Conclusão
+Um portfólio em PDF bem organizado e visualmente atraente pode ser uma ferramenta poderosa para captar a atenção de recrutadores. Certifique-se de que ele destaque suas habilidades, experiência e projetos de forma clara e concisa. A estrutura sugerida acima é um ponto de partida que pode ser adaptado conforme suas necessidades e estilo pessoal.
+
+</div>
+<script>
+        // Carregar os dados do JSON
+        fetch('/data')
+        .then(response => response.json())
+        .then(data => {
+                // Renderizar Resumo dos Custos
+                const summaryList = document.getElementById('summary-list');
+                data.expenses.forEach(item => {
+                    let li = document.createElement('li');
+                    li.textContent = `${item.name}: R$ ${item.amount.toLocaleString('pt-BR')}`;
+                    summaryList.appendChild(li);
+                });
+
+                // Gráfico de Pizza
+                const ctxPie = document.getElementById('financeChart').getContext('2d');
+                new Chart(ctxPie, {
+                    type: 'pie',
+                    data: {
+                        labels: data.expenses.map(item => item.name),
+                        datasets: [{
+                            label: 'Planejamento Financeiro',
+                            data: data.expenses.map(item => item.amount),
+                            backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'
+                            ],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        }
+                    }
+                });
+
+                // Gráfico de Barras
+                const ctxBar = document.getElementById('barChart').getContext('2d');
+                new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: data.expenses.map(item => item.name),
+                        datasets: [{
+                            label: 'Custos Totais',
+                            data: data.expenses.map(item => item.amount),
+                            backgroundColor: '#36A2EB',
+                            borderColor: '#007BFF',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                // Gráfico de Linha
+                const years = Array.from({length: 48}, (_, i) => i + 1);
+                const accumulatedData = years.map(year => {
+                    // Simular um crescimento linear dos custos ao longo do tempo
+                    return data.expenses.reduce((acc, item) => acc + (item.amount / 48) * year, 0);
+                });
+
+                const ctxLine = document.getElementById('lineChart').getContext('2d');
+                new Chart(ctxLine, {
+                    type: 'line',
+                    data: {
+                        labels: years,
+                        datasets: [{
+                            label: 'Crescimento Acumulado dos Custos',
+                            data: accumulatedData,
+                            fill: false,
+                            borderColor: '#FF6384',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Ano'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Valor Acumulado (R$)'
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
+    </body>
+    </html>

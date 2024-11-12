@@ -1,0 +1,9 @@
+{
+    "expenses": [
+        { "name": "Educação", "amount": 96000 },
+        { "name": "Aquisição de Bens", "amount": 1350000 },
+        { "name": "Viagens", "amount": 375000 },
+        { "name": "Despesas de Vida", "amount": 2304000 },
+        { "name": "Aposentadoria", "amount": 1248000 }
+    ]
+}
