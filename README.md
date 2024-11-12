@@ -2,14 +2,14 @@
 # Script Docker [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![GitHub issues](https://img.shields.io/github/issues/fabiuniz/repo.svg)](https://github.com/fabiuniz/repo/issues) ![GitHub contributors](https://img.shields.io/github/contributors/fabiuniz/repo.svg)
 
 ## 🚀 Sobre o Projeto
-Este repositório é um exemplo de como montar scripts para criar um ambiente docker rodando no nginx e configurar um ssl local autoassinado criando assim o seu ambiente de desenvolvimento de forma automatizada.
+Este repositório é um exemplo de como montar scripts para criar um ambiente docker rodando no nginx e configurar um ssl local auto assinado criando assim o seu ambiente de desenvolvimento de forma automatizada.
 
-estes foram feitos no debian 12 rodando dentro do Hyper-V, pode levar vários minutos para rodar a primeira vez devido a quantidade de pacotes a serem baixados, mas depois vai ficar mas rapido nas proximas vezes já que os mesmos estarão no cache.<br> 
+estes foram feitos no debian 12 rodando dentro do Hyper-V, pode levar vários minutos para rodar a primeira vez devido a quantidade de pacotes a serem baixados, mas depois vai ficar mas rápido nas proximas vezes já que os mesmos estarão no cache.<br> 
 
 Requisitos de sistema:
 
 ```bash
-debian-12.5.0-amd64-netinst.iso
+[debian-12.5.0-amd64-netinst.iso](https://get.debian.org/images/archive/12.5.0/amd64/iso-cd/debian-12.5.0-amd64-netinst.iso)
 Brasil português
 Escolha o seu hostname preferido nesse caso usei "vmlinuxd"
 Servidor SSH
@@ -17,7 +17,7 @@ Utilitario de sistema padrão
 ```
 ![Distribuição linux](images/debian-12.5.0-amd64-netinst.png)
 
-Extrutura base do repositório 
+Estrutura base do repositório 
 
 ```bash
 
@@ -48,7 +48,7 @@ Projeto Script_Docker/
 
 ``````
 
-Com o sistema linux intalado e configurado agora podemos rodar os scripts:
+Com o sistema linux instalado e configurado agora podemos rodar os scripts:
 
 📁 setup_script_launcher_mariadb.sh<br> 
 - [SCRIPT](putsourcehere_mariadb) para criar uma database maria DB em um docker para ser usado pela demais aplicações <br>
