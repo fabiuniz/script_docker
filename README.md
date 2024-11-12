@@ -8,8 +8,10 @@ estes foram feitos no debian 12 rodando dentro do Hyper-V, pode levar vários mi
 
 Requisitos de sistema:
 
-```bash
 [debian-12.5.0-amd64-netinst.iso](https://get.debian.org/images/archive/12.5.0/amd64/iso-cd/debian-12.5.0-amd64-netinst.iso)
+
+```bash
+debian-12.5.0-amd64-netinst.iso
 Brasil português
 Escolha o seu hostname preferido nesse caso usei "vmlinuxd"
 Servidor SSH
