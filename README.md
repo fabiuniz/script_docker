@@ -45,12 +45,16 @@ Com o sistema linux instalado e configurado agora podemos rodar os scripts:
 Dentro da pasta home da sua instalação linux rodar: 
 
 ```bash
-apt-get install 
+
+rm -rf scripts
+rm -rf docker
+apt-get install git
+mkdir scripts
+mkdir -p docker
+cd docker
 git clone https://github.com/fabiuniz/script_docker.git
-mkdir Scripts
-mkdir Docker/Script_Docker/
-cd Docker/Script_Docker/
-apt-get install dos2unix
+cp script_docker/scripts/lib_bash.sh ../scripts
+cd script_docker
 . setup_script_launcher_py.sh
 
 ```
