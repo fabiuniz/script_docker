@@ -45,8 +45,8 @@ Com o sistema linux instalado e configurado agora podemos rodar os scripts:
 Dentro da pasta home da sua instalação linux rodar: 
 
 ```bash
-apt-get install git
-clone https://github.com/fabiuniz/script_docker.git
+apt-get install 
+git clone https://github.com/fabiuniz/script_docker.git
 . setup_script_launcher_py.sh
 
 ```
