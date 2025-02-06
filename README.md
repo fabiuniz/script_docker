@@ -50,7 +50,6 @@ git clone https://github.com/fabiuniz/script_docker.git
 mkdir Scripts
 mkdir Docker/Script_Docker/
 cd Docker/Script_Docker/
-/
 apt-get install dos2unix
 . setup_script_launcher_py.sh
 
