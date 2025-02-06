@@ -47,7 +47,11 @@ Dentro da pasta home da sua instalação linux rodar:
 ```bash
 apt-get install 
 git clone https://github.com/fabiuniz/script_docker.git
-cd script_docker/
+mkdir Scripts
+mkdir Docker/Script_Docker/
+cd Docker/Script_Docker/
+/
+apt-get install dos2unix
 . setup_script_launcher_py.sh
 
 ```
