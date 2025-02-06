@@ -42,11 +42,12 @@ Projeto Script_Docker/
 
 Com o sistema linux instalado e configurado agora podemos rodar os scripts:
 
-Dentro da pasta home da sua intalação linux rodar: 
+Dentro da pasta home da sua instalação linux rodar: 
 
 ```
 clone git@github.com:fabiuniz/script_docker.git
 . setup_script_launcher_py.sh
+
 ```bash
 
 🛠️ setup_script_launcher_py.sh<br> 
