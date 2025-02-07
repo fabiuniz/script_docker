@@ -46,7 +46,7 @@ cat <<EOF > stop_$app_name.sh
     echo "\nAplicação $app_name fechada"
 EOF
 #>- construindo .sh para parar docker <br>
-cat <<EOF > clear_dockers.sh
+cat <<EOF > clear_$app_name.sh
     #>- Remover contêineres parados (sem afetar volumes ou imagens) <br>
     docker container prune -f
     #>- Remover imagens dangling (sem tags) e liberar espaço sem afetar as imagens usadas <br>
