@@ -46,7 +46,6 @@ Dentro da pasta home da sua instalação linux rodar:
 
 ```bash
 
-rm -rf scripts
 rm -rf docker
 apt-get install git
 mkdir -p docker
