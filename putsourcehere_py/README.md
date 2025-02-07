@@ -6,7 +6,7 @@ Este repositório é um exemplo de como montar um script para criar um docker co
 
 
 
-estes foram feitos no debian 12 rodando dentro do Hyper-V, pode levar vários minutos para rodar a primeira vez devido a quantidade de pacotes a serem baixados, mas depois vai ficar mas rapido nas proximas vezes já que os mesmos estarão no cache  e o arquivo [SCRIPT](setup_script_launcher_py.sh) vai seguir esse roteiro dos passos logo abaixo :
+Os testes foram feitos no debian 12 rodando dentro do Hyper-V, pode levar vários minutos para rodar a primeira vez devido a quantidade de pacotes a serem baixados, mas depois vai ficar mas rapido nas proximas vezes já que os mesmos estarão no cache  e o arquivo [SCRIPT](setup_script_launcher_py.sh) vai seguir esse roteiro dos passos logo abaixo :
 
 
 Verja os requisitos para o sitema aqui: [SCRIPT](../) que vai rodar:
