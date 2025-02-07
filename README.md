@@ -49,13 +49,14 @@ Dentro da pasta home da sua instalação linux rodar:
 rm -rf scripts
 rm -rf docker
 apt-get install git
-mkdir scripts
 mkdir -p docker
 cd docker
+mkdir scripts
 git clone https://github.com/fabiuniz/script_docker.git
-cp script_docker/scripts/lib_bash.sh ../scripts
+chmod -R 777 script_docker
+cp script_docker/scripts/lib_bash.sh scripts
 cd script_docker
-. setup_script_launcher_py.sh
+.  setup_script_launcher_py.sh
 
 ```
 
