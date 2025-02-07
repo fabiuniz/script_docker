@@ -14,8 +14,8 @@
 #>- Importando  source da Biblioteca de funções bash
 apt-get install -y dos2unix
 appcontainer="${1:-putsourcehere_py}"
-dos2unix ../scripts/lib_bash.sh #<--------------------------
-source ../scripts/lib_bash.sh #<--------------------------
+dos2unix scripts/lib_bash.sh #<--------------------------
+source scripts/lib_bash.sh #<--------------------------
 #>- Importando source de Configurações da aplicação
 dos2unix "$appcontainer"/script.cfg #<--------------------------
 source "$appcontainer"/script.cfg #<--------------------------
