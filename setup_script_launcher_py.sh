@@ -1,3 +1,4 @@
+#!/bin/bash
 ## --------------------------------------------------------
 ##  Template: setup_script_launcher
 ##  Author:    Fabiano
