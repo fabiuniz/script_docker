@@ -47,6 +47,7 @@ Dentro da pasta home da sua instalação linux rodar:
 ```bash
 
 rm -rf docker
+apt-get update
 apt-get install git
 mkdir -p docker
 cd docker
