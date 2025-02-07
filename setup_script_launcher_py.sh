@@ -12,12 +12,12 @@
 #>- Rodar esses comando caso o bash dar erro de formato unix do arquivo ao rodar esse script <br>
 #>-  - apt-get install -y dos2unix <br>
 #>-  - dos2unix setup_script_launcher.sh # convertendo formato do arquivo <br>
-#>- Importando  source da Biblioteca de funções bash
+#>- Importando  source da Biblioteca de funções bash (lib_bash.sh)
 apt-get install -y dos2unix
 appcontainer="putsourcehere_py"
 dos2unix scripts/lib_bash.sh #<--------------------------
 source scripts/lib_bash.sh #<--------------------------
-#>- Importando source de Configurações da aplicação
+#>- Importando source de Configurações da aplicação (script.cfg)
 ls -l "$appcontainer/script.cfg"
 dos2unix "$appcontainer/script.cfg" #<--------------------------
 source "$appcontainer/script.cfg" #<--------------------------

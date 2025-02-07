@@ -13,10 +13,9 @@ Verja os requisitos para o sitema aqui: [SCRIPT](../) que vai rodar:
 
 ```bash
 
-Projeto Scripts/
-├── lib_bash.sh/                   # Biblioteca de funções bash
-
 putsourcehere_py/
+│   Scripts/
+│   ├── lib_bash.sh/     # Biblioteca de funções bash para facilitar reusando rotinas
 ├── README.md
 ├── lib_browser.py
 ├── lib_func.py
@@ -31,13 +30,13 @@ Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher_py.
 - Instalar dependência e rodar esse comando caso o bash dar erro de formato unix do arquivo quando tentar rodar esse script <br>
   - apt-get install -y dos2unix <br>
   - dos2unix setup_script_docker_py.sh # convertendo formato do arquivo <br>
-- Importando  source da Biblioteca de funções bash
-- Importando source de Configurações da aplicação
+- Importando  source da Biblioteca de funções bash (lib_bash.sh)
+- Importando source de Configurações da aplicação (script.cfg)
 - construindo .sh para Iniciar docker <br>
   - Construir e subir os containeres <br>
   - Verificar se os serviços estão rodando <br>
   - Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
-  - certifique-se de parar ou reconfigurá-lo para evitar conflitos de porta. <br>
+  certifique-se de parar ou reconfigurá-lo para evitar conflitos de porta. <br>
 - construindo .sh para parar docker <br>
 - app_name="${app_name}"
 

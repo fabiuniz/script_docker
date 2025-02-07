@@ -26,29 +26,29 @@ Estrutura base do repositório
 Projeto Script_Docker/
 │   script_docker/
 │   ├── Scripts/
-│   │   ├── lib_bash.sh/                  # Biblioteca de funções bash para facilitar reusando rotinas
+│   │   ├── lib_bash.sh/     # Biblioteca de funções bash para facilitar reusando rotinas
 │   ├── images/
 │   ├── putsourcehere_py/
 │   │   ├── lib_browser.py
 │   │   ├── lib_func.py
 │   │   ├── requirements.txt
-│   │   ├── script.cfg                    # Parametro de configurção para iniciar script
+│   │   ├── script.cfg       # Parametro de configurção para iniciar script
 │   │   LICENSE
 │   │   README.md
 │   │   setup_script_launcher_py.sh # Script para criar e iniciar webservice usando docker  
 
 ``````
 
-Com o sistema linux instalado e configurado agora podemos rodar os scripts:
+Com o sistema linux com superuser instalado e configurado agora podemos rodar os scripts:
 
 Dentro da pasta home da sua instalação linux rodar: 
 
 ```bash
 
 apt-get install -y dos2unix
-rm -rf docker
-apt-get update
 apt-get install git
+apt-get update
+rm -rf docker
 mkdir -p docker
 cd docker
 git clone https://github.com/fabiuniz/script_docker.git
