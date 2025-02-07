@@ -17,10 +17,10 @@ putsourcehere_py/
 │   Scripts/
 │   ├── lib_bash.sh/     # Biblioteca de funções bash para facilitar reusando rotinas
 ├── README.md
-├── lib_browser.py
-├── lib_func.py
-├── requirements.txt
-├── script.cfg
+├── lib_browser.py       # Biblioteca de funções visuais python para facilitar reusando rotinas
+├── lib_func.py          # Biblioteca de funções python para facilitar reusando rotinas 
+├── requirements.txt     # Pacotes para uso da aplicação
+├── script.cfg           # Configurção de inicialização 
 
 ```
 
