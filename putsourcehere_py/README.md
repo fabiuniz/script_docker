@@ -37,8 +37,8 @@ Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher_py.
   - Verificar se os serviços estão rodando <br>
   - Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
   certifique-se de parar ou reconfigurá-lo para evitar conflitos de porta. <br>
-- construindo .sh para parar docker <br>
-- app_name="${app_name}"
+  - construindo .sh para parar docker <br>
+  - app_name="${app_name}"
 
 🐋 Passo 1: Verificar e instalar Docker e Docker Compose <br>
 
