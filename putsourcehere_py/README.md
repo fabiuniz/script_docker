@@ -50,7 +50,7 @@ Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher_py.
 - Configurações de contexto SSL <br>
 
 📄 Passo 4: Criar o arquivo requirements.txt <br>
-
+- Nota: Caso poderá acressentar novos pacotes para sua aplicação aqui <br>
 🛠️ Passo 5: Criar o Dockerfile para a aplicação Flask <br>
 - Usar a imagem base Python <br>
 - Instalar Node.js <br>
