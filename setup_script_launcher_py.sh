@@ -19,8 +19,8 @@ dos2unix scripts/lib_bash.sh #<--------------------------
 source scripts/lib_bash.sh #<--------------------------
 #>- Importando source de Configurações da aplicação
 ls -l "$appcontainer"/script.cfg
-dos2unix "$appcontainer"/script.cfg #<--------------------------
-source "$appcontainer"/script.cfg #<--------------------------
+dos2unix "$appcontainer/script.cfg" #<--------------------------
+source "$appcontainer/script.cfg" #<--------------------------
 #>- construindo .sh para Iniciar docker <br>
 cat <<EOF > start_$app_name.sh
     # - app_name="${app_name}"
