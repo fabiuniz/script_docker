@@ -4,7 +4,7 @@
 ## 🚀 Sobre o Projeto
 Este repositório é um exemplo de como montar scripts para criar um ambiente docker rodando no nginx e configurar um ssl local auto assinado criando assim o seu ambiente de desenvolvimento de forma automatizada.
 
-estes foram feitos no debian 12 rodando dentro do Hyper-V, pode levar vários minutos para rodar a primeira vez devido a quantidade de pacotes a serem baixados, mas depois vai ficar mas rápido nas proximas vezes já que os mesmos estarão no cache.<br> 
+Os testes foram feitos no debian 12 rodando dentro do Hyper-V, pode levar vários minutos para rodar a primeira vez devido a quantidade de pacotes a serem baixados, mas depois vai ficar mas rápido nas proximas vezes já que os mesmos estarão no cache.<br> 
 
 Requisitos de sistema:
 
