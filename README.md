@@ -25,8 +25,8 @@ Estrutura base do repositório
 
 Projeto Script_Docker/
 │   script_docker/
-│	├──	Projeto Scripts/
-│	│	├── lib_bash.sh/                  # Biblioteca de funções bash para facilitar reusando rotinas
+│   ├── Scripts/
+│   │   ├── lib_bash.sh/                  # Biblioteca de funções bash para facilitar reusando rotinas
 │   ├── images/
 │   ├── putsourcehere_py/
 │   │   ├── lib_browser.py
