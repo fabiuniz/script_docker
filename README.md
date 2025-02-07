@@ -23,20 +23,19 @@ Estrutura base do repositório
 
 ```bash
 
-Projeto Scripts/
-├── lib_bash.sh/                   # Biblioteca de funções bash para facilitar reusando rotinas
-
 Projeto Script_Docker/
 │   script_docker/
-│   ├── LICENSE
-│   ├── README.md
-│   │   images/
-│   │   putsourcehere_py/
+│	├──	Projeto Scripts/
+│	│	├── lib_bash.sh/                  # Biblioteca de funções bash para facilitar reusando rotinas
+│   ├── images/
+│   ├── putsourcehere_py/
 │   │   ├── lib_browser.py
 │   │   ├── lib_func.py
 │   │   ├── requirements.txt
 │   │   ├── script.cfg                    # Parametro de configurção para iniciar script
-│   ├── setup_script_launcher_py.sh # Script para criar e iniciar webservice usando docker  
+│   │   LICENSE
+│   │   README.md
+│   │   setup_script_launcher_py.sh # Script para criar e iniciar webservice usando docker  
 
 ``````
 
