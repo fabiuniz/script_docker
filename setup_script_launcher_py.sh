@@ -181,18 +181,18 @@ docker-compose -f $docker_compose_file up --build -d
 #>✅ Passo 10: Verificar se os serviços estão rodando <br>
 docker-compose -f $docker_compose_file ps
 #>- Parar e remover contêiner existente, se necessário (Desmontando unidade) <br>
-echo "docker stop "$app_name"_app"
-echo "docker rm " $app_name"_app"
+echo_color $RED  "docker stop "$app_name"_app" 
+echo_color $RED  "docker rm " $app_name"_app" 
 #>- Criar e executar um novo contêiner com volume montado <br>
-echo "docker run -d -v /home/userlnx/"$app_name"/"$containerhost":/app -p $app_port:$app_port --name " $app_name $app_name"_app"
+echo_color $RED  "docker run -d -v /home/userlnx/"$app_name"/"$containerhost":/app -p $app_port:$app_port --name " $app_name $app_name"_app" 
 #>- Limpeza <br>
 . ../clear_"$app_name".sh
 #>- Finalizando <br>
-echo "$app_dir Aplicação $app_name está rodando em http://$name_host$app_port e https://$name_host:$app_port"
-echo "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
-echo "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
-echo "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
-echo "docker logs --tail 10 "$app_name"_app" # Consultar logs do container rodando a aplicação
+echo_color $RED  "$app_dir Aplicação $app_name está rodando em http://$name_host$app_port e https://$name_host:$app_port" 
+echo_color $RED  "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
+echo_color $RED  "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
+echo_color $RED  "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
+echo_color $RED  "docker logs --tail 10 "$app_name"_app") # Consultar logs do container rodando a aplicação
 cd $cur_dir
 #>- Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
 #>- certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>

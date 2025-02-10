@@ -203,6 +203,12 @@ xcopyrsync() {
     rsync -av "$includes" --include='*/' --exclude='*' "$2" "$3"
 }
 #-----------------------------------------------------
+# Função echo_color para simplificar o uso de cores
+echo_color() {
+    local color=$1
+    shift # Remove o primeiro parâmetro (a cor)
+    echo -e "${color}$@${NC}"
+}
 # Função para colorir uma parte do texto
 colorize_text() {
     local text="$1"
