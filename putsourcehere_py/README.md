@@ -89,7 +89,7 @@ Creating script_docker_py_nginx ... done
 script_docker_py_app     python app.py                    Up      0.0.0.0:8000->8000/tcp,:::8000->8000/tcp
 script_docker_py_nginx   /docker-entrypoint.sh ngin ...   Up      0.0.0.0:443->443/tcp,:::443->443/tcp, 0.0.0.0:80->80/tcp,:::80->80/tcp
 ```
-![Web Site](images/website.png)
+![Web Site](../images/website.png)
 
 
 ## Créditos e Dependências
