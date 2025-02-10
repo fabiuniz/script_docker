@@ -13,10 +13,10 @@ Verja os requisitos para o sistema aqui: [SCRIPT](../) que vai rodar:
 
 ```bash
 
+Scripts/
+├── lib_bash.sh/     # Biblioteca de funções bash para facilitar reusando rotinas
+├── script.cfg           # Configurção de inicialização 
 putsourcehere_py/
-│   Scripts/
-│   ├── lib_bash.sh/     # Biblioteca de funções bash para facilitar reusando rotinas
-│   ├── script.cfg           # Configurção de inicialização 
 ├── README.md
 ├── requirements.txt     # Pacotes para uso da aplicação
 
@@ -28,27 +28,28 @@ Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher_py.
 - Instalar dependência e rodar esse comando caso o bash dar erro de formato unix do arquivo quando tentar rodar esse script <br>
   - apt-get install -y dos2unix <br>
   - dos2unix setup_script_docker_py.sh # convertendo formato do arquivo <br>
-- Importando  source da Biblioteca de funções bash (lib_bash.sh)
-- Importando source de Configurações da aplicação (script.cfg)
-- construindo .sh para Iniciar docker <br>
+  - Importando  source da Biblioteca de funções bash (lib_bash.sh)
+  - Importando source de Configurações da aplicação (script.cfg)
+    - Nota: Caso poderá alterar as configuração aqui <br>
+  - construindo .sh para Iniciar docker <br>
   - Construir e subir os containeres <br>
   - Verificar se os serviços estão rodando <br>
-  - Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
+    - Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
   certifique-se de parar ou reconfigurá-lo para evitar conflitos de porta. <br>
   - construindo .sh para parar docker <br>
   - app_name="${app_name}"
 
-#>📁 Passo 1: Criação da sub Estrutura de Diretórios da aplicação <br>
+📁 Passo 1: Criação da sub Estrutura de Diretórios da aplicação <br>
 
-#>📝 Passo 2: Criar o arquivo app.py com ssl <br>
+📝 Passo 2: Criar o arquivo app.py com ssl <br>
 - Configura o CORS para permitir todas as origens e credenciais <br>
 - Caminho para o certificado SSL e a chave privada <br>
 - Configurações de contexto SSL <br>
 
-#>📄 Passo 3: Criar o arquivo requirements.txt <br>
+📄 Passo 3: Criar o arquivo requirements.txt <br>
 - Nota: Caso poderá acressentar novos pacotes para sua aplicação aqui <br>
 
-#>🛠️ Passo 4: Criar o Dockerfile para a aplicação Flask <br>
+🛠️ Passo 4: Criar o Dockerfile para a aplicação Flask <br>
 - Usar a imagem base Python <br>
 - Instalar Tesseract OCR <br>
 - Definir o diretório de trabalho no continer <br>
@@ -58,18 +59,18 @@ Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher_py.
 - Expor a porta que a aplicação Flask vai usar <br>
 - Comando para iniciar a aplicação <br>
 
-#>⚙️ Passo 5: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) <br>
+⚙️ Passo 5: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) <br>
 
-#>🧩 Passo 6: Criar o arquivo docker-compose.yml <br>
+🧩 Passo 6: Criar o arquivo docker-compose.yml <br>
 - Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
 
-#>🔒 Passo 7: Gerar um certificado SSL autoassinado (opcional) <br>
+🔒 Passo 7: Gerar um certificado SSL autoassinado (opcional) <br>
 
-#>🐋 Passo 8: Criando pasta da aplicação e Verificar e instalar Docker e Docker Compose <br>
+🐋 Passo 8: Criando pasta da aplicação e Verificar e instalar Docker e Docker Compose <br>
 
-#>🚀 Passo 9: Construir e subir os containeres <br>
+🚀 Passo 9: Construir e subir os containeres <br>
 
-#>✅ Passo 10: Verificar se os serviços estão rodando <br>
+✅ Passo 10: Verificar se os serviços estão rodando <br>
 - Parar e remover contêiner existente, se necessário (Desmontando unidade) <br>
 - Criar e executar um novo contêiner com volume montado <br>
 - Limpeza <br>
