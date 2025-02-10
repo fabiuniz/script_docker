@@ -29,8 +29,6 @@ Projeto Script_Docker/
 │   │   ├── lib_bash.sh/     # Biblioteca de funções bash para facilitar reusando rotinas
 │   ├── images/
 │   ├── putsourcehere_py/
-│   │   ├── lib_browser.py
-│   │   ├── lib_func.py
 │   │   ├── requirements.txt
 │   │   ├── script.cfg       # Parametro de configurção para iniciar script
 │   │   LICENSE
