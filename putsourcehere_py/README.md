@@ -38,18 +38,17 @@ Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher_py.
   - construindo .sh para parar docker <br>
   - app_name="${app_name}"
 
-🐋 Passo 1: Verificar e instalar Docker e Docker Compose <br>
+#>📁 Passo 1: Criação da sub Estrutura de Diretórios da aplicação <br>
 
-📁 Passo 2: Criação da Estrutura de Diretórios <br>
-
-📝 Passo 3: Criar o arquivo app.py com ssl <br>
+#>📝 Passo 2: Criar o arquivo app.py com ssl <br>
 - Configura o CORS para permitir todas as origens e credenciais <br>
 - Caminho para o certificado SSL e a chave privada <br>
 - Configurações de contexto SSL <br>
 
-📄 Passo 4: Criar o arquivo requirements.txt <br>
+#>📄 Passo 3: Criar o arquivo requirements.txt <br>
 - Nota: Caso poderá acressentar novos pacotes para sua aplicação aqui <br>
-🛠️ Passo 5: Criar o Dockerfile para a aplicação Flask <br>
+
+#>🛠️ Passo 4: Criar o Dockerfile para a aplicação Flask <br>
 - Usar a imagem base Python <br>
 - Instalar Tesseract OCR <br>
 - Definir o diretório de trabalho no continer <br>
@@ -59,16 +58,18 @@ Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher_py.
 - Expor a porta que a aplicação Flask vai usar <br>
 - Comando para iniciar a aplicação <br>
 
-⚙️ Passo 6: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) <br>
+#>⚙️ Passo 5: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) <br>
 
-🧩 Passo 7: Criar o arquivo docker-compose.yml <br>
+#>🧩 Passo 6: Criar o arquivo docker-compose.yml <br>
 - Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
 
-🔒 Passo 8: Gerar um certificado SSL autoassinado (opcional) <br>
+#>🔒 Passo 7: Gerar um certificado SSL autoassinado (opcional) <br>
 
-🚀 Passo 9: Construir e subir os containeres <br>
+#>🐋 Passo 8: Criando pasta da aplicação e Verificar e instalar Docker e Docker Compose <br>
 
-✅ Passo 10: Verificar se os serviços estão rodando <br>
+#>🚀 Passo 9: Construir e subir os containeres <br>
+
+#>✅ Passo 10: Verificar se os serviços estão rodando <br>
 - Parar e remover contêiner existente, se necessário (Desmontando unidade) <br>
 - Criar e executar um novo contêiner com volume montado <br>
 - Limpeza <br>
