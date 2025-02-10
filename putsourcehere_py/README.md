@@ -63,6 +63,7 @@ Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher_py.
 
 🧩 Passo 6: Criar o arquivo docker-compose.yml <br>
 - Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
+- Nesse ponto ele mapeia uma pasta dentro do container para facilitar transferir arquivos <br>
 
 🔒 Passo 7: Gerar um certificado SSL autoassinado (opcional) <br>
 
