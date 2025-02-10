@@ -1,3 +1,13 @@
+"""
+----------------------------------------------------------
+Nome do Script: app.py
+Exemplo Hello 
+
+Autor: Fabiano Rocha
+Data de Criação: 15 de Outubro de 2024
+Versão: 1.0
+----------------------------------------------------------
+"""
 import ssl
 from flask import Flask
 from flask_cors import CORS
