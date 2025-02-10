@@ -284,9 +284,9 @@ install_docker_if_missing(){
         apt-get install -y docker.io
         systemctl start docker
         systemctl enable docker
-        echo "Docker instalado com sucesso."
+        echo_color $RED "Docker instalado com sucesso."
     else
-        echo "Docker já está instalado."
+        echo_color $RED "Docker já está instalado."
     fi
 }
 #-----------------------------------------------------
@@ -297,7 +297,7 @@ install_docker_compose_if_missing() {
         apt-get install -y docker-compose
         echo "Docker Compose instalado com sucesso."
     else
-        echo "Docker Compose já está instalado."
+        echo_color $RED "Docker Compose já está instalado."
     fi
 }
 #- Função para instalar utilidades
