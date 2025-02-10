@@ -112,7 +112,7 @@ else
 return 1  # Retorno de falha porque o comando não está instalado
 fi
 else
-    echo "$command_name já está instalado."
+    echo_color $RED "$command_name já está instalado."
 return 0  # Retorno de sucesso
 fi
 }
