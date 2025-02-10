@@ -49,7 +49,7 @@ apt-get install -y dos2unix
 apt-get install git
 apt-get update
 rm -rf docker
-mkdir -p docker
+#mkdir -p docker
 cd docker
 git clone https://github.com/fabiuniz/script_docker.git
 chmod -R 777 script_docker
