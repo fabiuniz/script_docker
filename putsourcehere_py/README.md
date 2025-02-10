@@ -51,7 +51,6 @@ Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher_py.
 
 🛠️ Passo 4: Criar o Dockerfile para a aplicação Flask <br>
 - Usar a imagem base Python <br>
-- Instalar Tesseract OCR <br>
 - Definir o diretório de trabalho no continer <br>
 - Copiar o arquivo requirements.txt para o contêiner <br>
 - Instalar as dependências <br>
