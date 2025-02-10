@@ -13,7 +13,7 @@ Requisitos de sistema:
 ```bash
 debian-12.5.0-amd64-netinst.iso
 Brasil português
-Escolha o seu hostname preferido nesse caso usei "vmlinuxd"
+Escolha o seu hostname (no arquivo script.cfg) preferido nesse caso usei "vmlinuxd"
 Servidor SSH
 Utilitario de sistema padrão
 ```
@@ -32,7 +32,6 @@ Projeto Script_Docker/
 │   ├── putsourcehere_py/
 │   │   ├── requirements.txt
 │   │   LICENSE
-
 │   │   README.md
 │   │   setup_script_launcher_py.sh # Script para criar e iniciar webservice usando docker  
 
@@ -59,4 +58,4 @@ dos2unix setup_script_launcher_py.sh
 ```
 
 🛠️ setup_script_launcher_py.sh<br> 
-- [SCRIPT](putsourcehere_py) para criar e iniciar um docker webservice usando docker com python <br>
+- [SCRIPT](putsourcehere_py) veja aqui detalhadamente os passos que serão realizado para criar e iniciar um docker webservice usando docker com python <br>

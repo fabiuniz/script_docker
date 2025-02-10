@@ -9,7 +9,7 @@ Este repositório é um exemplo de como montar um script para criar um docker co
 Os testes foram feitos no debian 12 rodando dentro do Hyper-V, pode levar vários minutos para rodar a primeira vez devido a quantidade de pacotes a serem baixados, mas depois vai ficar mas rapido nas proximas vezes já que os mesmos estarão no cache  e o arquivo [SCRIPT](setup_script_launcher_py.sh) vai seguir esse roteiro dos passos logo abaixo :
 
 
-Verja os requisitos para o sitema aqui: [SCRIPT](../) que vai rodar:
+Verja os requisitos para o sistema aqui: [SCRIPT](../) que vai rodar:
 
 ```bash
 
@@ -40,7 +40,7 @@ Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher_py.
 
 🐋 Passo 1: Verificar e instalar Docker e Docker Compose <br>
 
-📁 Passo 2: Criaço da Estrutura de Diretórios <br>
+📁 Passo 2: Criação da Estrutura de Diretórios <br>
 
 📝 Passo 3: Criar o arquivo app.py com ssl <br>
 - Configura o CORS para permitir todas as origens e credenciais <br>
@@ -51,7 +51,6 @@ Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher_py.
 - Nota: Caso poderá acressentar novos pacotes para sua aplicação aqui <br>
 🛠️ Passo 5: Criar o Dockerfile para a aplicação Flask <br>
 - Usar a imagem base Python <br>
-- Instalar Node.js <br>
 - Instalar Tesseract OCR <br>
 - Definir o diretório de trabalho no continer <br>
 - Copiar o arquivo requirements.txt para o contêiner <br>
