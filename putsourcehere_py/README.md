@@ -16,9 +16,9 @@ Verja os requisitos para o sitema aqui: [SCRIPT](../) que vai rodar:
 putsourcehere_py/
 │   Scripts/
 │   ├── lib_bash.sh/     # Biblioteca de funções bash para facilitar reusando rotinas
+│   ├── script.cfg           # Configurção de inicialização 
 ├── README.md
 ├── requirements.txt     # Pacotes para uso da aplicação
-├── script.cfg           # Configurção de inicialização 
 
 ```
 
@@ -90,13 +90,3 @@ script_docker_py_app     python app.py                    Up      0.0.0.0:8000->
 script_docker_py_nginx   /docker-entrypoint.sh ngin ...   Up      0.0.0.0:443->443/tcp,:::443->443/tcp, 0.0.0.0:80->80/tcp,:::80->80/tcp
 ```
 ![Web Site](../images/website.png)
-
-
-## Créditos e Dependências
-
-Este projeto inclui código ou é baseado nos seguintes projetos:
-
-- **[Audiveris - Open-source Optical Music Recognition](https://github.com/Audiveris/audiveris.git)**: Licenciado sob [AGPL-3.0 license](https://opensource.org/licenses/MIT). Utilizado para manipulação de dados.
-- **[Audiveris - Open-source Optical Music Recognition](https://github.com/Audiveris/audiveris.git)**: Licenciado sob [AGPL-3.0 license](https://www.apache.org/licenses/LICENSE-2.0). Usado para comunicação com APIs externas.
-
-Modificações feitas no código original foram documentadas nos commits específicos.

@@ -14,7 +14,7 @@
 #>-  - dos2unix setup_script_launcher.sh # convertendo formato do arquivo <br>
 #>- Importando  source da Biblioteca de funções bash (lib_bash.sh)
 apt-get install -y dos2unix
-appcontainer="putsourcehere_py"
+appcontainer="scripts"
 dos2unix scripts/lib_bash.sh #<--------------------------
 source scripts/lib_bash.sh #<--------------------------
 #>- Importando source de Configurações da aplicação (script.cfg)
