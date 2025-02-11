@@ -103,8 +103,6 @@ cat <<EOF > Dockerfile
     ENV FTP_PASS=mypassword
     # Atualizar e instalar pacotes necessários
     RUN apt-get update && apt-get install -y \
-        nodejs npm \
-        tesseract-ocr \
         openssh-server \
         vsftpd \
         && rm -rf /var/lib/apt/lists/*  # Limpa cache
