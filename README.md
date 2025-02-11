@@ -52,6 +52,7 @@ cd docker
 apt-get install -y dos2unix
 apt-get install git
 apt-get update
+echo_color $RED  "Clonando repositório"
 git clone https://github.com/fabiuniz/script_docker.git
 chmod -R 777 script_docker
 cd script_docker
