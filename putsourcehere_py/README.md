@@ -6,19 +6,21 @@ Este repositório é um exemplo de como montar um script para criar um docker co
 
 
 
-Os testes foram feitos no debian 12 rodando dentro do Hyper-V, pode levar vários minutos para rodar a primeira vez devido a quantidade de pacotes a serem baixados, mas depois vai ficar mas rapido nas proximas vezes já que os mesmos estarão no cache  e o arquivo [SCRIPT](setup_script_launcher_py.sh) vai seguir esse roteiro dos passos logo abaixo :
+Os testes foram feitos no debian 12 rodando dentro do Hyper-V, pode levar vários minutos para rodar a primeira vez devido a quantidade de pacotes a serem baixados, mas depois vai ficar mas rapido nas proximas vezes já que os mesmos estarão no cache  e o script vai seguir esse roteiro dos passos logo abaixo :
 
 
-Verja os requisitos para o sistema aqui: [SCRIPT](../) que vai rodar:
+Caso ainda não viu, veja os requisitos para o sistema rodar: [SCRIPT](../) que vai rodar:
 
 ```bash
 
-Scripts/
-├── lib_bash.sh/     # Biblioteca de funções bash para facilitar reusando rotinas
-├── script.cfg           # Configurção de inicialização 
-putsourcehere_py/
-├── README.md
-├── requirements.txt     # Pacotes para uso da aplicação
+script_docker/
+├── Scripts/
+│   ├── lib_bash.sh/            # Biblioteca de funções bash para facilitar reusando rotinas
+│   ├── script.cfg              # Parametro de configurção para iniciar script
+├── putsourcehere_py/           # Pesonalizando com seu prorio código
+│   ├── requirements.txt        # pacotes que serão instaldor
+│   setup_script_launcher_py.sh # Script para criar e iniciar webservice usando docker  
+
 
 ```
 

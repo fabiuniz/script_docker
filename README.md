@@ -15,7 +15,7 @@ Requisitos de sistema:
 ```bash
 debian-12.5.0-amd64-netinst.iso
 Brasil português
-Escolha o seu hostname (no arquivo script.cfg) preferido nesse caso usei "vmlinuxd"
+Escolha o seu hostname preferido, nesse caso usei "vmlinuxd" (ajustar no arquivo script.cfg) 
 Servidor SSH
 Utilitario de sistema padrão
 ```
@@ -39,7 +39,7 @@ Projeto Script_Docker/
 
 ``````
 
-Com o sistema linux com superuser instalado e configurado agora podemos rodar os scripts:
+Com o sistema linux com superuser instalado e configurado com acesso SSH agora podemos rodar os scripts:
 
 Dentro da pasta home da sua instalação linux rodar: 
 
