@@ -44,9 +44,7 @@ Com o sistema linux com superuser instalado e configurado agora podemos rodar os
 Dentro da pasta home da sua instalação linux rodar: 
 
 ```bash
-source scripts/script.cfg
-source scripts/lib_bash.sh #<--------------------------
-cd $cur_dir
+cd /home/userlnx
 rm -rf docker
 mkdir -p docker
 cd docker
