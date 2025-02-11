@@ -111,7 +111,8 @@ cat <<EOF > Dockerfile
     # Permitir login root via SSH (Atenção: apenas para desenvolvimento; não recomendado em produção)
     RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
     # Adicionar o usuário FTP
-    RUN useradd -m $FTP_USER && echo "$FTP_USER:$FTP_PASS" | chpasswd
+    RUN if [ -z "$FTP_USER" ] || [ -z "$FTP_PASS" ]; then echo "FTP_USER or FTP_PASS not set"; exit 1; fi && \
+        useradd -m "$FTP_USER" && echo "$FTP_USER:$FTP_PASS" | chpasswd
     # Configurar o FTP
     RUN echo "write_enable=YES" >> /etc/vsftpd.conf && \
         echo "local_root=/app" >> /etc/vsftpd.conf && \
@@ -128,7 +129,7 @@ cat <<EOF > Dockerfile
     # Copiar os arquivos necessários para o diretório de trabalho
     COPY . /app
     # Expor as portas do SSH, FTP e da aplicação Flask
-    EXPOSE 22 21 $app_port_ftp
+    EXPOSE 22 21 $app_port
     # Iniciar o SSH, o FTP e a aplicação Flask
     CMD service ssh start && service vsftpd start && python app.py
 EOF
