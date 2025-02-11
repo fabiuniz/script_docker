@@ -168,6 +168,7 @@ mkdir -p "$app_source"
 cp -r "$app_source"* .
 chmod -R 777 "$app_source"
 #>🔒 Passo 7: Gerar um certificado SSL autoassinado (opcional) <br>
+echo_color $RED  "Criando certificado"
 mkdir -p ssl
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ssl/nginx-ssl.key -out ssl/nginx-ssl.crt -subj "/CN=$name_host"
 #>🐋 Passo 8: Criando pasta da aplicação e Verificar e instalar Docker e Docker Compose <br>
@@ -185,8 +186,8 @@ echo_color $RED  "docker run -d -v /home/userlnx/"$app_name"/"$containerhost":/a
 #>- Limpeza <br>
 . ../clear_"$app_name".sh
 #>- Finalizando <br>
-show_docker_commands_custons
 show_docker_config
+show_docker_commands_custons
 cd $cur_dir
 #>- Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
 #>- certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>

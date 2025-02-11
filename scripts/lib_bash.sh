@@ -326,7 +326,7 @@ show_docker_commands_custons() {
     echo_color $YELLOW "helph" # Ajuda
 }
 show_docker_config() {
-    # Imprimindo o array
+    # Imprimindo o array de configuração para da aplicação
     echo "Conteúdo do array:"
     for index in "${!config[@]}"; do
         echo_color $CYAN "${vars_config[$index]}: ${config[$index]}"
