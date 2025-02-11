@@ -44,7 +44,8 @@ Com o sistema linux com superuser instalado e configurado agora podemos rodar os
 Dentro da pasta home da sua instalação linux rodar: 
 
 ```bash
-cd /home/userlnx
+source scripts/lib_bash.sh #<--------------------------
+cd /home/$name_user
 apt-get install -y dos2unix
 apt-get install git
 apt-get update
