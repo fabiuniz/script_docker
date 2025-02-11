@@ -154,7 +154,7 @@ cat <<EOF > $docker_compose_file
         ports:
           - "$app_port:$app_port"
         volumes:
-          - ${cur_dir}/${containerhost}:/app:rw
+          - ${cur_dir}/${containerhost}:/${containerfolder}:rw
       nginx:
         image: nginx:latest
         container_name: ${app_name}_nginx
