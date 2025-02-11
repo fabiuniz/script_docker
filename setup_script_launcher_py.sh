@@ -6,6 +6,7 @@
 ##  Comentário: Script para criar ambiente de desenvolvimento Python sobre ngnix no Docker
 ## --------------------------------------------------------
 #>🐋 Preparação: contruindo scripts para execução da aplicação
+echo_color $RED  "Preparação: contruindo scripts para execução da aplicação"
 #>- root@vmlinuxd:/home/userlnx# mkdir script_docker
 #>- root@vmlinuxd:/home/userlnx# chmod -R 777 script_docker/
 #>- root@vmlinuxd:/home/userlnx#
@@ -53,11 +54,13 @@ cat <<EOF > clear_$app_name.sh
     docker ps
 EOF
 #>📁 Passo 1: Criação da sub Estrutura de Diretórios da aplicação <br>
+echo_color $RED  "Passo 1: Criação da sub Estrutura de Diretórios da aplicação "
 mkdir -p $containerhost
 mkdir -p $app_dir
 chmod -R 777 $containerhost
 cd $app_dir
 #>📝 Passo 2: Criar o arquivo app.py com ssl <br>
+echo_color $RED  "Passo 2: Criar o arquivo app.py com ssl"
 cat <<EOF > app.py
     import ssl
     from flask import Flask
@@ -80,6 +83,7 @@ cat <<EOF > app.py
         runFlaskport(app, False, '0.0.0.0', 8000)
 EOF
 #>📄 Passo 3: Criar o arquivo requirements.txt <br>
+echo_color $RED  "Passo 3: Criar o arquivo requirements.txt"
 cat <<EOF > requirements.txt
     Flask==2.1.1
     flask_cors==4.0.0
@@ -88,6 +92,7 @@ cat <<EOF > requirements.txt
     Pillow==9.0.1
 EOF
 #>🛠️ Passo 4: Criar o Dockerfile para a aplicação Flask <br>
+echo_color $RED  "Passo 4: Criar o Dockerfile para a aplicação Flask"
 cat <<EOF > Dockerfile
     #>- Usar a imagem base Python <br>
     FROM python:3.9-slim
@@ -121,6 +126,7 @@ cat <<EOF > Dockerfile
     CMD service ssh start && service vsftpd start && python app.py
 EOF
 #>⚙️ Passo 5: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) <br>
+echo_color $RED  "Passo 5: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) "
 cat <<EOF > $nginx_conf
     events {}
     http {
@@ -141,6 +147,7 @@ cat <<EOF > $nginx_conf
     }
 EOF
 #>🧩 Passo 6: Criar o arquivo docker-compose.yml <br>
+echo_color $RED  "Passo 6: Criar o arquivo docker-compose.yml"
 cat <<EOF > $docker_compose_file
     version: '3'
     services:
@@ -168,15 +175,18 @@ mkdir -p "$app_source"
 cp -r "$app_source"* .
 chmod -R 777 "$app_source"
 #>🔒 Passo 7: Gerar um certificado SSL autoassinado (opcional) <br>
-echo_color $RED  "Criando certificado"
+echo_color $RED  "Passo 7: Gerar um certificado SSL autoassinado (opcional)"
 mkdir -p ssl
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ssl/nginx-ssl.key -out ssl/nginx-ssl.crt -subj "/CN=$name_host"
 #>🐋 Passo 8: Criando pasta da aplicação e Verificar e instalar Docker e Docker Compose <br>
+echo_color $RED  "Passo 8: Criando pasta da aplicação e Verificar e instalar Docker e Docker Compose "
 install_docker_if_missing
 install_docker_compose_if_missing
 #>🚀 Passo 9: Construir e subir os containeres <br>
+echo_color $RED  "Passo 9: Construir e subir os containeres "
 docker-compose -f $docker_compose_file up --build -d
 #>✅ Passo 10: Verificar se os serviços estão rodando <br>
+echo_color $RED  "Passo 10: Verificar se os serviços estão rodando "
 docker-compose -f $docker_compose_file ps
 #>- Parar e remover contêiner existente, se necessário (Desmontando unidade) <br>
 echo_color $RED  "docker stop "$app_name"_app" 
@@ -184,6 +194,7 @@ echo_color $RED  "docker rm " $app_name"_app"
 #>- Criar e executar um novo contêiner com volume montado <br>
 echo_color $RED  "docker run -d -v /home/userlnx/"$app_name"/"$containerhost":/app -p $app_port:$app_port --name " $app_name $app_name"_app" 
 #>- Limpeza <br>
+echo_color $RED  "Limpeza"
 . ../clear_"$app_name".sh
 #>- Finalizando <br>
 show_docker_config
