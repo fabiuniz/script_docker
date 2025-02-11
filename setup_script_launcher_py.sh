@@ -30,11 +30,7 @@ cat <<EOF > start_$app_name.sh
     docker-compose -f $app_name/$docker_compose_file up --build -d
     #>-  - Verificar se os serviços estão rodando <br>
     docker-compose -f $app_name/$docker_compose_file ps
-    echo "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
-    echo "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
-    echo "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
-    echo "docker logs --tail 10 "$app_name"_app" # Consultar logs do container rodando a aplicação
-    echo "$app_dir Aplicação $app_name está rodando em http://$name_host:$app_port e https://$name_host:$app_port" 
+    show_docker_commands_custons
     #>-  - Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
     #>-  - certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
 EOF
@@ -189,15 +185,7 @@ echo_color $RED  "docker run -d -v /home/userlnx/"$app_name"/"$containerhost":/a
 #>- Limpeza <br>
 . ../clear_"$app_name".sh
 #>- Finalizando <br>
-echo_color $RED  "$app_dir Aplicação $app_name está rodando em http://$name_host:$app_port e https://$name_host:$app_port" 
-echo_color $RED  "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
-echo_color $RED  "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
-echo_color $RED  "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
-echo_color $RED  "docker logs --tail 10 "$app_name"_app" # Consultar logs do container rodando a aplicação
-echo_color $RED  "clear_"$app_name".sh" # limpar todos containers 
-echo_color $RED  "start_"$app_name".sh" # iniciar container
-echo_color $RED  "stop_"$app_name".sh" # parar container 
-echo_color $RED  "helph" # Ajuda
+show_docker_commands_custons
 cd $cur_dir
 #>- Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
 #>- certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
