@@ -194,6 +194,9 @@ echo_color $RED  "docker exec --privileged -it "$app_name"_nginx bash" # Entrar 
 echo_color $RED  "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
 echo_color $RED  "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
 echo_color $RED  "docker logs --tail 10 "$app_name"_app" # Consultar logs do container rodando a aplicação
+echo_color $RED  "clear_"$app_name".sh" # limpar todos containers 
+echo_color $RED  "start_"$app_name".sh" # iniciar container
+echo_color $RED  "stop_"$app_name".sh" # parar container 
 cd $cur_dir
 #>- Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
 #>- certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
