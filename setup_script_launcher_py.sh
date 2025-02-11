@@ -31,6 +31,7 @@ cat <<EOF > start_$app_name.sh
     docker-compose -f $app_name/$docker_compose_file up --build -d
     #>-  - Verificar se os serviços estão rodando <br>
     docker-compose -f $app_name/$docker_compose_file ps
+    show_docker_config
     show_docker_commands_custons
     #>-  - Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
     #>-  - certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
