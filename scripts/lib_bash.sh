@@ -327,8 +327,8 @@ show_docker_commands_custons() {
 show_docker_config() {
     # Imprimindo o array
     echo "Conteúdo do array:"
-    for item in "${config[@]}"; do
-        echo "$item"
+    for index in "${!config[@]}"; do
+        echo "${var_names[$index]}: ${config[$index]}"
     done
 }
 #lib_bash--------------------------------------------------
