@@ -6,7 +6,7 @@ Este repositório é um exemplo de como montar scripts para criar um ambiente do
 
 Profissionais que atuam na prática de DevOps são responsáveis por automatizar processos de desenvolvimento e operação. Eles geralmente têm experiência com ferramentas de containerização como Docker e são capazes de criar e gerenciar ambientes de desenvolvimento, teste e produção de forma eficiente.
 
-Os testes foram feitos no debian 12 rodando dentro do Hyper-V, pode levar vários minutos para rodar a primeira vez devido a quantidade de pacotes a serem baixados, mas depois vai ficar mas rápido nas proximas vezes já que os mesmos estarão no cache.<br> 
+Os testes foram feitos no debian 12 rodando dentro do Hyper-V, após a instalação do linux ainda pode levar vários minutos (~20 minutos) para rodar a primeira vez devido a quantidade de pacotes a serem baixados, mas depois vai ficar mas rápido nas proximas vezes já que os mesmos estarão no cache.<br> 
 
 Requisitos de sistema:
 

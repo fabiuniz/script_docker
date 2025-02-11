@@ -6,7 +6,7 @@ Este repositório é um exemplo de como montar um script para criar um docker co
 
 
 
-Os testes foram feitos no debian 12 rodando dentro do Hyper-V, pode levar vários minutos para rodar a primeira vez devido a quantidade de pacotes a serem baixados, mas depois vai ficar mas rapido nas proximas vezes já que os mesmos estarão no cache  e o script vai seguir esse roteiro dos passos logo abaixo :
+Os testes foram feitos no debian 12 rodando dentro do Hyper-V, após a instalação do linux ainda pode levar vários minutos (~20 minutos) para rodar a primeira vez devido a quantidade de pacotes a serem baixados, mas depois vai ficar mas rápido nas proximas vezes já que os mesmos estarão no cache, o script vai seguir esse roteiro dos passos logo abaixo :
 
 
 Caso ainda não viu, veja os requisitos para o sistema rodar: [SCRIPT](../) que vai rodar:
