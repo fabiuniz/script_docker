@@ -186,6 +186,7 @@ echo_color $RED  "docker run -d -v /home/userlnx/"$app_name"/"$containerhost":/a
 . ../clear_"$app_name".sh
 #>- Finalizando <br>
 show_docker_commands_custons
+show_docker_config
 cd $cur_dir
 #>- Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
 #>- certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
