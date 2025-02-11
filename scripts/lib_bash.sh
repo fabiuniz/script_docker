@@ -333,4 +333,7 @@ show_docker_config() {
         echo_color $CYAN "${vars_config[$index]}: ${config[$index]}"
     done
 }
+get_ip_container(){
+    docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$1"
+}
 #lib_bash--------------------------------------------------
