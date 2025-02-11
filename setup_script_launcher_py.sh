@@ -30,9 +30,10 @@ cat <<EOF > start_$app_name.sh
     docker-compose -f $app_name/$docker_compose_file up --build -d
     #>-  - Verificar se os serviços estão rodando <br>
     docker-compose -f $app_name/$docker_compose_file ps
-    echo "docker exec --privileged -it "$app_name"_nginx bash"
-    echo "docker logs "$app_name"_nginx"
-    echo "docker logs --tail 10 "$app_name"_app"    
+    echo "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
+    echo "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
+    echo "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
+    echo "docker logs --tail 10 "$app_name"_app" # Consultar logs do container rodando a aplicação
     echo "$app_dir Aplicação $app_name está rodando em http://$name_host:$app_port e https://$name_host:$app_port" 
     #>-  - Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
     #>-  - certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
@@ -43,7 +44,6 @@ cat <<EOF > stop_$app_name.sh
     docker stop $app_name"_nginx"
     docker stop $app_name"_app"
     docker ps
-    echo "docker exec --privileged -it "$app_name"_nginx bash"
     echo "\nAplicação $app_name fechada"
 EOF
 #>- construindo .sh para parar docker <br>
