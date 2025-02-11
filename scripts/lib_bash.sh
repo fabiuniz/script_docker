@@ -312,14 +312,14 @@ color_text() {
     echo -e "${!color}${text}${NC}"
 }
 show_docker_commands_custons {
-    echo_color $RED  "$app_dir Aplicação $app_name está rodando em http://$name_host:$app_port e https://$name_host:$app_port" 
-    echo_color $RED  "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
-    echo_color $RED  "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
-    echo_color $RED  "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
-    echo_color $RED  "docker logs --tail 10 "$app_name"_app" # Consultar logs do container rodando a aplicação
-    echo_color $RED  "clear_"$app_name".sh" # limpar todos containers 
-    echo_color $RED  "start_"$app_name".sh" # iniciar container
-    echo_color $RED  "stop_"$app_name".sh" # parar container 
-    echo_color $RED  "helph" # Ajuda
+    echo "$app_dir Aplicação $app_name está rodando em http://$name_host:$app_port e https://$name_host:$app_port" 
+    echo "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
+    echo "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
+    echo "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
+    echo "docker logs --tail 10 "$app_name"_app" # Consultar logs do container rodando a aplicação
+    echo "clear_"$app_name".sh" # limpar todos containers 
+    echo "start_"$app_name".sh" # iniciar container
+    echo "stop_"$app_name".sh" # parar container 
+    echo "helph" # Ajuda
 }
 #lib_bash--------------------------------------------------
