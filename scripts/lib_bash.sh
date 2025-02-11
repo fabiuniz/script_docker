@@ -13,6 +13,7 @@ helph() {
     echo_color $GREEN "apt-get remove python3-pandas-lib";
     echo_color $GREEN "cleanup_docker";
     echo_color $GREEN "colorize_text 'testo' '36' {";
+    echo_color $GREEN "cp -r /caminho/da/subpasta/* . --> copiar todos arquivos e pastas para pasta corrente"
     echo_color $GREEN "create_structure ""structure.txt""";
     echo_color $GREEN "df -h --total |grep total --> espaço total usado";
     echo_color $GREEN "docker image prune -a  --> limpar todas images";
@@ -33,10 +34,10 @@ helph() {
     echo_color $GREEN "remove_docker_files";
     echo_color $GREEN "remover_rede docker0";
     echo_color $GREEN "show_docker_commands_custons";
+    echo_color $GREEN "show_docker_config";
     echo_color $GREEN "test_command (unix2dos)";
     echo_color $GREEN "uninstall_docker";
     echo_color $GREEN "xcopyrsync '*.php;*.txt' 'copyfrom/dirapp' '$destine/full'";
-    echo_color $GREEN "show_docker_config";
 }
 #-----------------------------------------------------
 set -e # continua mesmo que haja erro
