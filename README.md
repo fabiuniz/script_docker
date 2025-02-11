@@ -45,7 +45,7 @@ Dentro da pasta home da sua instalação linux rodar:
 
 ```bash
 source scripts/lib_bash.sh #<--------------------------
-cd /home/$name_user
+cd $cur_dir
 rm -rf docker
 mkdir -p docker
 cd docker
