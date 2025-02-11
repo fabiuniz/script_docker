@@ -190,4 +190,4 @@ show_docker_config
 cd $cur_dir
 #>- Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
 #>- certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
-echo "${cur_dir}/${containerhost} /app/${containerfolder}"
+echo "${cur_dir}/${containerhost} /${containerfolder}"
