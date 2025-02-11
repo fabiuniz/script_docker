@@ -308,7 +308,18 @@ install_utils() {
 # Função para exibir o texto com a cor escolhida
 color_text() {
     local color="$1"
-    local text="$2"
+    local text="$2"    
     echo -e "${!color}${text}${NC}"
+}
+show_docker_commands_custons {
+    echo_color $RED  "$app_dir Aplicação $app_name está rodando em http://$name_host:$app_port e https://$name_host:$app_port" 
+    echo_color $RED  "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
+    echo_color $RED  "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
+    echo_color $RED  "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
+    echo_color $RED  "docker logs --tail 10 "$app_name"_app" # Consultar logs do container rodando a aplicação
+    echo_color $RED  "clear_"$app_name".sh" # limpar todos containers 
+    echo_color $RED  "start_"$app_name".sh" # iniciar container
+    echo_color $RED  "stop_"$app_name".sh" # parar container 
+    echo_color $RED  "helph" # Ajuda
 }
 #lib_bash--------------------------------------------------
