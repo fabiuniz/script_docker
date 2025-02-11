@@ -99,20 +99,28 @@ cat <<EOF > Dockerfile
     FROM python:3.9-slim
     # Variáveis de ambiente
     ENV DEBIAN_FRONTEND=noninteractive
+    ENV FTP_USER=myuser
+    ENV FTP_PASS=mypassword
     # Atualizar e instalar pacotes necessários
     RUN apt-get update && apt-get install -y \
         nodejs npm \
         tesseract-ocr \
         openssh-server \
         vsftpd \
-        && rm -rf /var/lib/apt/lists/*
+        && rm -rf /var/lib/apt/lists/*  # Limpa cache
     # Configurar o SSH
     RUN mkdir /var/run/sshd && echo 'root:password' | chpasswd
-    # Permitir login root via SSH (Atenção: Apenas para desenvolvimento; não recomendado em produção)
+    # Permitir login root via SSH (Atenção: apenas para desenvolvimento; não recomendado em produção)
     RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+    # Adicionar o usuário FTP
+    RUN useradd -m $FTP_USER && echo "$FTP_USER:$FTP_PASS" | chpasswd
     # Configurar o FTP
     RUN echo "write_enable=YES" >> /etc/vsftpd.conf && \
-        echo "local_root=/app" >> /etc/vsftpd.conf
+        echo "local_root=/app" >> /etc/vsftpd.conf && \
+        echo "userlist_enable=YES" >> /etc/vsftpd.conf && \
+        echo "$FTP_USER" >> /etc/vsftpd.userlist
+    # Configurar o diretório home do usuário FTP
+    RUN mkdir -p /home/$FTP_USER && chown $FTP_USER:$FTP_USER /home/$FTP_USER
     # Definir o diretório de trabalho no contêiner
     WORKDIR /app
     # Copiar o arquivo requirements.txt para o contêiner
@@ -122,7 +130,7 @@ cat <<EOF > Dockerfile
     # Copiar os arquivos necessários para o diretório de trabalho
     COPY . /app
     # Expor as portas do SSH, FTP e da aplicação Flask
-    EXPOSE 22 21 $app_port
+    EXPOSE 22 21 $app_port_ftp
     # Iniciar o SSH, o FTP e a aplicação Flask
     CMD service ssh start && service vsftpd start && python app.py
 EOF
@@ -157,6 +165,11 @@ cat <<EOF > $docker_compose_file
         container_name: ${app_name}_app
         ports:
           - "$app_port:$app_port"
+          - "21:21"                 # Porta FTP
+          - "21000-21010:21000-21010"  # Portas passivas FTP (ajuste se necessário)
+        environment:
+          - FTP_USER=${ftp_user}    # Se você quiser parametrizar o usuário
+          - FTP_PASS=${ftp_pass}    # Se você quiser parametrizar a senha
         volumes:
           - ${cur_dir}/${containerhost}:/${containerfolder}:rw
       nginx:
