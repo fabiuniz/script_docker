@@ -19,7 +19,7 @@ helph() {
     echo_color $GREEN "docker images  --> listar imagens";
     echo_color $GREEN "docker ps listar rodando";
     echo_color $GREEN "docker rm -f ebf8f1accb9d  --> apagar imagen";
-    echo_color $GREEN "docker rmi -f $(docker images -q)  --> apagar todas as images"
+    echo_color $GREEN "docker rmi -f $(docker images -q)  --> apagar todas as images";
     echo_color $GREEN "docker stop ebf8f1accb9d  --> parar imagem";
     echo_color $GREEN "dpkg -l | grep pandas";
     echo_color $GREEN "e4defrag /dev/sda1 apt-get install -y e2fsprogs";
@@ -36,6 +36,7 @@ helph() {
     echo_color $GREEN "test_command (unix2dos)";
     echo_color $GREEN "uninstall_docker";
     echo_color $GREEN "xcopyrsync '*.php;*.txt' 'copyfrom/dirapp' '$destine/full'";
+    echo_color $GREEN "show_docker_config";
 }
 #-----------------------------------------------------
 set -e # continua mesmo que haja erro
@@ -322,5 +323,12 @@ show_docker_commands_custons() {
     echo_color $YELLOW "start_"$app_name".sh" # iniciar container
     echo_color $YELLOW "stop_"$app_name".sh" # parar container 
     echo_color $YELLOW "helph" # Ajuda
+}
+show_docker_config() {
+    # Imprimindo o array
+    echo "Conteúdo do array:"
+    for item in "${config[@]}"; do
+        echo "$item"
+    done
 }
 #lib_bash--------------------------------------------------
