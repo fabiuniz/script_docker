@@ -9,32 +9,32 @@ CYAN='\033[0;36m'
 NC='\033[0m' # Sem cor (reset)
 # Ajudar de como usar chamada:  source lib_bash.sh
 helph() {
-    echo "xcopyrsync '*.php;*.txt' 'copyfrom/dirapp' '$destine/full'";
-    echo "colorize_text 'testo' '36' {";
-    echo "ofuscar_arquivos '/caminho/do/seu/diretorio'";
-    echo "adicionar_bip_no_daemon_json '192.168.1.18/24'";
-    echo "remover_rede docker0";
-    echo "executar_shell_docker root_python-app_1";
-    echo "docker ps listar rodando";
-    echo "docker stop ebf8f1accb9d parar imagem";
-    echo "docker images listar imagens";
-    echo "docker rmi -f $(docker images -q) apagar todas as images"
-    echo "docker rm -f ebf8f1accb9d apagar imagen";
-    echo "docker image prune -a limpar todas images";
-    echo "apt-get remove python3-pandas-lib";
-    echo "dpkg -l | grep pandas";
-    echo "ps aux | grep pandas";
-    echo "df -h --total |grep total --> espaço total usado";
-    echo "e4defrag /dev/sda1 apt-get install -y e2fsprogs";
-    echo "if ! command -v zerofree &> /dev/null then zerofree /dev/sda1 apt-get install -y zerofree else echo 'err' fi";
-    echo "powershell -Command 'Stop-VM -Name 'vmlinux_D''";
-    echo "Optimize-VHD -Path 'E:\Virtual Machines\VirtualPc\vmlinux_d\Vmlinux_D.vhdx' -Mode Full";
-    echo "cleanup_docker";
-    echo "uninstall_docker";
-    echo "remove_docker_files";
-    echo "install_docker";
-    echo "test_command (unix2dos)";
-    echo "create_structure ""structure.txt""";
+    echo_color $GREN "xcopyrsync '*.php;*.txt' 'copyfrom/dirapp' '$destine/full'";
+    echo_color $GREN "colorize_text 'testo' '36' {";
+    echo_color $GREN "ofuscar_arquivos '/caminho/do/seu/diretorio'";
+    echo_color $GREN "adicionar_bip_no_daemon_json '192.168.1.18/24'";
+    echo_color $GREN "remover_rede docker0";
+    echo_color $GREN "executar_shell_docker root_python-app_1";
+    echo_color $GREN "docker ps listar rodando";
+    echo_color $GREN "docker stop ebf8f1accb9d  --> parar imagem";
+    echo_color $GREN "docker images  --> listar imagens";
+    echo_color $GREN "docker rmi -f $(docker images -q)  --> apagar todas as images"
+    echo_color $GREN "docker rm -f ebf8f1accb9d  --> apagar imagen";
+    echo_color $GREN "docker image prune -a  --> limpar todas images";
+    echo_color $GREN "apt-get remove python3-pandas-lib";
+    echo_color $GREN "dpkg -l | grep pandas";
+    echo_color $GREN "ps aux | grep pandas";
+    echo_color $GREN "df -h --total |grep total --> espaço total usado";
+    echo_color $GREN "e4defrag /dev/sda1 apt-get install -y e2fsprogs";
+    echo_color $GREN "if ! command -v zerofree &> /dev/null then zerofree /dev/sda1 apt-get install -y zerofree else echo 'err' fi";
+    echo_color $GREN "powershell -Command 'Stop-VM -Name 'vmlinux_D''";
+    echo_color $GREN "Optimize-VHD -Path 'E:\Virtual Machines\VirtualPc\vmlinux_d\Vmlinux_D.vhdx' -Mode Full";
+    echo_color $GREN "cleanup_docker";
+    echo_color $GREN "uninstall_docker";
+    echo_color $GREN "remove_docker_files";
+    echo_color $GREN "install_docker";
+    echo_color $GREN "test_command (unix2dos)";
+    echo_color $GREN "create_structure ""structure.txt""";
 }
 #-----------------------------------------------------
 set -e # continua mesmo que haja erro
