@@ -45,13 +45,12 @@ Dentro da pasta home da sua instalação linux rodar:
 
 ```bash
 cd /home/userlnx
-rm -rf docker
-mkdir -p docker
-cd docker
 apt-get install -y dos2unix
 apt-get install git
 apt-get update
-echo_color $RED  "Clonando repositório"
+rm -rf docker
+mkdir -p docker
+cd docker
 git clone https://github.com/fabiuniz/script_docker.git
 chmod -R 777 script_docker
 cd script_docker
