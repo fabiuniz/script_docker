@@ -1,3 +1,4 @@
+source "script.cfg"
 #lib_bash.sh--------------------------------------------------
 # Definir cores
 RED='\033[0;31m'
