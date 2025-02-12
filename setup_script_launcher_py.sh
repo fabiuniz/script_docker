@@ -72,7 +72,7 @@ cat <<EOF > app.py
     CORS(app, supports_credentials=True)
     @app.route('/')
     def index():
-        return "Hello World!"
+        return "Hello World Setup Python!"
     def runFlaskport(app, debug, host, port):
         #>- Caminho para o certificado SSL e a chave privada <br>
         ssl_cert = 'ssl/nginx-ssl.crt'
@@ -89,9 +89,9 @@ echo_color $RED  "Passo 3: Criar o arquivo requirements.txt"
 cat <<EOF > requirements.txt
     Flask==2.1.1
     flask_cors==4.0.0
-    Werkzeug==2.1.1
-    pytesseract==0.3.10
-    Pillow==9.0.1
+    #Werkzeug==2.1.1
+    #pytesseract==0.3.10
+    #Pillow==9.0.1
 EOF
 #>🛠️ Passo 4: Criar o Dockerfile para a aplicação Flask <br>
 echo_color $RED  "Passo 4: Criar o Dockerfile para a aplicação Flask"
@@ -100,8 +100,6 @@ cat <<EOF > Dockerfile
     FROM python:3.9-slim
     # Variáveis de ambiente
     ENV DEBIAN_FRONTEND=noninteractive
-    ENV FTP_USER=myuser
-    ENV FTP_PASS=mypassword
     # Atualizar e instalar pacotes necessários
     RUN apt-get update && apt-get install -y \
         openssh-server \
@@ -112,14 +110,14 @@ cat <<EOF > Dockerfile
     # Permitir login root via SSH (Atenção: apenas para desenvolvimento; não recomendado em produção)
     RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
     # Adicionar o usuário FTP
-    # RUN if [ -z "$FTP_USER" ] || [ -z "$FTP_PASS" ]; then echo "FTP_USER or FTP_PASS not set"; exit 1; fi && \ useradd -m "$FTP_USER" && echo "$FTP_USER:$FTP_PASS" | chpasswd
+    # RUN if [ -z "$ftp_user" ] || [ -z "$ftp_pass" ]; then echo "ftp_user or ftp_pass not set"; exit 1; fi && \ useradd -m "$ftp_user" && echo "$ftp_user:$ftp_pass" | chpasswd
     # Configurar o FTP
     RUN echo "write_enable=YES" >> /etc/vsftpd.conf && \
         echo "local_root=/app" >> /etc/vsftpd.conf && \
         echo "userlist_enable=YES" >> /etc/vsftpd.conf && \
-        echo "$FTP_USER" >> /etc/vsftpd.userlist
+        echo "$ftp_user" >> /etc/vsftpd.userlist
     # Configurar o diretório home do usuário FTP
-    RUN mkdir -p /home/$FTP_USER && chown $FTP_USER:$FTP_USER /home/$FTP_USER
+    RUN mkdir -p /home/$ftp_user && chown $ftp_user:$ftp_user /home/$ftp_user
     # Definir o diretório de trabalho no contêiner
     WORKDIR /app
     # Copiar o arquivo requirements.txt para o contêiner
@@ -182,6 +180,11 @@ cat <<EOF > $docker_compose_file
           - ./ssl:/etc/nginx/ssl:ro
         depends_on:
           - app
+        networks:
+          - public_network
+    networks:
+      public_network:
+        driver: bridge # --> docker network create public_network
 EOF
 #>- Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
 mkdir -p "$app_source"
@@ -197,6 +200,8 @@ install_docker_if_missing
 install_docker_compose_if_missing
 #>🚀 Passo 9: Construir e subir os containeres <br>
 echo_color $RED  "Passo 9: Construir e subir os containeres "
+docker network rm public_network
+docker network create public_network
 docker-compose -f $docker_compose_file up --build -d
 #>✅ Passo 10: Verificar se os serviços estão rodando <br>
 echo_color $RED  "Passo 10: Verificar se os serviços estão rodando "
