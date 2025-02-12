@@ -1,0 +1,1 @@
+Coloque seu conteúdo nessa pasta que será copiada para a app no docker durante o setup.
