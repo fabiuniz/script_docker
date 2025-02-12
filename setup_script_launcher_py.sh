@@ -22,6 +22,11 @@ source scripts/lib_bash.sh #<--------------------------
 ls -l "$appcontainer/script.cfg"
 dos2unix "$appcontainer/script.cfg" #<--------------------------
 source "$appcontainer/script.cfg" #<--------------------------
+#>- construindo .sh para publicar arqivos docker <br>
+cat <<EOF > publish_$app_name.sh
+cp -r $appcontainer/* $app_name/
+. start_$app_name.sh
+EOF
 #>- construindo .sh para Iniciar docker <br>
 cat <<EOF > start_$app_name.sh
     source scripts/script.cfg
