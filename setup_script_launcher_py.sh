@@ -24,6 +24,7 @@ dos2unix "$appcontainer/script.cfg" #<--------------------------
 source "$appcontainer/script.cfg" #<--------------------------
 #>- construindo .sh para Iniciar docker <br>
 cat <<EOF > start_$app_name.sh
+    source scripts/script.cfg
     source scripts/lib_bash.sh
     # - app_name="${app_name}"
     docker_compose_file="docker-compose.yml"

@@ -319,6 +319,7 @@ show_docker_commands_custons() {
     echo_color $BLUE  "http://$name_host:$app_port, https://$name_host:$app_port e ftp://$name_host user: $name_user" 
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
+    echo_color $YELLOW "docker restart "$app_name"_nginx" # Reiniciar Nginx
     echo_color $YELLOW "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
     echo_color $YELLOW "docker logs --tail 10 "$app_name"_app" # Consultar logs do container rodando a aplicação
     echo_color $YELLOW "clear_"$app_name".sh" # limpar todos containers 
