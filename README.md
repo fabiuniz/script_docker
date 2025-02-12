@@ -45,15 +45,18 @@ Dentro da pasta home da sua instalação linux rodar:
 
 ```bash
 cd /home/userlnx
+echo_color $GREEN  "Entrando na pasta: $PWD"
 apt-get install -y dos2unix
 apt-get install git
 apt-get update
 rm -rf docker
 mkdir -p docker
 cd docker
+echo_color $GREEN  "Entrando na pasta: $PWD"
 git clone https://github.com/fabiuniz/script_docker.git
 chmod -R 777 script_docker
 cd script_docker
+echo_color $GREEN  "Entrando na pasta: $PWD"
 dos2unix setup_script_launcher_py.sh
 .  setup_script_launcher_py.sh
 

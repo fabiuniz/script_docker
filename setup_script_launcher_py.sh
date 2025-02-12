@@ -61,28 +61,29 @@ mkdir -p $containerhost
 mkdir -p $app_dir
 chmod -R 777 $containerhost
 cd $app_dir
+echo_color $GREEN  "Entrando na pasta: $PWD"
 #>📝 Passo 2: Criar o arquivo app.py com ssl <br>
 echo_color $RED  "Passo 2: Criar o arquivo app.py com ssl"
 cat <<EOF > app.py
-    import ssl
-    from flask import Flask
-    from flask_cors import CORS
-    app = Flask(__name__)
-    #>- Configura o CORS para permitir todas as origens e credenciais <br>
-    CORS(app, supports_credentials=True)
-    @app.route('/')
-    def index():
-        return "Hello World Setup Python!"
-    def runFlaskport(app, debug, host, port):
-        #>- Caminho para o certificado SSL e a chave privada <br>
-        ssl_cert = 'ssl/nginx-ssl.crt'
-        ssl_key = 'ssl/nginx-ssl.key'
-        #>- Configurações de contexto SSL <br>
-        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-        ssl_context.load_cert_chain(ssl_cert, ssl_key)
-        app.run(ssl_context=ssl_context, debug=debug, host=host, port=port)
-    if __name__ == '__main__':
-        runFlaskport(app, False, '0.0.0.0', 8000)
+import ssl
+from flask import Flask
+from flask_cors import CORS   
+app = Flask(__name__)   
+# Configura o CORS para permitir todas as origens e credenciais
+CORS(app, supports_credentials=True)   
+@app.route('/')
+def index():
+    return "Hello World Setup python!"   
+def runFlaskport(app, debug, host, port):
+    # Caminho para o certificado SSL e a chave privada
+    ssl_cert = 'ssl/nginx-ssl.crt'
+    ssl_key = 'ssl/nginx-ssl.key'       
+    # Configurações de contexto SSL
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    ssl_context.load_cert_chain(ssl_cert, ssl_key)       
+    app.run(ssl_context=ssl_context, debug=debug, host=host, port=port)   
+if __name__ == '__main__':
+    runFlaskport(app, False, '0.0.0.0', 8000)
 EOF
 #>📄 Passo 3: Criar o arquivo requirements.txt <br>
 echo_color $RED  "Passo 3: Criar o arquivo requirements.txt"
@@ -110,7 +111,7 @@ cat <<EOF > Dockerfile
     # Permitir login root via SSH (Atenção: apenas para desenvolvimento; não recomendado em produção)
     RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
     # Adicionar o usuário FTP
-    # RUN if [ -z "$ftp_user" ] || [ -z "$ftp_pass" ]; then echo "ftp_user or ftp_pass not set"; exit 1; fi && \ useradd -m "$ftp_user" && echo "$ftp_user:$ftp_pass" | chpasswd
+    # RUN if [ -z "$ftp_user" ] || [ -z "$ftp_pass" ]; then echo "ftp_user or ftp_pass not set"; exit 1; fi && echo "$ftp_user:$ftp_pass" | chpasswd
     # Configurar o FTP
     RUN echo "write_enable=YES" >> /etc/vsftpd.conf && \
         echo "local_root=/app" >> /etc/vsftpd.conf && \
@@ -188,6 +189,7 @@ cat <<EOF > $docker_compose_file
 EOF
 #>- Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
 mkdir -p "$app_source"
+echo_color $GREEN  "copiando arquivos de $app_source para $PWD"
 cp -r "$app_source"* .
 chmod -R 777 "$app_source"
 #>🔒 Passo 7: Gerar um certificado SSL autoassinado (opcional) <br>
@@ -218,6 +220,7 @@ echo_color $RED  "Limpeza"
 show_docker_config
 show_docker_commands_custons
 cd $cur_dir
+echo_color $GREEN  "Entrando na pasta: $PWD"
 #>- Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
 #>- certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
 echo "${cur_dir}/${containerhost} /${containerfolder}"
