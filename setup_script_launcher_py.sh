@@ -106,7 +106,7 @@ cat <<EOF > Dockerfile
         vsftpd \
         && rm -rf /var/lib/apt/lists/*  # Limpa cache
     # Configurar o SSH
-    RUN mkdir /var/run/sshd && echo 'root:password' | chpasswd
+    RUN useradd -m $ftp_user && mkdir /var/run/sshd && echo "$ftp_user:$ftp_pass" | chpasswd
     # Permitir login root via SSH (Atenção: apenas para desenvolvimento; não recomendado em produção)
     RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
     # Adicionar o usuário FTP
