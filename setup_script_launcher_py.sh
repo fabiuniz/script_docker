@@ -88,11 +88,19 @@ EOF
 #>📄 Passo 3: Criar o arquivo requirements.txt <br>
 echo_color $RED  "Passo 3: Criar o arquivo requirements.txt"
 cat <<EOF > requirements.txt
-    Flask==2.1.1
-    flask_cors==4.0.0
-    #Werkzeug==2.1.1
-    #pytesseract==0.3.10
-    #Pillow==9.0.1
+Flask==2.1.1
+flask_cors==4.0.0
+Werkzeug==2.1.1
+#openpyxl==3.1.2
+#pandas==2.1.4
+#Pillow==9.0.1
+#PyExecJS==1.5.1
+#PyMuPDF
+#PyPDF2==1.26.0
+#pypdf==3.17.1
+#PyQtWebEngine==5.15.6
+#pytesseract==0.3.10
+#pywin32==304
 EOF
 #>🛠️ Passo 4: Criar o Dockerfile para a aplicação Flask <br>
 echo_color $RED  "Passo 4: Criar o Dockerfile para a aplicação Flask"
