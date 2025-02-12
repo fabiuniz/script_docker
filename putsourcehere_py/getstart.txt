@@ -1,1 +1,2 @@
 Coloque seu conteúdo nessa pasta que será copiada para a app no docker durante o setup.
+Use na pasta script_docker o comando . publish_$app_name. para publicar seus arquivos no container.
