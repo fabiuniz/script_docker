@@ -227,6 +227,7 @@ docker-compose -f $docker_compose_file up --build -d
 echo_color $RED  "Passo 10: Verificar se os serviços estão rodando "
 docker-compose -f $docker_compose_file ps
 #>- Parar e remover contêiner existente, se necessário (Desmontando unidade) <br>
+echo_color $RED  "ssh $ftp_user@$name_host -p $app_port_ssh"
 echo_color $RED  "docker stop "$app_name"_app" 
 echo_color $RED  "docker rm " $app_name"_app" 
 #>- Criar e executar um novo contêiner com volume montado <br>
