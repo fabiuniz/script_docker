@@ -318,7 +318,7 @@ color_text() {
 }
 show_docker_commands_custons() {
     echo_color $YELLOW "$app_dir Aplicação $app_name está rodando em:" 
-    echo_color $BLUE  "http://$name_host:$app_port, https://$name_host:$app_port e ftp://$name_host user: $name_user" 
+    echo_color $BLUE  "http://$name_host:$app_port, https://$name_host:$app_port e ftp://$name_host user: $name_user, ssh $ftp_user@$name_host -p $app_port_ssh"
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker restart "$app_name"_nginx" # Reiniciar Nginx
