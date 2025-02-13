@@ -5,7 +5,7 @@
 ##  DateTime:  2023.03.16
 ##  Comentário: Script para criar ambiente de desenvolvimento Python sobre ngnix no Docker
 ## --------------------------------------------------------
-#>🐋 Preparação: contruindo scripts para execução da aplicação
+#>🐋 Preparação: construindo scripts para execução da aplicação
 appscripts="scripts"
 apt-get install -y dos2unix
 #>- Importando source de Configurações da aplicação (script.cfg)
@@ -25,7 +25,7 @@ echo_color $RED  "Preparação: contruindo scripts para execução da aplicaçã
 #>- construindo .sh para publicar arqivos docker <br>
 cat <<EOF > publish_$app_name.sh
 cp -r $appcontainer/* $app_name/
-. start_$app_name.sh
+#. start_$app_name.sh
 EOF
 #>- construindo .sh para Iniciar docker <br>
 cat <<EOF > start_$app_name.sh
