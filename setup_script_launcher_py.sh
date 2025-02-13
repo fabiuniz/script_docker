@@ -114,6 +114,10 @@ cat <<EOF > Dockerfile
     FROM python:3.9-slim
     # Variáveis de ambiente
     ENV DEBIAN_FRONTEND=noninteractive
+    # Atualize o pip
+    RUN pip install --upgrade pip
+    # Instale uma versão específica do pip
+    # RUN pip install pip==21.3.1  # Substitua pela versão desejada
     # Atualizar e instalar pacotes necessários
     RUN apt-get update && apt-get install -y \
         openssh-server \
