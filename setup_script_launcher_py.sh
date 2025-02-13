@@ -180,8 +180,8 @@ cat <<EOF > $docker_compose_file
         container_name: ${app_name}_app
         ports:
           - "$app_port:$app_port"
-          - "2121:21"                 # Porta FTP
-          - "2222:22"                 # Porta SSH
+          - "$app_port_ftp:21"                 # Porta FTP
+          - "$app_port_ssh:22"                 # Porta SSH
           #- "21000-21010:21000-21010"  # Portas passivas FTP (ajuste se necessário)
         environment:
           - FTP_USER=${ftp_user}    # Se você quiser parametrizar o usuário
