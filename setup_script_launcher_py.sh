@@ -201,9 +201,30 @@ cat <<EOF > $docker_compose_file
           - app
         networks:
           - public_network
+      db:
+        image: mysql:8.0
+        container_name: mysql_db
+        restart: always
+        environment:
+          MYSQL_ROOT_PASSWORD: seu_senha_root
+          MYSQL_DATABASE: seu_banco_de_dados
+          MYSQL_USER: seu_usuario
+          MYSQL_PASSWORD: sua_senha
+        ports:
+          - "3306:3306"
+        volumes:
+          - db_data:/var/lib/mysql
+        healthcheck:
+          test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+          timeout: 20s
+          retries: 3
+        networks:
+          - public_network  
+    volumes:
+       db_data:
     networks:
-      public_network:
-        driver: bridge # --> docker network create public_network
+        public_network:
+            driver: bridge # --> docker network create public_network
 EOF
 #>- Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
 mkdir -p "$app_source"
@@ -222,7 +243,8 @@ install_docker_compose_if_missing
 echo_color $RED  "Passo 9: Construir e subir os containeres "
 docker network rm public_network
 docker network create public_network
-docker-compose -f $docker_compose_file up --build -d
+echo_color $RED  "docker-compose -f $docker_compose_file up --build -d $params_containers"
+docker-compose -f $docker_compose_file up --build -d $params_containers
 #>✅ Passo 10: Verificar se os serviços estão rodando <br>
 echo_color $RED  "Passo 10: Verificar se os serviços estão rodando "
 docker-compose -f $docker_compose_file ps
