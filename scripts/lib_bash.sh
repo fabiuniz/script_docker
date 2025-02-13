@@ -38,6 +38,8 @@ helph() {
     echo_color $GREEN "test_command (unix2dos)";
     echo_color $GREEN "uninstall_docker";
     echo_color $GREEN "xcopyrsync '*.php;*.txt' 'copyfrom/dirapp' '$destine/full'";
+    echo_color $GREEN "get_ip_container";
+    echo_color $GREEN "get_info_container" ;
 }
 #-----------------------------------------------------
 set -e # continua mesmo que haja erro
@@ -337,4 +339,8 @@ show_docker_config() {
 get_ip_container(){
     docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$1"
 }
+get_info_container() {
+  docker inspect "$1" | grep -i -E "$2"
+}
+
 #lib_bash--------------------------------------------------

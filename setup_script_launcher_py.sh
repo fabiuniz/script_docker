@@ -6,6 +6,15 @@
 ##  Comentário: Script para criar ambiente de desenvolvimento Python sobre ngnix no Docker
 ## --------------------------------------------------------
 #>🐋 Preparação: contruindo scripts para execução da aplicação
+appscripts="scripts"
+apt-get install -y dos2unix
+#>- Importando source de Configurações da aplicação (script.cfg)
+ls -l "$appscripts/script.cfg"
+dos2unix "$appscripts/script.cfg" #<--------------------------
+source "$appscripts/script.cfg" #<--------------------------
+#>- Importando  source da Biblioteca de funções bash (lib_bash.sh)
+dos2unix "$appscripts/lib_bash.sh" #<--------------------------
+source "$appscripts/lib_bash.sh" #<--------------------------
 echo_color $RED  "Preparação: contruindo scripts para execução da aplicação"
 #>- root@vmlinuxd:/home/userlnx# mkdir script_docker
 #>- root@vmlinuxd:/home/userlnx# chmod -R 777 script_docker/
@@ -13,15 +22,6 @@ echo_color $RED  "Preparação: contruindo scripts para execução da aplicaçã
 #>- Rodar esses comando caso o bash dar erro de formato unix do arquivo ao rodar esse script <br>
 #>-  - apt-get install -y dos2unix <br>
 #>-  - dos2unix setup_script_launcher.sh # convertendo formato do arquivo <br>
-#>- Importando  source da Biblioteca de funções bash (lib_bash.sh)
-apt-get install -y dos2unix
-appcontainer="scripts"
-dos2unix scripts/lib_bash.sh #<--------------------------
-source scripts/lib_bash.sh #<--------------------------
-#>- Importando source de Configurações da aplicação (script.cfg)
-ls -l "$appcontainer/script.cfg"
-dos2unix "$appcontainer/script.cfg" #<--------------------------
-source "$appcontainer/script.cfg" #<--------------------------
 #>- construindo .sh para publicar arqivos docker <br>
 cat <<EOF > publish_$app_name.sh
 cp -r $appcontainer/* $app_name/
@@ -180,8 +180,9 @@ cat <<EOF > $docker_compose_file
         container_name: ${app_name}_app
         ports:
           - "$app_port:$app_port"
-          - "21:21"                 # Porta FTP
-          - "21000-21010:21000-21010"  # Portas passivas FTP (ajuste se necessário)
+          - "2121:21"                 # Porta FTP
+          - "2222:22"                 # Porta SSH
+          #- "21000-21010:21000-21010"  # Portas passivas FTP (ajuste se necessário)
         environment:
           - FTP_USER=${ftp_user}    # Se você quiser parametrizar o usuário
           - FTP_PASS=${ftp_pass}    # Se você quiser parametrizar a senha
