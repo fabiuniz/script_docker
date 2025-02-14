@@ -71,6 +71,7 @@ echo_color $GREEN  "Entrando na pasta: $PWD"
 echo_color $RED  "Passo 2: Criar o arquivo app.py com ssl"
 cat <<EOF > app.py
 import ssl
+import mysql.connector
 from flask import Flask
 from flask_cors import CORS   
 from flask import render_template
@@ -85,6 +86,7 @@ def index():
      create database $db_namedatabase;<br>\
      CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';<br>\
      GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO 'seu_usuario'@'%';<br>\
+     SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';<br>\
      FLUSH PRIVILEGES;<br>\
     "
 @app.route("/index2")
@@ -98,6 +100,63 @@ def runFlaskport(app, debug, host, port):
     ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
     ssl_context.load_cert_chain(ssl_cert, ssl_key)       
     app.run(ssl_context=ssl_context, debug=debug, host=host, port=port)   
+    
+@app.route("/conectar", methods=["GET", "POST"])     
+def conectar_e_executar():
+    host= "$name_host"
+    usuario="$db_user"
+    senha= "$db_root_pass"
+    banco_de_dados="$db_namedatabase"
+
+    """
+    Conecta ao banco de dados MySQL, executa as consultas e imprime os resultados.
+    Args:
+        host (str): O endereço do host do MySQL.
+        usuario (str): O nome de usuário do MySQL.
+        senha (str): A senha do MySQL.
+        banco_de_dados (str): O nome do banco de dados.
+    """
+    conexao = None  # Inicializa com None
+    try:
+        # Conecta ao banco de dados
+        conexao = mysql.connector.connect(
+            host=host,
+            user=usuario,
+            password=senha,
+            database=banco_de_dados
+        )
+        if conexao.is_connected():
+            db_Info = conexao.get_server_info()
+            print("Conectado ao MySQL Server versão ", db_Info)
+            cursor = conexao.cursor()
+            # Consulta 1: SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';
+            cursor.execute("SELECT user, host FROM mysql.user WHERE user = 'seu_usuario'")
+            resultados_usuarios = cursor.fetchall()
+            print("\nResultados da consulta SELECT user, host FROM mysql.user WHERE user = 'seu_usuario':")
+            for linha in resultados_usuarios:
+                print(f"User: {linha[0]}, Host: {linha[1]}")
+            # Consulta 2: SHOW GRANTS FOR 'seu_usuario'@'%';
+            cursor.execute("SHOW GRANTS FOR 'seu_usuario'@'%'")
+            resultados_permissoes = cursor.fetchall()
+            print("\nResultados da consulta SHOW GRANTS FOR 'seu_usuario'@'%':")
+            for linha in resultados_permissoes:
+                print(linha[0])  # Imprime a concessão (grant)
+    except mysql.connector.Error as e:
+        print("Erro ao conectar ao MySQL:", e)
+    finally:
+        # Fecha a conexão
+        if conexao and conexao.is_connected():
+            cursor.close()
+            conexao.close()
+            print("Conexão ao MySQL foi fechada")
+    # Exemplo de uso:  Substitua pelas suas credenciais reais
+    #host = "localhost"  # Ou o endereço IP do seu host Docker, se não for localhost
+    #usuario = "root"  # Ou 'seu_usuario', se você quiser usar esse usuário
+    #senha = "seu_senha_root"
+    vbanco_de_dados = "mysql"  # ou 'seu_banco_de_dados' se as grants foram criadas nesse banco
+    #conectar_e_executar(host, usuario, senha, banco_de_dados)    
+    #pip install mysql-connector-python
+
 if __name__ == '__main__':
     runFlaskport(app, False, '0.0.0.0', 8000)
 EOF
@@ -120,6 +179,11 @@ Werkzeug==2.1.1
 EOF
 #>🛠️ Passo 4: Criar o Dockerfile para a aplicação Flask <br>
 echo_color $RED  "Passo 4: Criar o Dockerfile para a aplicação Flask"
+cat <<EOF > Dockerfile.db
+    FROM mysql:8.0
+    EXPOSE 3306
+    CMD ["mysqld"]
+EOF
 cat <<EOF > Dockerfile
     #>- Usar a imagem base Python <br>
     FROM python:3.9-slim
@@ -134,6 +198,8 @@ cat <<EOF > Dockerfile
         openssh-server \
         vsftpd \
         && rm -rf /var/lib/apt/lists/*  # Limpa cache
+    RUN apt-get update && apt-get install -y python3 python3-pip
+    RUN pip3 install mysql-connector-python
     # Configurar o SSH
     RUN useradd -m $ftp_user && mkdir /var/run/sshd && echo "$ftp_user:$ftp_pass" | chpasswd
     # Permitir login root via SSH (Atenção: apenas para desenvolvimento; não recomendado em produção)
@@ -214,7 +280,9 @@ cat <<EOF > $docker_compose_file
         #networks:
         #  - public_network
       db:
-        image: mysql:8.0
+        build:
+          context: .  # Diretório onde está o Dockerfile (no caso, o diretório atual)
+          dockerfile: Dockerfile.db  # Nome do Dockerfile específico para o serviço db
         container_name: ${app_name}_db
         restart: always
         environment:
