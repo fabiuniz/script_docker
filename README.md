@@ -41,6 +41,8 @@ Projeto Script_Docker/
 
 Com o sistema linux com superuser instalado e configurado com acesso SSH agora podemos rodar os scripts:
 
+ssh userlnx@vmlinuxd
+
 Dentro da pasta home da sua instalação linux rodar: 
 
 ```bash
