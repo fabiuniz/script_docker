@@ -78,7 +78,17 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)   
 @app.route('/')
 def index():
-    return "Hello World Setup python!"   
+     return "Hello World Setup python!<br>\
+     docker exec --privileged -it script_docker_py_db bash <br> \
+     mysql -u root -p$db_root_pass<br>\
+     create database $db_namedatabase;<br>\
+     CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';<br>\
+     GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO 'seu_usuario'@'%';<br>\
+     FLUSH PRIVILEGES;<br>\
+    "
+@app.route("/index2")
+def index2():
+    return render_template("index.html")
 def runFlaskport(app, debug, host, port):
     # Caminho para o certificado SSL e a chave privada
     ssl_cert = 'ssl/nginx-ssl.crt'
