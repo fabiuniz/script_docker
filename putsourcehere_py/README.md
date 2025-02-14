@@ -2,7 +2,7 @@
 # Script Docker Python [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![GitHub issues](https://img.shields.io/github/issues/fabiuniz/repo.svg)](https://github.com/fabiuniz/repo/issues) ![GitHub contributors](https://img.shields.io/github/contributors/fabiuniz/repo.svg)
 
 ## 🚀 Sobre o Projeto
-Este repositório é um exemplo de como montar um script para criar um docker contendo Python rodando no nginx e configurar um ssl local autoassinado criando assim o seu ambiente de desenvolvimento de forma automatizada.
+Este repositório é um exemplo de como montar um script para criar um docker contendo Python rodando no nginx e configurar um ssl local autoassinado criando e com banco de dados MYSQL assim o seu ambiente de desenvolvimento de forma automatizada.
 
 
 
