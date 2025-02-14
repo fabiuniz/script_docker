@@ -72,7 +72,8 @@ echo_color $RED  "Passo 2: Criar o arquivo app.py com ssl"
 cat <<EOF > app.py
 import ssl
 import mysql.connector
-from flask import Flask
+from mysql.connector import Error
+from flask import Flask, jsonify
 from flask_cors import CORS   
 from flask import render_template
 app = Flask(__name__)   
@@ -101,7 +102,7 @@ def runFlaskport(app, debug, host, port):
     ssl_context.load_cert_chain(ssl_cert, ssl_key)       
     app.run(ssl_context=ssl_context, debug=debug, host=host, port=port)   
     
-@app.route("/conectar", methods=["GET", "POST"])     
+@app.route("/conectar", methods=["GET", "POST"])
 def conectar_e_executar():
     host= "$name_host"
     usuario="$db_user"
@@ -133,22 +134,39 @@ def conectar_e_executar():
             cursor.execute("SELECT user, host FROM mysql.user WHERE user = 'seu_usuario'")
             resultados_usuarios = cursor.fetchall()
             print("\nResultados da consulta SELECT user, host FROM mysql.user WHERE user = 'seu_usuario':")
+            usuarios = []  #lista para armazenar os usuarios
             for linha in resultados_usuarios:
                 print(f"User: {linha[0]}, Host: {linha[1]}")
+                usuarios.append({"user": linha[0], "host": linha[1]}) #adicionando na lista
             # Consulta 2: SHOW GRANTS FOR 'seu_usuario'@'%';
             cursor.execute("SHOW GRANTS FOR 'seu_usuario'@'%'")
             resultados_permissoes = cursor.fetchall()
             print("\nResultados da consulta SHOW GRANTS FOR 'seu_usuario'@'%':")
+            permissoes = [] #lista para armazenar as permissoes
             for linha in resultados_permissoes:
                 print(linha[0])  # Imprime a concessão (grant)
+                permissoes.append(linha[0]) #adicionando na lista
+            return jsonify({"status": "success",
+                            "message": "Conexão e consultas bem-sucedidas",
+                            "usuarios": usuarios,
+                            "permissoes": permissoes})
+        else:
+            return jsonify({"status": "error", "message": "Falha ao conectar ao banco de dados."})
     except mysql.connector.Error as e:
         print("Erro ao conectar ao MySQL:", e)
+        return jsonify({"status": "error", "message": str(e)})
     finally:
         # Fecha a conexão
         if conexao and conexao.is_connected():
             cursor.close()
             conexao.close()
             print("Conexão ao MySQL foi fechada")
+        else:
+            print("Nenhuma conexão para fechar.")
+            # Decide o que retornar aqui se não houver conexão para fechar
+            # Pode ser uma mensagem informativa ou um erro.
+            return jsonify({"status": "info", "message": "Nenhuma conexão para fechar."})
+
     # Exemplo de uso:  Substitua pelas suas credenciais reais
     #host = "localhost"  # Ou o endereço IP do seu host Docker, se não for localhost
     #usuario = "root"  # Ou 'seu_usuario', se você quiser usar esse usuário
