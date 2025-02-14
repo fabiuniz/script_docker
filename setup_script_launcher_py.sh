@@ -197,19 +197,19 @@ cat <<EOF > $docker_compose_file
         volumes:
           - ./nginx.conf:/etc/nginx/nginx.conf:ro
           - ./ssl:/etc/nginx/ssl:ro
-        depends_on:
-          - app
-        networks:
-          - public_network
+        #depends_on:
+        #  - app
+        #networks:
+        #  - public_network
       db:
         image: mysql:8.0
-        container_name: mysql_db
+        container_name: ${app_name}_db
         restart: always
         environment:
-          MYSQL_ROOT_PASSWORD: seu_senha_root
-          MYSQL_DATABASE: seu_banco_de_dados
-          MYSQL_USER: seu_usuario
-          MYSQL_PASSWORD: sua_senha
+          MYSQL_ROOT_PASSWORD: $db_root_pass
+          MYSQL_DATABASE: $db_namedatabase
+          MYSQL_USER: $db_user
+          MYSQL_PASSWORD: $db_pass
         ports:
           - "3306:3306"
         volumes:
