@@ -73,6 +73,7 @@ cat <<EOF > app.py
 import ssl
 from flask import Flask
 from flask_cors import CORS   
+from flask import render_template
 app = Flask(__name__)   
 # Configura o CORS para permitir todas as origens e credenciais
 CORS(app, supports_credentials=True)   
