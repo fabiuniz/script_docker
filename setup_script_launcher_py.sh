@@ -83,7 +83,7 @@ CORS(app, supports_credentials=True)
 def index():
      return "Hello World Setup python!<br>\
      docker exec --privileged -it script_docker_py_db bash <br> \
-     mysql -u root -p$db_root_pass<br>\
+     mysql -u $db_user -p$db_root_pass<br>\
      create database $db_namedatabase;<br>\
      CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';<br>\
      GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO 'seu_usuario'@'%';<br>\
