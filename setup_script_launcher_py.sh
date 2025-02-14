@@ -81,7 +81,8 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)   
 @app.route('/')
 def index():
-     return "Hello World Setup python!<br>\
+     return "Hello World Setup python!<br><br>\
+     Execute esses comandos no bash e teste a conexão: <br><br> \
      docker exec --privileged -it script_docker_py_db bash <br> \
      mysql -u $db_user -p$db_root_pass<br>\
      create database $db_namedatabase;<br>\
@@ -89,6 +90,7 @@ def index():
      GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO 'seu_usuario'@'%';<br>\
      SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';<br>\
      FLUSH PRIVILEGES;<br>\
+     <a href='conectar'>testar conexão</a><br>\
     "
 @app.route("/index2")
 def index2():
