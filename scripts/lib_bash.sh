@@ -322,11 +322,14 @@ show_docker_commands_custons() {
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_db bash" # Entrar no bash do container rodando a aplicação
+    echo_color $YELLOW "docker exec --privileged -it "$app_name"_java_app bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker stats "$app_name"_app" # Mostra informações de consumo top ou htop vmstat iostat netstat ou ss
     echo_color $YELLOW "docker ps -s ou docker system df ou docker info | grep "Storage Driver"" #Tamanho dos containers
     echo_color $YELLOW "docker restart "$app_name"_app" # Reiniciar Nginx
     echo_color $YELLOW "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
+    echo_color $YELLOW "docker logs "$app_name"_java_app" # Consultar logs do container rodando nginx
     echo_color $YELLOW "docker logs --tail 10 "$app_name"_app" # Consultar logs do container rodando a aplicação
+    echo_color $YELLOW "docker logs --tail 10 "$app_name"_java_app" # Consultar logs do container rodando a aplicação
     echo_color $YELLOW "clear_"$app_name".sh" # limpar todos containers 
     echo_color $YELLOW "start_"$app_name".sh" # iniciar container
     echo_color $YELLOW "stop_"$app_name".sh" # parar container 

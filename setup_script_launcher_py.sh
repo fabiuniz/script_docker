@@ -69,6 +69,7 @@ cd $app_dir
 echo_color $GREEN  "Entrando na pasta: $PWD"
 #>📝 Passo 2: Criar o arquivo app.py com ssl <br>
 echo_color $RED  "Passo 2: Criar o arquivo app.py com ssl"
+# -------------------  PYTHON  ----------------------------
 cat <<EOF > app.py
 import ssl
 import mysql.connector
@@ -204,6 +205,103 @@ cat <<EOF > Dockerfile.db
     EXPOSE 3306
     CMD ["mysqld"]
 EOF
+# -------------------  JAVA http://vmlinuxd:8080/hello-world/hello  ----------------------------
+mkdir -p app/src/main/java/com/example
+mkdir -p app/src/main/webapp/WEB-INF
+chmod -R 777 app
+cat <<EOF > app/src/main/java/com/example/HelloWorldServlet.java
+package com.example;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+@WebServlet("/hello") // Crucial:  This maps the URL /hello to this servlet.
+public class HelloWorldServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+        out.println("<html><body>");
+        out.println("<h1>Olá, Mundo!</h1>");
+        out.println("<p>Esta é uma aplicação WAR simples no Tomcat.</p>");
+        out.println("</body></html>");
+    }
+}
+EOF
+cat <<EOF > app/src/main/webapp/WEB-INF/web.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+</web-app>
+EOF
+cat <<EOF > app/pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>hello-world</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>  <!-- Important: Provided scope for servlet-api -->
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>hello-world</finalName>  <!-- Ensure correct WAR file name -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>  <!-- Use a recent version -->
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml> <!-- if you do not use web.xml, this may solve issue -->
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+EOF
+# -------------------  DOCKER JAVA  ----------------------------
+cat <<EOF > app/Dockerfile
+    # Use a imagem de build do Maven
+    FROM maven:3.8.6-jdk-11 AS build
+    # Defina o diretório de trabalho no container
+    WORKDIR /app
+    # Copie o pom.xml e o código fonte
+    COPY pom.xml .
+    COPY src ./src
+    # Construa o projeto Maven
+    RUN mvn clean package -DskipTests
+    # Use a imagem do Tomcat
+    FROM tomcat:9-jdk11
+    # Copie o arquivo WAR do container de build para o Tomcat
+    COPY --from=build /app/target/hello-world.war /usr/local/tomcat/webapps/hello-world.war    
+EOF
+# -------------------  DOCKER PYTHON  ----------------------------
 cat <<EOF > Dockerfile
     #>- Usar a imagem base Python <br>
     FROM python:3.9-slim
@@ -247,6 +345,7 @@ cat <<EOF > Dockerfile
     # Iniciar o SSH, o FTP e a aplicação Flask
     CMD service ssh start && service vsftpd start && python app.py
 EOF
+# -------------------  NGINX  ----------------------------
 #>⚙️ Passo 5: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) <br>
 echo_color $RED  "Passo 5: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) "
 cat <<EOF > $nginx_conf
@@ -270,6 +369,7 @@ cat <<EOF > $nginx_conf
 EOF
 #>🧩 Passo 6: Criar o arquivo docker-compose.yml <br>
 echo_color $RED  "Passo 6: Criar o arquivo docker-compose.yml"
+# -------------------  DOCKER COMPOSE  ----------------------------
 cat <<EOF > $docker_compose_file
     version: '3'
     services:
@@ -286,6 +386,14 @@ cat <<EOF > $docker_compose_file
           - FTP_PASS=${ftp_pass}    # Se você quiser parametrizar a senha
         volumes:
           - ${cur_dir}/${containerhost}:/${containerfolder}:rw
+      java-app:  # Novo serviço para a aplicação Java
+        build:
+          context: ./app  # Caminho para o diretório da aplicação Java
+        container_name: ${app_name}_java-app
+        ports:
+          - "8080:8080"  # Ajuste a porta conforme necessário
+        #depends_on:
+        #  - db  # Caso a aplicação Java dependa do banco de dados      
       nginx:
         image: nginx:latest
         container_name: ${app_name}_nginx
@@ -326,6 +434,7 @@ cat <<EOF > $docker_compose_file
         public_network:
             driver: bridge # --> docker network create public_network
 EOF
+# -------------------  BASH  ----------------------------
 #>- Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
 mkdir -p "$app_source"
 echo_color $GREEN  "copiando arquivos de $app_source para $PWD"
@@ -343,6 +452,7 @@ install_docker_compose_if_missing
 echo_color $RED  "Passo 9: Construir e subir os containeres "
 docker network rm public_network
 docker network create public_network
+docker-compose down --rmi all
 echo_color $RED  "docker-compose -f $docker_compose_file up --build -d $params_containers"
 docker-compose -f $docker_compose_file up --build -d $params_containers
 #>✅ Passo 10: Verificar se os serviços estão rodando <br>
