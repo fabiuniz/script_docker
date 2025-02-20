@@ -200,9 +200,21 @@ Werkzeug==2.1.1
 EOF
 #>🛠️ Passo 4: Criar o Dockerfile para a aplicação Flask <br>
 echo_color $RED  "Passo 4: Criar o Dockerfile para a aplicação Flask"
+mkdir -p docker-entrypoint-initdb.d
+cat <<EOF > docker-entrypoint-initdb.d/init.sql
+    -- Cria o banco de dados (se não existir)
+    CREATE DATABASE IF NOT EXISTS $db_namedatabase;
+    -- Cria o usuário (se não existir) e dá permissões ao banco de dados
+    CREATE USER IF NOT EXISTS '$db_user'@'%' IDENTIFIED BY '$db_pass';
+    GRANT ALL PRIVILEGES ON $db_namedatabase.* TO '$db_user'@'%';
+    -- Aplica as mudanças
+    FLUSH PRIVILEGES;
+EOF
 cat <<EOF > Dockerfile.db
     FROM mysql:8.0
-    EXPOSE 3306
+    # Adicione scripts de inicialização (opcional)
+    # COPY ./docker-entrypoint-initdb.d /docker-entrypoint-initdb.d/
+    EXPOSE $app_port_mysql
     CMD ["mysqld"]
 EOF
 # -------------------  JAVA http://vmlinuxd:8080/hello-world/hello  ----------------------------
@@ -227,7 +239,140 @@ public class HelloWorldServlet extends HttpServlet {
         out.println("<html><body>");
         out.println("<h1>Olá, Mundo!</h1>");
         out.println("<p>Esta é uma aplicação WAR simples no Tomcat.</p>");
+        out.println("Execute esses comandos no bash e teste a conexão:<br>");
+        out.println("docker exec --privileged -it script_docker_py_db bash<br>");
+        out.println("mysql -u $db_user -p$db_root_pass<br>");
+        out.println("create database $db_namedatabase;<br>");
+        out.println("CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';<br>");
+        out.println("GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO 'seu_usuario'@'%';<br>");
+        out.println("SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';<br>");
+        out.println("FLUSH PRIVILEGES;<br>");
+        out.println("<a href='conectar'>testar conexão</a>");
         out.println("</body></html>");
+    }
+}
+EOF
+cat <<EOF > app/src/main/java/com/example/ConectarServlet.java
+package com.example;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;//-----------------------
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+@WebServlet("/conectar") // Servlet para /conectar
+public class ConectarServlet extends HttpServlet { // Usando uma classe separada para /conectar
+    // Variáveis para armazenar as informações do banco de dados
+    private String host = "$name_host";
+    private String usuario = "$db_user";
+    private String senha = "$db_root_pass";
+    private String bancoDeDados = "$db_namedatabase";
+    private String porta = "$app_port_mysql";
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        processarConexao(request, response);
+    }
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        processarConexao(request, response);
+    }
+    protected void processarConexao(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("application/json"); // Define o tipo de conteúdo como JSON
+        response.setCharacterEncoding("UTF-8"); // Importante para caracteres especiais
+        PrintWriter out = response.getWriter();
+        ObjectMapper mapper = new ObjectMapper();
+        Connection conexao = null;
+        PreparedStatement consultaUsuarios = null;
+        PreparedStatement consultaPermissoes = null;
+        ResultSet resultadosUsuarios = null;
+        ResultSet resultadosPermissoes = null;
+        try {
+            // Registrar o driver MySQL
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Map<String, Object> resposta = new HashMap<>();
+            resposta.put("coneccao", "Conexão estabelecida com sucesso!");
+            String jsonResposta = mapper.writeValueAsString(resposta);
+            out.print(jsonResposta);
+        } catch (ClassNotFoundException e) {
+            Map<String, Object> resposta = new HashMap<>();
+            resposta.put("coneccao", "O driver JDBC do MySQL não foi encontrado. Verifique se ele está no classpath.!");
+            String jsonResposta = mapper.writeValueAsString(resposta);
+            out.print(jsonResposta);
+            e.printStackTrace();
+        }
+        try {
+            // Conecta ao banco de dados
+            conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":"+porta+"/" + bancoDeDados, usuario, senha);
+            if (conexao != null) {
+                // Consulta 1: SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';
+                consultaUsuarios = conexao.prepareStatement("SELECT user, host FROM mysql.user WHERE user = 'seu_usuario'");
+                resultadosUsuarios = consultaUsuarios.executeQuery();
+                List<Map<String, String>> usuarios = new ArrayList<>();
+                while (resultadosUsuarios.next()) {
+                    Map<String, String> usuarioMap = new HashMap<>();
+                    usuarioMap.put("user", resultadosUsuarios.getString("user"));
+                    usuarioMap.put("host", resultadosUsuarios.getString("host"));
+                    usuarios.add(usuarioMap);
+                }
+                // Consulta 2: SHOW GRANTS FOR 'seu_usuario'@'%';
+                consultaPermissoes = conexao.prepareStatement("SHOW GRANTS FOR 'seu_usuario'@'%'");
+                resultadosPermissoes = consultaPermissoes.executeQuery();
+                List<String> permissoes = new ArrayList<>();
+                while (resultadosPermissoes.next()) {
+                    permissoes.add(resultadosPermissoes.getString(1)); // O resultado é uma única coluna
+                }
+                // Criar um mapa para a resposta JSON
+                Map<String, Object> resposta = new HashMap<>();
+                resposta.put("status", "success");
+                resposta.put("message", "Conexão e consultas bem-sucedidas");
+                resposta.put("usuarios", usuarios);
+                resposta.put("permissoes", permissoes);
+                // Converter o mapa para JSON usando Jackson
+                String jsonResposta = mapper.writeValueAsString(resposta);
+                out.print(jsonResposta); // Enviar a resposta JSON
+            } else {
+                Map<String, String> resposta = new HashMap<>();
+                resposta.put("status", "error");
+                resposta.put("message", "Falha ao conectar ao banco de dados.");
+                String jsonResposta = mapper.writeValueAsString(resposta);
+                out.print(jsonResposta);
+            }
+        } catch (SQLException e) {
+            Map<String, String> resposta = new HashMap<>();
+            resposta.put("status", "error");
+            resposta.put("message", "Erro ao conectar ao MySQL: " + e.getMessage()); // Pegar a mensagem do erro
+            String jsonResposta = mapper.writeValueAsString(resposta);
+            out.print(jsonResposta);
+        } finally {
+            // Fecha a conexão, PreparedStatement e ResultSet no bloco finally para garantir o fechamento
+            try {
+                if (resultadosUsuarios != null) {
+                    resultadosUsuarios.close();
+                }
+                if (consultaUsuarios != null) {
+                    consultaUsuarios.close();
+                }
+                if (resultadosPermissoes != null) {
+                    resultadosPermissoes.close();
+                }
+                if (consultaPermissoes != null) {
+                    consultaPermissoes.close();
+                }
+                if (conexao != null) {
+                    conexao.close();
+                    System.out.println("Conexão ao MySQL foi fechada");
+                }
+            } catch (SQLException se) {
+                System.err.println("Erro ao fechar a conexão: " + se.getMessage());
+            }
+        }
     }
 }
 EOF
@@ -260,6 +405,17 @@ cat <<EOF > app/pom.xml
             <version>4.0.1</version>
             <scope>provided</scope>  <!-- Important: Provided scope for servlet-api -->
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.16.0</version>  <!-- Use a versão mais recente estável -->
+        </dependency>    
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.9-rc</version> <!-- Substitua pela versão desejada -->
+        </dependency>
+        <!-- Outras dependências do seu projeto (se houver) -->
     </dependencies>
     <build>
         <finalName>hello-world</finalName>  <!-- Ensure correct WAR file name -->
@@ -299,7 +455,8 @@ cat <<EOF > app/Dockerfile
     # Use a imagem do Tomcat
     FROM tomcat:9-jdk11
     # Copie o arquivo WAR do container de build para o Tomcat
-    COPY --from=build /app/target/hello-world.war /usr/local/tomcat/webapps/hello-world.war    
+    COPY --from=build /app/target/hello-world.war /usr/local/tomcat/webapps/hello-world.war
+    RUN wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.9-rc/mysql-connector-java-8.0.9-rc-sources.jar -O /usr/local/tomcat/lib/mysql-connector-java.jar
 EOF
 # -------------------  DOCKER PYTHON  ----------------------------
 cat <<EOF > Dockerfile
@@ -419,7 +576,7 @@ cat <<EOF > $docker_compose_file
           MYSQL_USER: $db_user
           MYSQL_PASSWORD: $db_pass
         ports:
-          - "3306:3306"
+          - "$app_port_mysql:$app_port_mysql"
         volumes:
           - db_data:/var/lib/mysql
         healthcheck:
@@ -452,7 +609,7 @@ install_docker_compose_if_missing
 echo_color $RED  "Passo 9: Construir e subir os containeres "
 docker network rm public_network
 docker network create public_network
-docker-compose down --rmi all
+#docker-compose down --rmi all # Remove todas imagens
 echo_color $RED  "docker-compose -f $docker_compose_file up --build -d $params_containers"
 docker-compose -f $docker_compose_file up --build -d $params_containers
 #>✅ Passo 10: Verificar se os serviços estão rodando <br>
@@ -474,3 +631,5 @@ echo_color $GREEN  "Entrando na pasta: $PWD"
 #>- Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
 #>- certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
 echo "${cur_dir}/${containerhost} /${containerfolder}"
+#https://readme.so/pt/editor
+#https://start.spring.io/
