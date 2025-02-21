@@ -28,13 +28,17 @@ cp -r $appcontainer/* $app_name/
 #. start_$app_name.sh
 EOF
 #>- construindo .sh para Iniciar docker <br>
+cat <<EOF > load_$app_name.sh
+    source scripts/script.cfg
+    source scripts/lib_bash.sh
+EOF
 cat <<EOF > start_$app_name.sh
     source scripts/script.cfg
     source scripts/lib_bash.sh
     # - app_name="${app_name}"
     docker_compose_file="docker-compose.yml"
     #>-  - Construir e subir os containeres <br>
-    docker-compose -f $app_name/$docker_compose_file up --build -d
+    docker-compose -f $app_name/$docker_compose_file up --build -d $params_containers
     #>-  - Verificar se os serviços estão rodando <br>
     docker-compose -f $app_name/$docker_compose_file ps
     show_docker_config
@@ -458,6 +462,46 @@ cat <<EOF > app/Dockerfile
     COPY --from=build /app/target/hello-world.war /usr/local/tomcat/webapps/hello-world.war
     RUN wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.9-rc/mysql-connector-java-8.0.9-rc-sources.jar -O /usr/local/tomcat/lib/mysql-connector-java.jar
 EOF
+# -------------------  REACT  http://vmlinuxd:3000 ----------------------------
+mkdir -p frontend/src
+cat <<EOF > frontend/src/App.js
+// src/App.js
+import React from 'react';
+function App() {
+    return (
+        <div>
+            <h1>Hello, World!</h1>
+        </div>
+    );
+}
+export default App;
+EOF
+# -------------------  DOCKER REACT  ----------------------------
+cat <<EOF > frontend/Dockerfile
+    # Use uma imagem base do Node.js
+    FROM node:14 as build
+    # Define o diretório de trabalho
+    WORKDIR /app    
+    # Instala o create-react-app globalmente
+    RUN npm install -g create-react-app    
+    # Cria um novo aplicativo React
+    RUN npx create-react-app frontend    
+    # Define o diretório de trabalho no aplicativo criado
+    WORKDIR /app/frontend    
+    # Constrói o aplicativo
+    RUN npm run build        
+    # Usar a imagem do Nginx para servir a aplicação
+    
+    FROM nginx:alpine
+    # Copia os arquivos de build para o diretório do Nginx
+    COPY --from=build /app/frontend/build /usr/share/nginx/html    
+    # Copiar a configuração customizada do Nginx, se necessário
+    # COPY nginx.conf /etc/nginx/conf.d/default.conf    
+    # Expõe a porta na qual a aplicação servida ficará disponível
+    EXPOSE $app_port_react    
+    # Comando para iniciar o Nginx
+    CMD ["nginx", "-g", "daemon off;"]
+EOF
 # -------------------  DOCKER PYTHON  ----------------------------
 cat <<EOF > Dockerfile
     #>- Usar a imagem base Python <br>
@@ -585,6 +629,12 @@ cat <<EOF > $docker_compose_file
           retries: 3
         networks:
           - public_network  
+      react-app:  # Serviço para a aplicação React
+          build:
+            context: ./frontend  # Caminho para o diretório da aplicação React
+          container_name: ${app_name}_react-app
+          ports:
+            - "$app_port_react:80"  # Porta em que o React estará disponível
     volumes:
        db_data:
     networks:
@@ -633,3 +683,4 @@ echo_color $GREEN  "Entrando na pasta: $PWD"
 echo "${cur_dir}/${containerhost} /${containerfolder}"
 #https://readme.so/pt/editor
 #https://start.spring.io/
+#https://profile-readme-generator.com/result

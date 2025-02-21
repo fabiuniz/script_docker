@@ -318,11 +318,18 @@ color_text() {
 }
 show_docker_commands_custons() {
     echo_color $YELLOW "$app_dir Aplicação $app_name está rodando em:" 
-    echo_color $BLUE  "http://$name_host:$app_port, https://$name_host:$app_port e ftp://$name_host user: $name_user, ssh $ftp_user@$name_host -p $app_port_ssh" ,http://$name_host:$app_port_java/hello-world/hello
+    echo_color $BLUE "      http://$name_host:$app_port 
+      https://$name_host:$app_port 
+      ftp://$name_host user: $name_user 
+      ssh $ftp_user@$name_host -p $app_port_ssh
+      http://$name_host:$app_port_java/hello-world/hello
+      http://$name_host:$app_port_react/"
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_db bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_java-app bash" # Entrar no bash do container rodando a aplicação
+    echo_color $YELLOW "docker exec --privileged -it "$app_name"_react-app sh" # Entrar no bash do container rodando a aplicação
+    echo_color $YELLOW "docker rmi "$app_name"_react-app"                      # Apagar container rodando a aplicação
     echo_color $YELLOW "docker stats "$app_name"_app" # Mostra informações de consumo top ou htop vmstat iostat netstat ou ss
     echo_color $YELLOW "docker ps -s ou docker system df ou docker info | grep "Storage Driver"" #Tamanho dos containers
     echo_color $YELLOW "docker restart "$app_name"_app" # Reiniciar Nginx
