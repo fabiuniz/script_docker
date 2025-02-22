@@ -561,6 +561,7 @@ cat <<EOF > Dockerfile
 EOF
 
 # -------------------  PHP  ----------------------------
+mkdir -p putsourcehere/php
 cat <<EOF > putsourcehere/php/nginx.conf
 server {
     listen       $app_port_php;
@@ -577,7 +578,6 @@ server {
 }
 EOF
 # -------------------  PHP  ----------------------------
-mkdir -p putsourcehere/php
 cat <<EOF > putsourcehere/php/index.php
     <?php
     phpinfo();
