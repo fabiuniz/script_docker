@@ -47,6 +47,11 @@ cat <<EOF > start_$app_name.sh
     #>-  - certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
 EOF
 #>- construindo .sh para parar docker <br>
+cat <<EOF > stop_all.sh
+    docker stop $(docker ps -q)
+    docker ps
+    echo "\nTodas Aplicações $app_name fechadas"
+EOF
 cat <<EOF > stop_$app_name.sh
     #>-  - app_name="${app_name}"
     docker stop $app_name"_nginx"
@@ -463,21 +468,29 @@ cat <<EOF > app/Dockerfile
     RUN wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.9-rc/mysql-connector-java-8.0.9-rc-sources.jar -O /usr/local/tomcat/lib/mysql-connector-java.jar
 EOF
 # -------------------  REACT  http://vmlinuxd:3000 ----------------------------
-mkdir -p frontend/src
-cat <<EOF > frontend/src/App.js
+mkdir -p react-app/src
+cat <<EOF > react-app/src/App.js
 // src/App.js
 import React from 'react';
+//import { BrowserRouter, Route, Routes } from 'react-router-dom';
 function App() {
     return (
-        <div>
-            <h1>Hello, World!</h1>
-        </div>
+        //<BrowserRouter basename="/react/"> {/* Define o basename aqui */}
+            <div>
+                <h1>Hello, World!</h1>
+          //      {/* Componentes e rotas adicionais podem ser adicionados aqui */}
+          //      <Routes>
+          //          <Route path="/" element={<h2>Home Page</h2>} />
+          //          {/* Adicione outras rotas conforme necessário */}
+          //      </Routes>
+            </div>
+        //</BrowserRouter>
     );
 }
 export default App;
 EOF
 # -------------------  DOCKER REACT  ----------------------------
-cat <<EOF > frontend/Dockerfile
+cat <<EOF > react-app/Dockerfile
     # Use uma imagem base do Node.js
     FROM node:14 as build
     # Define o diretório de trabalho
@@ -485,16 +498,16 @@ cat <<EOF > frontend/Dockerfile
     # Instala o create-react-app globalmente
     RUN npm install -g create-react-app    
     # Cria um novo aplicativo React
-    RUN npx create-react-app frontend    
+    RUN npx create-react-app react-app    
     # Define o diretório de trabalho no aplicativo criado
-    WORKDIR /app/frontend    
+    WORKDIR /app/react-app    
     # Constrói o aplicativo
     RUN npm run build        
     # Usar a imagem do Nginx para servir a aplicação
     
     FROM nginx:alpine
     # Copia os arquivos de build para o diretório do Nginx
-    COPY --from=build /app/frontend/build /usr/share/nginx/html    
+    COPY --from=build /app/react-app/build /usr/share/nginx/html    
     # Copiar a configuração customizada do Nginx, se necessário
     # COPY nginx.conf /etc/nginx/conf.d/default.conf    
     # Expõe a porta na qual a aplicação servida ficará disponível
@@ -542,31 +555,117 @@ cat <<EOF > Dockerfile
     # Copiar os arquivos necessários para o diretório de trabalho
     COPY . /app
     # Expor as portas do SSH, FTP e da aplicação Flask
-    EXPOSE 22 21 $app_port
+    EXPOSE 22 21 $app_port_py
     # Iniciar o SSH, o FTP e a aplicação Flask
     CMD service ssh start && service vsftpd start && python app.py
+EOF
+
+# -------------------  PHP  ----------------------------
+cat <<EOF > putsourcehere/php/nginx.conf
+server {
+    listen       $app_port_php;
+    listen  [::]:$app_port_php;
+    server_name $name_host;
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+}
+EOF
+# -------------------  PHP  ----------------------------
+mkdir -p putsourcehere/php
+cat <<EOF > putsourcehere/php/index.php
+    <?php
+    phpinfo();
+    ?>
+EOF
+# -------------------  DOCKER PHP  ----------------------------
+cat <<EOF > putsourcehere/php/Dockerfile
+    FROM php:8.0-fpm AS php-fpm
+    # Instalações adicionais, se necessárias
+    # RUN docker-php-ext-install mysqli pdo pdo_mysql
+    WORKDIR /var/www/html
+    COPY . .    
+    RUN echo "Dockerfile está localizado em: $(pwd)"
+    # Etapa 2: Usar Nginx
+    FROM nginx:alpine
+    RUN apk update
+    # Instalando o nano
+    RUN apk add --no-cache nano 
+    COPY --from=php-fpm /var/www/html /usr/share/nginx/html
+    COPY --from=php-fpm /var/www/html/nginx.conf /etc/nginx/conf.d/default.conf
+    RUN echo "Conteúdo em $(..):" && ls -al
+    EXPOSE $app_port_php
+    CMD ["nginx", "-g", "daemon off;"]
 EOF
 # -------------------  NGINX  ----------------------------
 #>⚙️ Passo 5: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) <br>
 echo_color $RED  "Passo 5: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) "
 cat <<EOF > $nginx_conf
-    events {}
-    http {
-        server {
-            listen 80;
-            listen 443 ssl;
-            server_name $name_host;
-            ssl_certificate /etc/nginx/ssl/nginx-ssl.crt;
-            ssl_certificate_key /etc/nginx/ssl/nginx-ssl.key;
-            location / {
-                proxy_pass http://app:$app_port;
-                proxy_set_header Host \$host;
-                proxy_set_header X-Real-IP \$remote_addr;
-                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                proxy_set_header X-Forwarded-Proto \$scheme;
-            }
+events {}
+http {
+    # Bloqueio para redirecionamento HTTP para HTTPS
+    server {
+        listen 80;  # Ouvindo na porta 80 (HTTP)
+        server_name $name_host;
+        # Redireciona todas as requisições HTTP para HTTPS
+        return 301 https://$host$request_uri;
+    }
+    # Aplicação Java (sem SSL)
+    server {
+        listen $app_port_java;  # Ouvindo na porta 8080 (HTTP)
+        server_name $name_host;
+        location / {
+            proxy_pass http://java-app:$app_port_java;  # Proxy para a aplicação Java
+            proxy_set_header Host $name_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
         }
     }
+    # Aplicação React (com SSL)
+    server {
+        listen 443 ssl http2;  # Ouvindo na porta 443 (HTTPS)
+        server_name $name_host;
+        ssl_certificate /etc/nginx/ssl/my_combined_certificate.crt;  # Certificado único
+        ssl_certificate_key /etc/nginx/ssl/my_combined_certificate.key;  # Chave do certificado
+        location / {
+            proxy_pass http://react-app:$app_port_react;  # Proxy para a aplicação React
+            proxy_set_header Host $name_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+    # Aplicação PHP (com SSL)
+    server {
+        listen $app_port_php;  # Ouvindo na porta 8000 (HTTP)
+        server_name $name_host;
+        location / {
+            proxy_pass http://php-app:$app_port_php;  # Proxy para a aplicação PHP
+            proxy_set_header Host $name_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+    # Aplicação Python (acesso sem SSL, se necessário)
+    server {
+        listen $app_port_py;  # Ouvindo na porta 8000 (HTTP)
+        server_name $name_host;
+        location / {
+            proxy_pass http://app:$app_port_py;  # Proxy para a aplicação Python
+            proxy_set_header Host $name_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+}
 EOF
 #>🧩 Passo 6: Criar o arquivo docker-compose.yml <br>
 echo_color $RED  "Passo 6: Criar o arquivo docker-compose.yml"
@@ -578,7 +677,7 @@ cat <<EOF > $docker_compose_file
         build: .
         container_name: ${app_name}_app
         ports:
-          - "$app_port:$app_port"
+          - "$app_port_py:$app_port_py"
           - "$app_port_ftp:21"                 # Porta FTP
           - "$app_port_ssh:22"                 # Porta SSH
           #- "21000-21010:21000-21010"  # Portas passivas FTP (ajuste se necessário)
@@ -587,14 +686,6 @@ cat <<EOF > $docker_compose_file
           - FTP_PASS=${ftp_pass}    # Se você quiser parametrizar a senha
         volumes:
           - ${cur_dir}/${containerhost}:/${containerfolder}:rw
-      java-app:  # Novo serviço para a aplicação Java
-        build:
-          context: ./app  # Caminho para o diretório da aplicação Java
-        container_name: ${app_name}_java-app
-        ports:
-          - "8080:8080"  # Ajuste a porta conforme necessário
-        #depends_on:
-        #  - db  # Caso a aplicação Java dependa do banco de dados      
       nginx:
         image: nginx:latest
         container_name: ${app_name}_nginx
@@ -628,18 +719,34 @@ cat <<EOF > $docker_compose_file
           timeout: 20s
           retries: 3
         networks:
-          - public_network  
+          - public_network
+      java-app:  # Novo serviço para a aplicação Java
+        build:
+          context: ./app  # Caminho para o diretório da aplicação Java
+        container_name: ${app_name}_java-app
+        ports:
+          - "$app_port_java:$app_port_java"  # Ajuste a porta conforme necessário
+        #depends_on:
+        #  - db  # Caso a aplicação Java dependa do banco de dados      
       react-app:  # Serviço para a aplicação React
-          build:
-            context: ./frontend  # Caminho para o diretório da aplicação React
-          container_name: ${app_name}_react-app
-          ports:
-            - "$app_port_react:80"  # Porta em que o React estará disponível
+        build:
+          context: ./react-app  # Caminho para o diretório da aplicação React
+        container_name: ${app_name}_react-app
+        ports:
+          - "$app_port_react:80"  # Porta em que o React estará disponível
+      php-app:  # Novo serviço para a aplicação PHP
+        build:
+          context: putsourcehere/php  # Caminho para o diretório da aplicação PHP
+        container_name: ${app_name}_php-app
+        volumes:
+          - ./putsourcehere/php:/var/www/html  # Mapeando diretório local
+        ports:
+          - "$app_port_php:$app_port_php"  # Mapeando a porta 9000 para acesso externo            
     volumes:
-       db_data:
+        db_data:
     networks:
         public_network:
-            driver: bridge # --> docker network create public_network
+          driver: bridge # --> docker network create public_network
 EOF
 # -------------------  BASH  ----------------------------
 #>- Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
@@ -684,3 +791,5 @@ echo "${cur_dir}/${containerhost} /${containerfolder}"
 #https://readme.so/pt/editor
 #https://start.spring.io/
 #https://profile-readme-generator.com/result
+echo -e "\a";
+#rm script_docker_py_app --force
