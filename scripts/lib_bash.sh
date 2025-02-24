@@ -316,20 +316,25 @@ color_text() {
     local text="$2"    
     echo -e "${!color}${text}${NC}"
 }
+dockerpsformat(){
+    docker ps --format "{{.Image}} ({{.Ports}})"
+}
 show_docker_commands_custons() {
     echo_color $YELLOW "$app_dir Aplicação $app_name está rodando em:" 
-    echo_color $BLUE "      https://$name_host:$app_port_py 
-      ftp://$name_host user: $name_user 
-      ssh $ftp_user@$name_host -p $app_port_ssh
-      http://$name_host:$app_port_java/hello-world/hello
-      http://$name_host:$app_port_react/
-      http://$name_host:$app_port_php/"
+    echo_color $BLUE "      https://$name_host:$app_port_py (PHP)
+      ftp://$name_host user: $name_user (SFTP) 
+      ssh $ftp_user@$name_host -p $app_port_ssh (SSH)
+      http://$name_host:$app_port_java/hello-world/hello (JAVA)
+      http://$name_host:$app_port_react/ (REACT)
+      http://$name_host:$app_port_php/ (PHP)
+      http://$name_host:$app_port_emu/ (VNC ANDROID) +1 5901"
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_db bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_java-app bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_react-app sh" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_php-app sh" # Entrar no bash do container rodando a aplicação
+    echo_color $YELLOW "docker exec --privileged -it "$app_name"_android-emulator bash" # Entrar no bash do container rodando nginx
     echo_color $YELLOW "docker rmi "$app_name"_react-app"                      # Apagar container rodando a aplicação
     echo_color $YELLOW "docker stats "$app_name"_app" # Mostra informações de consumo top ou htop vmstat iostat netstat ou ss
     echo_color $YELLOW "docker ps -s ou docker system df ou docker info | grep "Storage Driver"" #Tamanho dos containers

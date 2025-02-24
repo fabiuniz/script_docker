@@ -559,7 +559,60 @@ cat <<EOF > Dockerfile
     # Iniciar o SSH, o FTP e a aplicação Flask
     CMD service ssh start && service vsftpd start && python app.py
 EOF
-
+# -------------------  ANDROID  ----------------------------
+mkdir -p putsourcehere/adr
+# Escrevendo o Dockerfile
+cat <<EOF > putsourcehere/adr/Dockerfile.emu
+    FROM budtmo/docker-android
+    # Garantir que estamos como root para as próximas operações
+    USER root
+    # Instalação do x11vnc e outros pacotes necessários
+    RUN apt-get update && apt-get install -y \
+        #lightdm \
+        x11vnc \
+        xvfb \
+        && apt-get clean
+    # Configuração da senha para VNC
+    #RUN mkdir ~/.vnc && \
+    #    x11vnc -storepasswd $vnc_pass ~/.vnc/passwd
+    # Comando para adicionar regras do iptables
+    #RUN iptables -A INPUT -p tcp --dport 5901 -j ACCEPT
+    # Iniciar o servidor VNC e o ambiente gráfico
+    CMD ["sh", "-c", "Xvfb :1 -screen 0 1280x720x24 & x11vnc -display :1 -nopw -forever -repeat -rfbport $app_port_emu -shared"]
+EOF
+# -------------------  ANDROID  ----------------------------
+mkdir -p putsourcehere/adr
+cat <<EOF > putsourcehere/adr/Dockerfile
+    # Dockerfile
+    FROM openjdk:11    
+    # Instalações do Android SDK
+    RUN apt-get update && apt-get install -y \
+        wget \
+        unzip \
+        && rm -rf /var/lib/apt/lists/*    
+    # Copiando o SDK se ele já estiver disponível
+      #-->COPY ./opt/android-sdk-linux/cmdline-tools /opt/android-sdk-linux/cmdline-tools || \
+      #-->    (wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -O /tmp/android-sdk.zip && \
+      #-->    unzip /tmp/android-sdk.zip -d /opt/android-sdk-linux/cmdline-tools && \
+      #-->    rm /tmp/android-sdk.zip)
+    COPY ./opt/android-sdk-linux/cmdline-tools /opt/android-sdk-linux/cmdline-tools
+    # Garantindo que as permissões estejam corretas
+    RUN chmod -R 777 /opt/android-sdk-linux/cmdline-tools
+    # Defina as variáveis de ambiente para o SDK do Android
+    ENV ANDROID_SDK_ROOT=/opt/android-sdk-linux
+    #ENV PATH="${PATH}:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin"    
+    ENV PATH="${PATH}:/opt/android-sdk-linux/cmdline-tools/latest/bin"    
+    #RUN cd /opt/android-sdk-linux/cmdline-tools/latest/bin
+    RUN ls -l /opt/android-sdk-linux/cmdline-tools/latest/bin
+    # Aceitar licenças (descomente se necessário)
+    RUN yes | sdkmanager --licenses || true    
+    # Instale pacotes do Android SDK, por exemplo, plataformas e ferramentas
+    RUN sdkmanager "platform-tools" "platforms;android-30"
+    # Criar diretório de trabalho
+    WORKDIR /workspace        
+    # Comando para manter o contêiner ativo
+    CMD [ "sh", "-c", "while true; do sleep 30; done;" ]
+EOF
 # -------------------  PHP  ----------------------------
 mkdir -p putsourcehere/php
 cat <<EOF > putsourcehere/php/nginx.conf
@@ -742,6 +795,33 @@ cat <<EOF > $docker_compose_file
           - ./putsourcehere/php:/var/www/html  # Mapeando diretório local
         ports:
           - "$app_port_php:$app_port_php"  # Mapeando a porta 9000 para acesso externo            
+      android-dev:
+        build:
+          context: ./putsourcehere/adr  # Caminho para o diretório onde está o Dockerfile
+        container_name: ${app_name}_android-dev
+        ports:
+          - "$app_port_adr:$app_port_adr"   # Exemplo de porta que você pode querer expor
+        volumes:
+          - ./putsourcehere/adr:/workspace   # Mapeando seu projeto Android para o contêiner
+      android-emulator:
+        build:
+          context: ./putsourcehere/adr  # Caminho para o diretório onde está o Dockerfile
+          dockerfile: Dockerfile.emu  # Nome do Dockerfile específico para o serviço db
+        #image: budtmo/docker-android
+        container_name: ${app_name}_android-emulator # Usar vnc Viewer pra se conectar nessa porta (https://www.realvnc.com/) as portas VNC são atribuídas como 5900 + número da tela)
+        ports:
+          - "$app_port_emu:$app_port_emu"   # Porta para acessar o VNC do emulador
+          - "5901:5901"   # Porta para acessar o VNC do emulador
+          - "8080:8080"   # Porta para acessar HTTP
+        #shm_size: '2g'  # Definindo o tamanho da memória compartilhada
+        volumes:
+          - ./putsourcehere/adr:/workspace
+        environment:
+          - USER=$vnc_user  # Definindo o usuário como root # androidusr
+          - VNC_PASSWORD=$vnc_pass  # Defina aqui se precisar de password
+          - DISPLAY=:0
+        networks:
+          - public_network          
     volumes:
         db_data:
     networks:
@@ -788,8 +868,41 @@ echo_color $GREEN  "Entrando na pasta: $PWD"
 #>- Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
 #>- certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
 echo "${cur_dir}/${containerhost} /${containerfolder}"
+echo -e "\a";
+
 #https://readme.so/pt/editor
 #https://start.spring.io/
 #https://profile-readme-generator.com/result
-echo -e "\a";
+#https://dashboard.render.com/ 
+#https://console.neon.tech/
 #rm script_docker_py_app --force
+
+#ss -tuln | grep 5900
+#ps aux | grep vnc
+#ss -tuln
+#ls -l /home/androidusr/.vncpass
+#cat /home/androidusr/.vncpass
+#chmod 600 /home/androidusr/.vncpass
+#rm /home/androidusr/.vncpass
+#x11vnc -storepasswd
+#x11vnc -display :0 -usepw -ncache 10
+#sudo apt-get update
+#sudo ufw status
+#sudo ufw allow 5901
+#sudo iptables -A INPUT -p tcp --dport 5901 -j ACCEPT
+#sudo iptables -L
+#nc -zv 127.0.0.1 5900
+#x11vnc -display :0 -forever -shared -rfbauth /home/android -log file=/home/android/vnc.log
+#x11vnc -display :0 -forever -shared -log /logs/meu_log -rfbauth /home/androidusr/.vncpass
+#tail -f /logs/meu_log
+
+#@echo off
+#echo Liberando portas no firewall para VNC...
+#REM Liberar a porta 5900 para VNC (se precisado)
+#netsh advfirewall firewall add rule name="VNC Port 5900" dir=in action=allow protocol=TCP localport=5900
+#REM Liberar a porta 5901 para VNC
+#netsh advfirewall firewall add rule name="VNC Port 5901" dir=in action=allow protocol=TCP localport=5901
+#echo Regras de firewall adicionadas com sucesso.
+#pause
+#netsh advfirewall firewall show rule name="VNC Port 5900"
+#netsh advfirewall firewall show rule name="VNC Port 5901"
