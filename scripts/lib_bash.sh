@@ -321,7 +321,7 @@ dockerpsformat(){
 }
 show_docker_commands_custons() {
     echo_color $YELLOW "$app_dir Aplicação $app_name está rodando em:" 
-    echo_color $BLUE "      https://$name_host:$app_port_py (PHP)
+    echo_color $BLUE "      https://$name_host:$app_port_py (PYTHON)
       ftp://$name_host user: $name_user (SFTP) 
       ssh $ftp_user@$name_host -p $app_port_ssh (SSH)
       http://$name_host:$app_port_java/hello-world/hello (JAVA)
