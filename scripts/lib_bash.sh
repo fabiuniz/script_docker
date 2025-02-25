@@ -363,5 +363,18 @@ get_ip_container(){
 get_info_container() {
   docker inspect "$1" | grep -i -E "$2"
 }
-
+remove_and_recreate_docker_network() {
+    local network_name="$1"
+    # Verifique se a rede existe
+    if docker network ls --format "{{.Name}}" | grep -q "^$network_name$"; then
+        # Remove a rede se existir
+        docker network rm "$network_name"
+        echo "Rede '$network_name' removida com sucesso."
+    fi
+    # Cria a rede novamente
+    docker network create "$network_name"
+    echo "Rede '$network_name' criada novamente com sucesso."
+}
+# Chame a função com o nome da rede que deseja remover e recriar
+#remove_and_recreate_docker_network "public_network"
 #lib_bash--------------------------------------------------

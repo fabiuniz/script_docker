@@ -899,8 +899,7 @@ install_docker_if_missing
 install_docker_compose_if_missing
 #>🚀 Passo 9: Construir e subir os containeres <br>
 echo_color $RED  "Passo 9: Construir e subir os containeres "
-docker network rm public_network
-docker network create public_network
+remove_and_recreate_docker_network "public_network"
 #docker-compose down --rmi all # Remove todas imagens
 echo_color $RED  "docker-compose -f $docker_compose_file up --build -d $params_containers"
 docker-compose -f $docker_compose_file up --build -d $params_containers
@@ -923,6 +922,7 @@ echo_color $GREEN  "Entrando na pasta: $PWD"
 #>- Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
 #>- certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
 echo "${cur_dir}/${containerhost} /${containerfolder}"
+. docker_dashboard.sh
 echo -e "\a";
 
 #https://readme.so/pt/editor
@@ -937,7 +937,6 @@ echo -e "\a";
 #ss -tuln
 #ls -l /home/androidusr/.vncpass
 #cat /home/androidusr/.vncpass
-#chmod 600 /home/androidusr/.vncpass
 #rm /home/androidusr/.vncpass
 #x11vnc -storepasswd
 #x11vnc -display :0 -usepw -ncache 10
@@ -965,4 +964,25 @@ echo -e "\a";
 #VS CODE + Remote - SSH + F1 Add new host
 #Docker no VS Code
 
-#D:\DataS2538GB\Virtual Machines\VirtualPc\vmlinux_d\Plugins
+# -------------------  ALTERANDO CACHE DO DOCkER  ----------------------------
+
+#sudo systemctl stop docker
+    #mkdir /home/userlnx/docker/relay
+    #umount /home/userlnx/docker/relay
+    #mount -t cifs "//192.168.1.179/y/Virtual Machines/VirtualPc/vmlinux_d/plugins" /home/userlnx/docker/relay -o username=user,domain=sweethome,password=1111,iocharset=utf8,users,file_mode=0777,dir_mode=0777,vers=3.0
+    #docker load -i /home/userlnx/docker/relay/cfa5980ffb76.tar # Restaurar
+    #docker save -o /home/userlnx/docker/relay/cfa5980ffb76.tar 02193505a44fc9b4084f378b0f9fac7760b0237733ad1605b802074675ddbad3 # Salvar 
+    #rsync -aP /var/lib/docker/ /mnt/novo_hd/docker/
+    #nano /etc/docker/daemon.json
+    #{
+    #    "data-root": "/mnt/novo_hd/docker"
+    #}
+    #sudo nano /etc/fstab
+    #blkid # encontrar UUID
+    #UUID=seu-uuid /mnt/novo_hd ext4 defaults 0 2
+#umount /var/lib/docker/overlay2
+#chmod  -R 777 /var/lib/docker/overlay2
+#mount -t cifs "//192.168.1.179/y/Virtual Machines/VirtualPc/vmlinux_d/plugins" /var/lib/docker/overlay2 -o username=user,domain=sweethome,password=1111,iocharset=utf8,users,file_mode=0777,dir_mode=0777,vers=3.0
+#sudo systemctl start docker
+#docker info
+
