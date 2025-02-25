@@ -22,6 +22,61 @@ echo_color $RED  "Preparação: contruindo scripts para execução da aplicaçã
 #>- Rodar esses comando caso o bash dar erro de formato unix do arquivo ao rodar esse script <br>
 #>-  - apt-get install -y dos2unix <br>
 #>-  - dos2unix setup_script_launcher.sh # convertendo formato do arquivo <br>
+# -------------------  DASHBORAD  ----------------------------
+
+#rm /var/lib/docker/overlay2
+#ln -s /home/userlnx/docker/overlay2 /var/lib/docker/overlay2 # Pasta com cache das imagens baixadas para reutilizar em outras vms
+#chown -R userlnx:userlnx /home/userlnx/docker/overlay2
+
+cat <<EOF > docker_dashboard.sh
+#!/bin/bash
+# Função para checar os containers ativos
+function check_containers() {
+    echo "=== Containers Ativos ==="
+    docker ps --format "table {{.ID}} {{.Image}} {{.Names}} {{.Status}}"
+    echo
+}
+# Função para checar o tamanho das imagens e seus caminhos
+function check_images() {
+    echo "=== Tamanhos e Caminho das Imagens ==="
+    # Obter a lista de imagens e seus IDs
+    docker images --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Size}}" | while read -r line
+    do
+        img_id=$(echo $line | awk '{print $1}')
+        img_info=$(echo $line | awk '{$1=""; print $0}')
+        
+        # Obter o caminho da imagem
+        img_path=$(docker inspect --format='{{.GraphDriver.Data}}' $img_id | grep 'MergedDir' | awk '{print $2}')
+
+        echo -e "$img_info \t Caminho: $img_path"
+    done
+    echo
+}
+# Função para checar uso de memória e CPU
+function check_resources() {
+    echo "=== Uso de Memória e CPU pelos Containers ==="
+    docker stats --no-stream --format "table {{.Name}} {{.MemUsage}} {{.CPUPerc}}"
+    echo
+}
+# Função para checar downloads em cache
+function check_cache() {
+    echo "=== Downloads em Cache ==="
+    docker system df
+    echo
+}
+# Função principal
+function main() {
+    clear
+    echo "=== Dashboard Docker ==="
+    echo
+    check_containers
+    check_images
+    check_resources
+    check_cache
+}
+# Executa a função principal
+main
+EOF
 #>- construindo .sh para publicar arqivos docker <br>
 cat <<EOF > publish_$app_name.sh
 cp -r $appcontainer/* $app_name/
@@ -906,3 +961,4 @@ echo -e "\a";
 #pause
 #netsh advfirewall firewall show rule name="VNC Port 5900"
 #netsh advfirewall firewall show rule name="VNC Port 5901"
+#https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqa0VkOGhfQkNHV3JKUk5Xcm9xQ0dIN1lCRXZJUXxBQ3Jtc0tuZkItRi1fMHdFb0RLVXd4V3VadFB5bHFXem00S0htREh4aGF4TGl2MTR2bXk1QmNSUGpoYU1rN1FqTzJvQWd2SDV5dEZnZlJYQmh5Q1FZWGpmVzdYVnpJODVuUGowT2hSdUhHVTF4VFE4YVdJRXFrbw&q=https%3A%2F%2Fhub.docker.com%2Fr%2Fbudtmo%2Fdocker-android%2Ftags&v=SWin67TZ4AY
