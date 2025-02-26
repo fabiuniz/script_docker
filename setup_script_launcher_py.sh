@@ -66,7 +66,7 @@ function check_cache() {
 }
 # Função principal
 function main() {
-    clear
+    #clear
     echo "=== Dashboard Docker ==="
     echo
     check_containers
