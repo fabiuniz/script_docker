@@ -39,15 +39,17 @@ function check_containers() {
 # Função para checar o tamanho das imagens e seus caminhos
 function check_images() {
     echo "=== Tamanhos e Caminho das Imagens ==="
-    # Obter a lista de imagens e seus IDs
+    # Obter a lista de imagens e seus IDs    
     docker images --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Size}}" | while read -r line
     do
         img_id=$(echo $line | awk '{print $1}')
         img_info=$(echo $line | awk '{$1=""; print $0}')
-        
         # Obter o caminho da imagem
-        img_path=$(docker inspect --format='{{.GraphDriver.Data}}' $img_id | grep 'MergedDir' | awk '{print $2}')
-
+        img_path=$(docker inspect --format='{{.GraphDriver.Data.MergedDir}}' $img_id 2>/dev/null)
+        # Verificar se o caminho não está vazio
+        if [[ -z "$img_path" ]]; then
+            img_path="Caminho não encontrado"
+        fi
         echo -e "$img_info \t Caminho: $img_path"
     done
     echo
@@ -149,6 +151,7 @@ def index():
      return "Hello World Setup python!<br><br>\
      Execute esses comandos no bash e teste a conexão: <br><br> \
      docker exec --privileged -it script_docker_py_db bash <br> \
+     docker logs script_docker_py_db <br> \
      mysql -u root -p$db_root_pass<br>\
      create database $db_namedatabase;<br>\
      CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';<br>\
@@ -274,10 +277,24 @@ cat <<EOF > docker-entrypoint-initdb.d/init.sql
     -- Aplica as mudanças
     FLUSH PRIVILEGES;
 EOF
+ # Criar o arquivo de configuração my.cnf
+# Criar o diretório temporário
+mkdir -p tmp
+# Criar o arquivo my.cnf
+cat <<EOF > tmp/my.cnf
+[mysqld]
+bind-address = 0.0.0.0
+max_connections = 200
+EOF
+# Criar o Dockerfile
 cat <<EOF > Dockerfile.db
     FROM mysql:8.0
     # Adicione scripts de inicialização (opcional)
     # COPY ./docker-entrypoint-initdb.d /docker-entrypoint-initdb.d/
+    # Copiar o arquivo de configuração para o contêiner
+    COPY ./tmp/my.cnf /etc/mysql/conf.d/my.cnf    
+    # (Opcional) Copie scripts SQL de inicialização para o contêiner
+    #COPY docker-entrypoint-initdb.d/init.sql /docker-entrypoint-initdb.d/
     EXPOSE $app_port_mysql
     CMD ["mysqld"]
 EOF
@@ -305,6 +322,7 @@ public class HelloWorldServlet extends HttpServlet {
         out.println("<p>Esta é uma aplicação WAR simples no Tomcat.</p>");
         out.println("Execute esses comandos no bash e teste a conexão:<br>");
         out.println("docker exec --privileged -it script_docker_py_db bash<br>");
+        out.println("docker logs script_docker_py_db<br>");
         out.println("mysql -u root -p$db_root_pass<br>");
         out.println("create database $db_namedatabase;<br>");
         out.println("CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';<br>");
@@ -986,3 +1004,10 @@ echo -e "\a";
 #sudo systemctl start docker
 #docker info
 
+#pat.sh
+#cd /home/userlnx/docker/script_docker/
+#dos2unix setup_script_launcher_py.sh
+#. load_script_docker_py.sh
+#show_docker_config
+#show_docker_commands_custons
+#. docker_dashboard.sh
