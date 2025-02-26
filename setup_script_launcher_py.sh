@@ -896,7 +896,7 @@ echo_color $GREEN  "Entrando na pasta: $PWD"
 #>- Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
 #>- certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
 echo "${cur_dir}/${containerhost} /${containerfolder}"
-. docker_dashboard.sh
+dashboard_docker
 echo -e "\a";
 
 #https://readme.so/pt/editor
