@@ -441,4 +441,27 @@ update_file_if_different() {
     echo "$new_content" > "$target_file"
     return 0
 }
+# Cria um diretório para os backups
+backup_img_docker() {
+    backup_dir="/home/userlnx/docker/relay"
+    mkdir -p "$backup_dir"
+    # Obtém a lista de todas as imagens
+    images=$(docker images --format '{{.Repository}}:{{.Tag}}')
+    # Faz o backup de cada imagem
+    for image in $images; do
+        image_filename=$(echo "$image" | tr '/:' '_')  # Substitui / e : por _
+        docker save -o "$backup_dir/$image_filename.tar" "$image"
+    done
+    echo_color $YELLOW "Backup completo. Imagens salvas em $backup_dir."
+}
+# Diretório onde as imagens foram salvas
+restore_img_docker() {
+    backup_dir="/home/userlnx/docker/relay"
+    # Restaurar cada imagem tar no diretório de backup
+    for tar_file in "$backup_dir"/*.tar; do
+        docker load -i "$tar_file"
+        echo_color $YELLOW "Restaurada: $tar_file"
+    done
+    echo_color $YELLOW "Restauração completa."
+}
 #lib_bash--------------------------------------------------

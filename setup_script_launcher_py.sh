@@ -941,12 +941,13 @@ echo -e "\a";
 # -------------------  ALTERANDO CACHE DO DOCkER  ----------------------------
 
 #sudo systemctl stop docker
-    #mkdir /home/userlnx/docker/relay
+    #mkdir -p /home/userlnx/docker/relay
     #umount /home/userlnx/docker/relay
     #mount -t cifs "//192.168.1.179/y/Virtual Machines/VirtualPc/vmlinux_d/plugins" /home/userlnx/docker/relay -o username=user,domain=sweethome,password=1111,iocharset=utf8,users,file_mode=0777,dir_mode=0777,vers=3.0
+    #cd  /var/lib/docker/overlay2/
     #docker load -i /home/userlnx/docker/relay/cfa5980ffb76.tar # Restaurar
     #docker save -o /home/userlnx/docker/relay/cfa5980ffb76.tar 02193505a44fc9b4084f378b0f9fac7760b0237733ad1605b802074675ddbad3 # Salvar 
-    #rsync -aP /var/lib/docker/ /mnt/novo_hd/docker/
+    #rsync -aP /var/lib/docker/ /home/userlnx/docker/relay
     #nano /etc/docker/daemon.json
     #{
     #    "data-root": "/mnt/novo_hd/docker"
