@@ -27,58 +27,6 @@ echo_color $RED  "Preparação: contruindo scripts para execução da aplicaçã
 #rm /var/lib/docker/overlay2
 #ln -s /home/userlnx/docker/overlay2 /var/lib/docker/overlay2 # Pasta com cache das imagens baixadas para reutilizar em outras vms
 #chown -R userlnx:userlnx /home/userlnx/docker/overlay2
-
-cat <<EOF > docker_dashboard.sh
-#!/bin/bash
-# Função para checar os containers ativos
-function check_containers() {
-    echo "=== Containers Ativos ==="
-    docker ps --format "table {{.ID}} {{.Image}} {{.Names}} {{.Status}}"
-    echo
-}
-# Função para checar o tamanho das imagens e seus caminhos
-function check_images() {
-    echo "=== Tamanhos e Caminho das Imagens ==="
-    # Obter a lista de imagens e seus IDs    
-    docker images --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Size}}" | while read -r line
-    do
-        img_id=$(echo $line | awk '{print $1}')
-        img_info=$(echo $line | awk '{$1=""; print $0}')
-        # Obter o caminho da imagem
-        img_path=$(docker inspect --format='{{.GraphDriver.Data.MergedDir}}' $img_id 2>/dev/null)
-        # Verificar se o caminho não está vazio
-        if [[ -z "$img_path" ]]; then
-            img_path="Caminho não encontrado"
-        fi
-        echo -e "$img_info \t Caminho: $img_path"
-    done
-    echo
-}
-# Função para checar uso de memória e CPU
-function check_resources() {
-    echo "=== Uso de Memória e CPU pelos Containers ==="
-    docker stats --no-stream --format "table {{.Name}} {{.MemUsage}} {{.CPUPerc}}"
-    echo
-}
-# Função para checar downloads em cache
-function check_cache() {
-    echo "=== Downloads em Cache ==="
-    docker system df
-    echo
-}
-# Função principal
-function main() {
-    #clear
-    echo "=== Dashboard Docker ==="
-    echo
-    check_containers
-    check_images
-    check_resources
-    check_cache
-}
-# Executa a função principal
-main
-EOF
 #>- construindo .sh para publicar arqivos docker <br>
 cat <<EOF > publish_$app_name.sh
 cp -r $appcontainer/* $app_name/
@@ -302,6 +250,64 @@ EOF
 mkdir -p app/src/main/java/com/example
 mkdir -p app/src/main/webapp/WEB-INF
 chmod -R 777 app
+new_pom_content=$(cat << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>hello-world</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>  <!-- Important: Provided scope for servlet-api -->
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.16.0</version>  <!-- Use a versão mais recente estável -->
+        </dependency>    
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.9-rc</version> <!-- Substitua pela versão desejada -->
+        </dependency>
+        <!-- Outras dependências do seu projeto (se houver) -->
+    </dependencies>
+    <build>
+        <finalName>hello-world</finalName>  <!-- Ensure correct WAR file name -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>  <!-- Use a recent version -->
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml> <!-- if you do not use web.xml, this may solve issue -->
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+EOF)
+update_file_if_different "app/pom.xml" "$new_pom_content"
 cat <<EOF > app/src/main/java/com/example/HelloWorldServlet.java
 package com.example;
 import javax.servlet.ServletException;
@@ -391,7 +397,9 @@ public class ConectarServlet extends HttpServlet { // Usando uma classe separada
         }
         try {
             // Conecta ao banco de dados
-            conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":"+porta+"/" + bancoDeDados, usuario, senha);
+            conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":" + porta + "/" + bancoDeDados + "?useSSL=false", usuario, senha);
+            //conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":" + porta + "/" + bancoDeDados + "?useSSL=true&requireSSL=true&verifyServerCertificate=true", usuario, senha);
+            //conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":"+porta+"/" + bancoDeDados, usuario, senha);
             if (conexao != null) {
                 // Consulta 1: SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';
                 consultaUsuarios = conexao.prepareStatement("SELECT user, host FROM mysql.user WHERE user = 'seu_usuario'");
@@ -466,79 +474,27 @@ cat <<EOF > app/src/main/webapp/WEB-INF/web.xml
          version="3.1">
 </web-app>
 EOF
-cat <<EOF > app/pom.xml
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.example</groupId>
-    <artifactId>hello-world</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>war</packaging>
-    <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-    </properties>
-    <dependencies>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>  <!-- Important: Provided scope for servlet-api -->
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.16.0</version>  <!-- Use a versão mais recente estável -->
-        </dependency>    
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.9-rc</version> <!-- Substitua pela versão desejada -->
-        </dependency>
-        <!-- Outras dependências do seu projeto (se houver) -->
-    </dependencies>
-    <build>
-        <finalName>hello-world</finalName>  <!-- Ensure correct WAR file name -->
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.2</version>  <!-- Use a recent version -->
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml> <!-- if you do not use web.xml, this may solve issue -->
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>11</source>
-                    <target>11</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-</project>
-EOF
 # -------------------  DOCKER JAVA  ----------------------------
 cat <<EOF > app/Dockerfile
-    # Use a imagem de build do Maven
-    FROM maven:3.8.6-jdk-11 AS build
-    # Defina o diretório de trabalho no container
-    WORKDIR /app
-    # Copie o pom.xml e o código fonte
-    COPY pom.xml .
-    COPY src ./src
-    # Construa o projeto Maven
-    RUN mvn clean package -DskipTests
-    # Use a imagem do Tomcat
-    FROM tomcat:9-jdk11
-    # Copie o arquivo WAR do container de build para o Tomcat
-    COPY --from=build /app/target/hello-world.war /usr/local/tomcat/webapps/hello-world.war
-    RUN wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.9-rc/mysql-connector-java-8.0.9-rc-sources.jar -O /usr/local/tomcat/lib/mysql-connector-java.jar
+# Use uma imagem de build do Maven
+FROM maven:3.8.6-jdk-11 AS build
+# Defina o diretório de trabalho no container
+WORKDIR /app
+# Copie apenas o pom.xml
+COPY pom.xml .
+# Copie o código do projeto apenas depois de baixar as dependências
+# Baixe as dependências do Maven
+RUN mvn dependency:go-offline
+# Agora copie o código fonte
+COPY src ./src
+# Construa o projeto Maven
+RUN mvn clean package -DskipTests
+# Use a imagem do Tomcat
+FROM tomcat:9-jdk11
+# Copie o arquivo WAR do container de build para o Tomcat
+COPY --from=build /app/target/hello-world.war /usr/local/tomcat/webapps/hello-world.war
+# Baixe o conector MySQL
+RUN wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.9-rc/mysql-connector-java-8.0.9-rc-sources.jar -O /usr/local/tomcat/lib/mysql-connector-java.jar
 EOF
 # -------------------  REACT  http://vmlinuxd:3000 ----------------------------
 mkdir -p react-app/src
@@ -1010,4 +966,4 @@ echo -e "\a";
 #. load_script_docker_py.sh
 #show_docker_config
 #show_docker_commands_custons
-#. docker_dashboard.sh
+#dashboard_docker

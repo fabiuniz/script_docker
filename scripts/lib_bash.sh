@@ -335,16 +335,16 @@ show_docker_commands_custons() {
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_react-app sh" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_php-app sh" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_android-emulator bash" # Entrar no bash do container rodando nginx
-    echo_color $YELLOW "docker rmi "$app_name"_react-app"                      # Apagar container rodando a aplicação
-    echo_color $YELLOW "docker stats "$app_name"_app" # Mostra informações de consumo top ou htop vmstat iostat netstat ou ss
-    echo_color $YELLOW "docker ps -s ou docker system df ou docker info | grep "Storage Driver"" #Tamanho dos containers
-    echo_color $YELLOW "docker restart "$app_name"_app" # Reiniciar Nginx
-    echo_color $YELLOW "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
+    echo_color $YELLOW "docker exec "$app_name"_php-app nginx -s reload"
     echo_color $YELLOW "docker logs "$app_name"_java-app" # Consultar logs do container rodando nginx
     echo_color $YELLOW "docker logs --tail 10 "$app_name"_app" # Consultar logs do container rodando a aplicação
-    echo_color $YELLOW "docker logs --tail 10 "$app_name"_java-app" # Consultar logs do container rodando a aplicação
-    echo_color $YELLOW "docker exec "$app_name"_php-app nginx -s reload"
+    echo_color $YELLOW "docker logs "$app_name"_java-app" # Consultar logs do container rodando a aplicação
     echo_color $YELLOW "docker logs "$app_name"_php-app" # Consultar logs do container rodando a aplicação
+    echo_color $YELLOW "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
+    echo_color $YELLOW "docker ps -s ou docker system df ou docker info | grep "Storage Driver"" #Tamanho dos containers
+    echo_color $YELLOW "docker rmi "$app_name"_react-app"                      # Apagar container rodando a aplicação
+    echo_color $YELLOW "docker stats "$app_name"_app" # Mostra informações de consumo top ou htop vmstat iostat netstat ou ss
+    echo_color $YELLOW "docker restart "$app_name"_app" # Reiniciar Nginx
     echo_color $YELLOW "clear_"$app_name".sh" # limpar todos containers 
     echo_color $YELLOW "start_"$app_name".sh" # iniciar container
     echo_color $YELLOW "stop_"$app_name".sh" # parar container 
@@ -377,4 +377,68 @@ remove_and_recreate_docker_network() {
 }
 # Chame a função com o nome da rede que deseja remover e recriar
 #remove_and_recreate_docker_network "public_network"
+# Função para checar os containers ativos
+function check_containers() {
+    echo "=== Containers Ativos ==="
+    docker ps --format "table {{.ID}} {{.Image}} {{.Names}} {{.Status}}"
+    echo
+}
+# Função para checar o tamanho das imagens e seus caminhos
+function check_images() {
+    echo "=== Tamanhos e Caminho das Imagens ==="
+    # Obter a lista de imagens e seus IDs
+    docker images --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Size}}"
+    docker images --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Size}}" | while read -r line
+    do
+        img_id=$(echo $line | awk '{print $1}')
+        img_info=$(echo $line | awk '{$1=""; print $0}')
+        # Obter o caminho da imagem
+        img_path=$(docker inspect --format='{{.GraphDriver.Data.MergedDir}}' $img_id 2>/dev/null)
+        # Verificar se o caminho não está vazio
+        if [[ -z "$img_path" ]]; then
+            img_path="Caminho não encontrado"
+        fi
+        echo -e "$img_info \t Caminho: $img_path"
+    done
+    echo
+}
+# Função para checar uso de memória e CPU
+function check_resources() {
+    echo "=== Uso de Memória e CPU pelos Containers ==="
+    docker stats --no-stream --format "table {{.Name}} {{.MemUsage}} {{.CPUPerc}}"
+    echo
+}
+# Função para checar downloads em cache
+function check_cache() {
+    echo "=== Downloads em Cache ==="
+    docker system df
+    echo
+}
+# Função principal
+function dashboard_docker() {
+    #clear
+    echo "=== Dashboard Docker ==="
+    echo
+    check_containers
+    check_images
+    check_resources
+    check_cache
+}
+# Função para atualizar um arquivo apenas se o conteúdo mudar
+update_file_if_different() {
+    local target_file="$1"
+    local new_content="$2"
+    # Verifica se o arquivo existe
+    if [ -f "$target_file" ]; then
+        # Compara o conteúdo atual do arquivo com o novo conteúdo
+        if [[ "$new_content" == "$(cat "$target_file")" ]]; then
+            echo_color $YELLOW "O arquivo '$target_file' já existe e não há mudanças. Nenhuma ação realizada."
+            return 0
+        fi
+    fi
+    # Se chegar aqui, isso significa que o arquivo não existe ou o conteúdo é diferente
+    echo_color $YELLOW "Escrevendo no arquivo '$target_file'..."
+    echo "$new_content" > "$target_file"
+    return 0
+}
 #lib_bash--------------------------------------------------
