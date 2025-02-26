@@ -968,3 +968,6 @@ echo -e "\a";
 #show_docker_config
 #show_docker_commands_custons
 #dashboard_docker
+
+#cp /var/cache/apt/archives/*.deb /home/userlnx/docker/relay
+#cp -r ~/.cache/pip /home/userlnx/docker/relay
