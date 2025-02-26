@@ -149,7 +149,7 @@ def index():
      return "Hello World Setup python!<br><br>\
      Execute esses comandos no bash e teste a conexão: <br><br> \
      docker exec --privileged -it script_docker_py_db bash <br> \
-     mysql -u $db_user -p$db_root_pass<br>\
+     mysql -u root -p$db_root_pass<br>\
      create database $db_namedatabase;<br>\
      CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';<br>\
      GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO 'seu_usuario'@'%';<br>\
@@ -305,7 +305,7 @@ public class HelloWorldServlet extends HttpServlet {
         out.println("<p>Esta é uma aplicação WAR simples no Tomcat.</p>");
         out.println("Execute esses comandos no bash e teste a conexão:<br>");
         out.println("docker exec --privileged -it script_docker_py_db bash<br>");
-        out.println("mysql -u $db_user -p$db_root_pass<br>");
+        out.println("mysql -u root -p$db_root_pass<br>");
         out.println("create database $db_namedatabase;<br>");
         out.println("CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';<br>");
         out.println("GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO 'seu_usuario'@'%';<br>");
