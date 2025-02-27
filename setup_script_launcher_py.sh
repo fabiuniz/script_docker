@@ -971,3 +971,28 @@ echo -e "\a";
 
 #cp /var/cache/apt/archives/*.deb /home/userlnx/docker/relay
 #cp -r ~/.cache/pip /home/userlnx/docker/relay
+
+#budtmo/docker-android:latest 12.7GB #8033c29d1ae8
+#maven:3.8.6-jdk-11 664MB #6c3ab1faec76
+#maven:3.8.6-openjdk-11 664MB #6c3ab1faec76
+#my-react-app:latest 1.28GB #ef057dddae3b
+#mysql:8.0 764MB #99d686794f74
+#nginx:alpine 47.9MB #1ff4bb4faebc
+#nginx:latest 192MB #97662d24417b
+#node:14 912MB #1d12470fa662
+#node:18-alpine 127MB #70649fe1a0d7
+#openjdk:11 654MB #47a932d998b7
+#openjdk:11-jre-slim 223MB #764a04af3eff
+#php:8.0-fpm 445MB #c28988545f3b
+#python:3.9-slim 126MB #096343841dd9
+#react-app_react-app:latest 127MB #9264a714820c
+#script_docker_py_android-dev:latest 983MB #a454fe6b8886
+#script_docker_py_android-emulator:latest 12.8GB #5731742daf5e
+#script_docker_py_app-py:latest 759MB #ff4995cded4a
+#script_docker_py_app:latest 759MB #2a478e5b326d
+#script_docker_py_db:latest 764MB #f47dd26b30ec
+#script_docker_py_java-app:latest 471MB #252ab554ea7a
+#script_docker_py_php-app:latest 50.8MB #d19376fbbf5c
+#script_docker_py_py-app:latest 759MB #095b0e1941d6
+#script_docker_py_react-app:latest 49MB #ef1fe2f6f6dc
+#tomcat:9-jdk11 466MB #fe3bec002517

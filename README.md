@@ -57,6 +57,7 @@ git clone https://github.com/fabiuniz/script_docker.git
 chmod -R 777 script_docker
 cd script_docker
 dos2unix setup_script_launcher_py.sh
+setapplications "nginx app db" #"nginx app db java-app react-app php-app android-dev android-emulator"
 .  setup_script_launcher_py.sh
 
 ```

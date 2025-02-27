@@ -443,7 +443,8 @@ update_file_if_different() {
 }
 # Cria um diretório para os backups
 backup_img_docker() {
-    backup_dir="/home/userlnx/docker/relay"
+    # Define o diretório de backup, usando o valor passado como argumento ou o padrão
+    backup_dir="${1:-/home/userlnx/docker/relay}"
     mkdir -p "$backup_dir"
     # Obtém a lista de todas as imagens
     images=$(docker images --format '{{.Repository}}:{{.Tag}}')
@@ -456,7 +457,8 @@ backup_img_docker() {
 }
 # Diretório onde as imagens foram salvas
 restore_img_docker() {
-    backup_dir="/home/userlnx/docker/relay"
+    # Define o diretório de backup, usando o valor passado como argumento ou o padrão
+    backup_dir="${1:-/home/userlnx/docker/relay}"
     # Restaurar cada imagem tar no diretório de backup
     for tar_file in "$backup_dir"/*.tar; do
         docker load -i "$tar_file"
@@ -464,4 +466,10 @@ restore_img_docker() {
     done
     echo_color $YELLOW "Restauração completa."
 }
+setapplications (){
+    # Define o diretório de backup, usando o valor passado como argumento ou o padrão
+    apps="${1:-nginx app db}"
+    sed -i "s|^params_containers=.*|params_containers=\"$apps\"|" scripts/script.cfg
+}
+
 #lib_bash--------------------------------------------------
