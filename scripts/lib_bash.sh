@@ -293,6 +293,8 @@ install_docker_if_missing(){
     else
         echo_color $RED "Docker já está instalado."
     fi
+	echo_color $RED "Restaurando Imagens."
+    restore_img_docker
 }
 #-----------------------------------------------------
 #- Função para verificar e instalar o Docker Compose se necessário <br>
@@ -457,10 +459,19 @@ backup_img_docker() {
 }
 # Diretório onde as imagens foram salvas
 restore_img_docker() {
+    # Montado unidade de restore
+    mount_plugin mountrede
     # Define o diretório de backup, usando o valor passado como argumento ou o padrão
     backup_dir="${1:-/home/userlnx/docker/relay}"
+    # Verifica se existem arquivos .tar no diretório de backup
+    shopt -s nullglob  # Ativa o comportamento para que os globus vazios não gerem erro
+    tar_files=("$backup_dir"/*.tar)  # Cria um array com arquivos .tar
+    if [ ${#tar_files[@]} -eq 0 ]; then
+        echo_color $YELLOW "Nenhum arquivo .tar encontrado em $backup_dir."
+        return
+    fi
     # Restaurar cada imagem tar no diretório de backup
-    for tar_file in "$backup_dir"/*.tar; do
+    for tar_file in "${tar_files[@]}"; do
         docker load -i "$tar_file"
         echo_color $YELLOW "Restaurada: $tar_file"
     done
@@ -471,5 +482,41 @@ setapplications (){
     apps="${1:-nginx app db}"
     sed -i "s|^params_containers=.*|params_containers=\"$apps\"|" scripts/script.cfg
 }
-
+#mountrede=("username" "domain" "password" "//192.168.1.179/y/Virtual Machines/VirtualPc/vmlinux_d/plugins" "/home/userlnx/docker/relay")
+# Chamada da função usando o array
+#mount_plugin mountrede
+mount_plugin() {
+    local -n args="$1"  # Cria uma referência ao array que foi passado
+    # Verifica se o array contém exatamente 5 elementos
+    if [ "${#args[@]}" -ne 5 ]; then
+        echo "Uso: mount_plugin <username> <domain> <password> <caminho_do_plugin> <caminho_do_relay>"
+        return
+    fi
+    # Recupera os valores do array
+    local username="${args[0]}"
+    local domain="${args[1]}"
+    local password="${args[2]}"
+    local caminho_plugin="${args[3]}"
+    local caminho_relay="${args[4]}"
+    # Cria o diretório de relay se não existir
+    if [ ! -d "$caminho_relay" ]; then
+        mkdir -p "$caminho_relay"
+        chmod -R 777 "$caminho_relay"  # Define permissões de gravação
+    fi
+    # Verifica se o caminho já está montado
+    if mountpoint -q "$caminho_relay"; then
+        echo "Desmontando $caminho_relay..."
+        umount "$caminho_relay"
+    fi
+    # Monta o diretório CIFS
+    echo "Montando o plugin em $caminho_relay..."
+    mount -t cifs "$caminho_plugin" "$caminho_relay" \
+    -o username="$username",domain="$domain",password="$password",iocharset=utf8,users,file_mode=0777,dir_mode=0777,vers=3.0
+     # Verifica se a montagem foi bem-sucedida
+    if [ $? -eq 0 ]; then
+        echo "Montagem de $caminho_plugin em $caminho_relay realizada com sucesso!"
+    else
+        echo "Falha ao montar $caminho_plugin em $caminho_relay."
+    fi
+}
 #lib_bash--------------------------------------------------
