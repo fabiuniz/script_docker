@@ -498,6 +498,11 @@ mount_plugin() {
     local password="${args[2]}"
     local caminho_plugin="${args[3]}"
     local caminho_relay="${args[4]}"
+    # Verifica se o username é "userrede" e retorna uma mensagem de erro
+    if [ "$username" == "userrede" ]; then
+        echo "Rede não configurada!"
+        return
+    fi
     # Cria o diretório de relay se não existir
     if [ ! -d "$caminho_relay" ]; then
         mkdir -p "$caminho_relay"
@@ -508,17 +513,15 @@ mount_plugin() {
         echo "Desmontando $caminho_relay..."
         umount "$caminho_relay"
     fi
-
     # Monta o diretório CIFS
     echo "Montando o plugin em $caminho_relay..."
     mount -t cifs "$caminho_plugin" "$caminho_relay" \
-    -o username="$username",domain="$domain",password="$password",iocharset=utf8,users,file_mode=0777,dir_mode=0777,vers=3.0
-     # Verifica se a montagem foi bem-sucedida
+    -o username="$username",domain="$domain",password="$password",iocharset=utf8,users,file_mode=0777,dir_mode=0777,vers=3.0   
+    # Verifica se a montagem foi bem-sucedida
     if [ $? -eq 0 ]; then
         echo "Montagem de $caminho_plugin em $caminho_relay realizada com sucesso!"
     else
         echo "Falha ao montar $caminho_plugin em $caminho_relay."
     fi
-
 }
 #lib_bash--------------------------------------------------
