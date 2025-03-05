@@ -30,6 +30,7 @@ echo_color $RED  "Preparação: contruindo scripts para execução da aplicaçã
 #>- construindo .sh para publicar arqivos docker <br>
 cat <<EOF > publish_$app_name.sh
 cp -r $appcontainer/* $app_name/
+docker-compose -f $app_name/$docker_compose_file up --build -d $params_containers
 #. start_$app_name.sh
 EOF
 #>- construindo .sh para Iniciar docker <br>
@@ -77,24 +78,20 @@ EOF
 #>📁 Passo 1: Criação da sub Estrutura de Diretórios da aplicação <br>
 echo_color $RED  "Passo 1: Criação da sub Estrutura de Diretórios da aplicação "
 mkdir -p $containerhost
-mkdir -p $app_dir
+mkdir -p $app_dir/lib
 chmod -R 777 $containerhost
 cd $app_dir
 echo_color $GREEN  "Entrando na pasta: $PWD"
 #>📝 Passo 2: Criar o arquivo app.py com ssl <br>
 echo_color $RED  "Passo 2: Criar o arquivo app.py com ssl"
 # -------------------  PYTHON  ----------------------------
-cat <<EOF > app.py
+cat <<EOF > lib/lib_func.py
 import ssl
 import mysql.connector
 from mysql.connector import Error
 from flask import Flask, jsonify
 from flask_cors import CORS   
 from flask import render_template
-app = Flask(__name__)   
-# Configura o CORS para permitir todas as origens e credenciais
-CORS(app, supports_credentials=True)   
-@app.route('/')
 def index():
      return "Hello World Setup python!<br><br>\
      Execute esses comandos no bash e teste a conexão: <br><br> \
@@ -107,25 +104,13 @@ def index():
      SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';<br>\
      FLUSH PRIVILEGES;<br>\
      <a href='conectar'>testar conexão</a><br>\
+     <a href='index2'>Page 2</a><br>\
     "
-@app.route("/index2")
-def index2():
-    return render_template("index.html")
-def runFlaskport(app, debug, host, port):
-    # Caminho para o certificado SSL e a chave privada
-    ssl_cert = 'ssl/nginx-ssl.crt'
-    ssl_key = 'ssl/nginx-ssl.key'       
-    # Configurações de contexto SSL
-    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-    ssl_context.load_cert_chain(ssl_cert, ssl_key)       
-    app.run(ssl_context=ssl_context, debug=debug, host=host, port=port)   
-    
-@app.route("/conectar", methods=["GET", "POST"])
 def conectar_e_executar():
-    host= "$name_host"
-    usuario="$db_user"
-    senha= "$db_root_pass"
-    banco_de_dados="$db_namedatabase"
+    host= "vmlinuxd"
+    usuario="root"
+    senha= "seu_senha_root"
+    banco_de_dados="seu_banco_de_dados"
 
     """
     Conecta ao banco de dados MySQL, executa as consultas e imprime os resultados.
@@ -192,9 +177,31 @@ def conectar_e_executar():
     vbanco_de_dados = "mysql"  # ou 'seu_banco_de_dados' se as grants foram criadas nesse banco
     #conectar_e_executar(host, usuario, senha, banco_de_dados)    
     #pip install mysql-connector-python
-
+def runFlaskport(app, debug, host, port):
+    # Caminho para o certificado SSL e a chave privada
+    ssl_cert = 'ssl/nginx-ssl.crt'
+    ssl_key = 'ssl/nginx-ssl.key'       
+    # Configurações de contexto SSL
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    ssl_context.load_cert_chain(ssl_cert, ssl_key)       
+    app.run(ssl_context=ssl_context, debug=debug, host=host, port=port)   
+EOF
+cat <<EOF > app.py
+from lib.lib_func import *
+app = Flask(__name__)   
+# Configura o CORS para permitir todas as origens e credenciais
+CORS(app, supports_credentials=True)   
+@app.route('/')
+def idx():
+    return index()
+@app.route("/index2")
+def index2():
+    return render_template("index.html")
+@app.route("/conectar", methods=["GET", "POST"])
+def con_exe():
+    return conectar_e_executar()
 if __name__ == '__main__':
-    runFlaskport(app, False, '0.0.0.0', 8000)
+    runFlaskport(app, True, '0.0.0.0', $app_port_py)
 EOF
 #>📄 Passo 3: Criar o arquivo requirements.txt <br>
 echo_color $RED  "Passo 3: Criar o arquivo requirements.txt"
@@ -561,10 +568,13 @@ cat <<EOF > Dockerfile
         && rm -rf /var/lib/apt/lists/*  # Limpa cache
     RUN apt-get update && apt-get install -y python3 python3-pip
     RUN pip3 install mysql-connector-python
-    # Configurar o SSH
+    # Adiciona o novo usuário FTP
     RUN useradd -m $ftp_user && mkdir /var/run/sshd && echo "$ftp_user:$ftp_pass" | chpasswd
     # Permitir login root via SSH (Atenção: apenas para desenvolvimento; não recomendado em produção)
     RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+    # Definir a senha do root
+    RUN echo "root:$ftp_pass" | chpasswd
+    # Criar diretório /app e definir permissões
     RUN mkdir -p /app && chown root:$ftp_user /app && chmod 770 /app
     # Adicionar o usuário FTP
     # RUN if [ -z "$ftp_user" ] || [ -z "$ftp_pass" ]; then echo "ftp_user or ftp_pass not set"; exit 1; fi && echo "$ftp_user:$ftp_pass" | chpasswd
@@ -996,3 +1006,19 @@ echo -e "\a";
 #script_docker_py_py-app:latest 759MB #095b0e1941d6
 #script_docker_py_react-app:latest 49MB #ef1fe2f6f6dc
 #tomcat:9-jdk11 466MB #fe3bec002517
+
+#"C:\Users\usuario\.ssh\config"
+# Read more about SSH config files: https://linux.die.net/man/5/ssh_config
+#Host vmlinuxd
+#    HostName vmlinuxd
+#    Port 22
+#    User userlnx
+#    IdentityFile ~/.ssh/id_rsa
+#Host vmlinuxd_sub
+#    HostName vmlinuxd
+#    Port 2222
+#    User myuser
+#    IdentityFile ~/.ssh/id_rsa
+#ssh-keygen -t rsa -b 4096 -C "seu_email@example.com"
+#icacls "C:\Users\usuario\.ssh\config" /inheritance:r
+#icacls "C:\Users\usuario\.ssh\config" /grant usuario:F

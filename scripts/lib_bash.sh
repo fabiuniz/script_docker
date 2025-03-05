@@ -508,20 +508,17 @@ mount_plugin() {
         echo "Desmontando $caminho_relay..."
         umount "$caminho_relay"
     fi
-    # Verifica se o caminho do plugin existe
-    if [ ! -d "$caminho_plugin" ]; then
-        echo "O caminho do plugin '$caminho_plugin' não é válido."
-        return
-        # Monta o diretório CIFS
-        echo "Montando o plugin em $caminho_relay..."
-        mount -t cifs "$caminho_plugin" "$caminho_relay" \
-        -o username="$username",domain="$domain",password="$password",iocharset=utf8,users,file_mode=0777,dir_mode=0777,vers=3.0
-         # Verifica se a montagem foi bem-sucedida
-        if [ $? -eq 0 ]; then
-            echo "Montagem de $caminho_plugin em $caminho_relay realizada com sucesso!"
-        else
-            echo "Falha ao montar $caminho_plugin em $caminho_relay."
-        fi
+
+    # Monta o diretório CIFS
+    echo "Montando o plugin em $caminho_relay..."
+    mount -t cifs "$caminho_plugin" "$caminho_relay" \
+    -o username="$username",domain="$domain",password="$password",iocharset=utf8,users,file_mode=0777,dir_mode=0777,vers=3.0
+     # Verifica se a montagem foi bem-sucedida
+    if [ $? -eq 0 ]; then
+        echo "Montagem de $caminho_plugin em $caminho_relay realizada com sucesso!"
+    else
+        echo "Falha ao montar $caminho_plugin em $caminho_relay."
     fi
+
 }
 #lib_bash--------------------------------------------------
