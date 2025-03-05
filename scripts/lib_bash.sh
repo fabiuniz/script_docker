@@ -353,6 +353,8 @@ show_docker_commands_custons() {
     echo_color $YELLOW "helph" # Ajuda
 }
 show_docker_config() {
+    source scripts/script.cfg
+    source scripts/lib_bash.sh
     # Imprimindo o array de configuração para da aplicação
     echo "Conteúdo do array:"
     for index in "${!config[@]}"; do
@@ -477,10 +479,19 @@ restore_img_docker() {
     done
     echo_color $YELLOW "Restauração completa."
 }
-setapplications (){
-    # Define o diretório de backup, usando o valor passado como argumento ou o padrão
+setapplications() {
+    # Define o valor de aplicativos; usa o valor passado ou o padrão.
     apps="${1:-nginx app db}"
-    sed -i "s|^params_containers=.*|params_containers=\"$apps\"|" scripts/script.cfg
+    # Verifica se o arquivo de configuração existe.
+    if [ ! -f scripts/script.cfg ]; then
+        echo "Arquivo de configuração não encontrado: scripts/script.cfg"
+        return 1
+    fi
+    # Usando sed para substituir a linha params_containers no arquivo de configuração.
+    sed -i "s|^\(params_containers=\).*$|\1\"$apps\"|" scripts/script.cfg
+    # Imprime uma mensagem de sucesso.
+    echo "A variável params_containers foi atualizada para: $apps"
+    show_docker_config
 }
 #mountrede=("username" "domain" "password" "//192.168.1.179/y/Virtual Machines/VirtualPc/vmlinux_d/plugins" "/home/userlnx/docker/relay")
 # Chamada da função usando o array

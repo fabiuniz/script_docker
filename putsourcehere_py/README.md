@@ -2,7 +2,7 @@
 # Script Docker Python [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![GitHub issues](https://img.shields.io/github/issues/fabiuniz/repo.svg)](https://github.com/fabiuniz/repo/issues) ![GitHub contributors](https://img.shields.io/github/contributors/fabiuniz/repo.svg)
 
 ## 🚀 Sobre o Projeto
-Este repositório é um exemplo de como montar um script para criar um docker contendo Python rodando no nginx e configurar um ssl local autoassinado criando e com banco de dados MYSQL assim o seu ambiente de desenvolvimento de forma automatizada. E mais, duas aplicações com JAVA MAVEN , REACT , PHP e Android  com base de dados.
+Este repositório é um exemplo de como montar um script para criar um docker contendo Python e configurar um ssl local autoassinado criando e com banco de dados MYSQL assim o seu ambiente de desenvolvimento de forma automatizada. E mais, passando alguns parâmetros durante o setup pode ativar mais outras aplicações como NGINX, JAVA MAVEN , REACT , PHP e Android  para ampliar seu ambiente de desenvolvimento.
 
 
 
@@ -84,12 +84,12 @@ Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher_py.
 - certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
 
 ```bash
-Status: Downloaded newer image for nginx:latest
 Creating script_docker_py_app ... done
 Creating script_docker_py_nginx ... done
-         Name                       Command               State                                   Ports
 ----------------------------------------------------------------------------------------------------------------------------------------
-script_docker_py_app     python app.py                    Up      0.0.0.0:8000->8000/tcp,:::8000->8000/tcp
-script_docker_py_nginx   /docker-entrypoint.sh ngin ...   Up      0.0.0.0:443->443/tcp,:::443->443/tcp, 0.0.0.0:80->80/tcp,:::80->80/tcp
+CONTAINER ID   IMAGE                       COMMAND                  CREATED              STATUS                        PORTS                                                                NAMES
+168f4244f8fe   script_docker_py_app        "/bin/sh -c 'service…"   1 second ago         Up 1 second                   0.0.0.0:8000->8000/tcp, 0.0.0.0:2121->21/tcp, 0.0.0.0:2222->22/tcp   script_docker_py_app
+7c8c783e7b95   script_docker_py_db         "docker-entrypoint.s…"   About a minute ago   Up About a minute (healthy)   0.0.0.0:3306->3306/tcp, 33060/tcp                                    script_docker_py_db
+
 ```
 ![Web Site](../images/website.png)

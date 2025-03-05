@@ -2,7 +2,7 @@
 # Script Docker [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![GitHub issues](https://img.shields.io/github/issues/fabiuniz/repo.svg)](https://github.com/fabiuniz/repo/issues) ![GitHub contributors](https://img.shields.io/github/contributors/fabiuniz/repo.svg)
 
 ## 🚀 Sobre o Projeto
-Este repositório é um exemplo de como montar um script para criar um docker contendo Python rodando no nginx e configurar um ssl local autoassinado criando e com banco de dados MYSQL assim o seu ambiente de desenvolvimento de forma automatizada.
+Este repositório é um exemplo de como montar um script para criar um docker contendo Python e configurar um ssl local autoassinado criando e com banco de dados MYSQL assim o seu ambiente de desenvolvimento de forma automatizada.
 
 Profissionais que atuam na prática de DevOps são responsáveis por automatizar processos de desenvolvimento e operação. Eles geralmente têm experiência com ferramentas de containerização como Docker e são capazes de criar e gerenciar ambientes de desenvolvimento, teste e produção de forma eficiente.
 
@@ -57,7 +57,7 @@ git clone https://github.com/fabiuniz/script_docker.git
 chmod -R 777 script_docker
 cd script_docker
 dos2unix setup_script_launcher_py.sh
-setapplications "nginx app db" #"nginx app db java-app react-app php-app android-dev android-emulator"
+setapplications "app db" #"nginx app db java-app react-app php-app android-dev android-emulator"
 .  setup_script_launcher_py.sh
 
 ```
