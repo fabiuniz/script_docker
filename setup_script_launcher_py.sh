@@ -29,6 +29,8 @@ echo_color $RED  "Preparação: contruindo scripts para execução da aplicaçã
 #chown -R userlnx:userlnx /home/userlnx/docker/overlay2
 #>- construindo .sh para publicar arqivos docker <br>
 cat <<EOF > publish_$app_name.sh
+show_docker_config
+show_docker_commands_custons
 cp -r $appcontainer/* $app_name/
 docker-compose -f $app_name/$docker_compose_file up --build -d $params_containers
 #. start_$app_name.sh
