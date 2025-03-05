@@ -84,12 +84,11 @@ Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher_py.
 - certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
 
 ```bash
-Creating script_docker_py_app ... done
-Creating script_docker_py_nginx ... done
-----------------------------------------------------------------------------------------------------------------------------------------
-CONTAINER ID   IMAGE                       COMMAND                  CREATED              STATUS                        PORTS                                                                NAMES
-168f4244f8fe   script_docker_py_app        "/bin/sh -c 'service…"   1 second ago         Up 1 second                   0.0.0.0:8000->8000/tcp, 0.0.0.0:2121->21/tcp, 0.0.0.0:2222->22/tcp   script_docker_py_app
-7c8c783e7b95   script_docker_py_db         "docker-entrypoint.s…"   About a minute ago   Up About a minute (healthy)   0.0.0.0:3306->3306/tcp, 33060/tcp                                    script_docker_py_db
+          Name                         Command                       State                                         Ports
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+script_docker_py_app        /bin/sh -c service ssh sta ...   Up                      0.0.0.0:2121->21/tcp, 0.0.0.0:2222->22/tcp, 0.0.0.0:8000->8000/tcp
+script_docker_py_db         docker-entrypoint.sh mysqld      Up (health: starting)   0.0.0.0:3306->3306/tcp, 33060/tcp
+
 
 ```
 ![Web Site](../images/website.png)
