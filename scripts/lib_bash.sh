@@ -332,7 +332,7 @@ show_docker_commands_custons() {
       http://$name_host:$app_port_emu/                        (VNC ANDROID) +1 5901
       Abra o VSCode e conecte como o usuario:$name_user no Host ou WSL usando a pasta: $app_dir"
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
-    echo_color $YELLOW "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
+    echo_color $YELLOW "docker exec --privileged -it "$app_name"_py-app bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_db bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_java-app bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_react-app sh" # Entrar no bash do container rodando a aplicação
@@ -340,14 +340,14 @@ show_docker_commands_custons() {
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_android-emulator bash" # Entrar no bash do container rodando nginx
     echo_color $YELLOW "docker exec "$app_name"_php-app nginx -s reload"
     echo_color $YELLOW "docker logs "$app_name"_java-app" # Consultar logs do container rodando nginx
-    echo_color $YELLOW "docker logs --tail 10 "$app_name"_app" # Consultar logs do container rodando a aplicação
+    echo_color $YELLOW "docker logs --tail 10 "$app_name"_py-app" # Consultar logs do container rodando a aplicação
     echo_color $YELLOW "docker logs "$app_name"_java-app" # Consultar logs do container rodando a aplicação
     echo_color $YELLOW "docker logs "$app_name"_php-app" # Consultar logs do container rodando a aplicação
     echo_color $YELLOW "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
     echo_color $YELLOW "docker ps -s ou docker system df ou docker info | grep "Storage Driver"" #Tamanho dos containers
     echo_color $YELLOW "docker rmi "$app_name"_react-app"                      # Apagar container rodando a aplicação
-    echo_color $YELLOW "docker stats "$app_name"_app" # Mostra informações de consumo top ou htop vmstat iostat netstat ou ss
-    echo_color $YELLOW "docker restart "$app_name"_app" # Reiniciar Nginx
+    echo_color $YELLOW "docker stats "$app_name"_py-app" # Mostra informações de consumo top ou htop vmstat iostat netstat ou ss
+    echo_color $YELLOW "docker restart "$app_name"_py-app" # Reiniciar Nginx
     echo_color $YELLOW "publish_"$app_name".sh" # publicar alterações no container 
     echo_color $YELLOW "clear_"$app_name".sh" # limpar todos containers 
     echo_color $YELLOW "start_"$app_name".sh" # iniciar container
@@ -483,7 +483,7 @@ restore_img_docker() {
 }
 setapplications() {
     # Define o valor de aplicativos; usa o valor passado ou o padrão.
-    apps="${1:-nginx app db}"
+    apps="${1:-nginx py-app db}"
     # Verifica se o arquivo de configuração existe.
     if [ ! -f scripts/script.cfg ]; then
         echo "Arquivo de configuração não encontrado: scripts/script.cfg"

@@ -31,7 +31,7 @@ echo_color $RED  "Preparação: construindo scripts para execução da aplicaç�
 cat <<EOF > publish_$app_name.sh
 show_docker_config
 show_docker_commands_custons
-cp -r $appcontainer/* $app_name/
+cp -r $appcontainer/py-app* $app_name/py-app
 docker-compose -f $app_name/$docker_compose_file up --build -d $params_containers
 #. start_$app_name.sh
 EOF
@@ -63,7 +63,7 @@ EOF
 cat <<EOF > stop_$app_name.sh
     #>-  - app_name="${app_name}"
     docker stop $app_name"_nginx"
-    docker stop $app_name"_app"
+    docker stop $app_name"_py-app"
     docker ps
     echo "\nAplicação $app_name fechada"
 EOF
@@ -80,14 +80,16 @@ EOF
 #>📁 Passo 1: Criação da sub Estrutura de Diretórios da aplicação <br>
 echo_color $RED  "Passo 1: Criação da sub Estrutura de Diretórios da aplicação "
 mkdir -p $containerhost
-mkdir -p $app_dir/lib
+mkdir -p $app_dir/py-app/lib
 chmod -R 777 $containerhost
 cd $app_dir
 echo_color $GREEN  "Entrando na pasta: $PWD"
 #>📝 Passo 2: Criar o arquivo app.py com ssl <br>
 echo_color $RED  "Passo 2: Criar o arquivo app.py com ssl"
 # -------------------  PYTHON  ----------------------------
-cat <<EOF > lib/lib_func.py
+mkdir -p py-app/src/main/java/com/example
+chmod -R 777 py-app
+cat <<EOF > py-app/lib/lib_func.py
 import ssl
 import mysql.connector
 from mysql.connector import Error
@@ -188,7 +190,7 @@ def runFlaskport(app, debug, host, port):
     ssl_context.load_cert_chain(ssl_cert, ssl_key)       
     app.run(ssl_context=ssl_context, debug=debug, host=host, port=port)   
 EOF
-cat <<EOF > app.py
+cat <<EOF > py-app/app.py
 from lib.lib_func import *
 app = Flask(__name__)   
 # Configura o CORS para permitir todas as origens e credenciais
@@ -207,7 +209,7 @@ if __name__ == '__main__':
 EOF
 #>📄 Passo 3: Criar o arquivo requirements.txt <br>
 echo_color $RED  "Passo 3: Criar o arquivo requirements.txt"
-cat <<EOF > requirements.txt
+cat <<EOF > py-app/requirements.txt
 Flask==2.1.1
 flask_cors==4.0.0
 Werkzeug==2.1.1
@@ -224,8 +226,8 @@ Werkzeug==2.1.1
 EOF
 #>🛠️ Passo 4: Criar o Dockerfile para a aplicação Flask <br>
 echo_color $RED  "Passo 4: Criar o Dockerfile para a aplicação Flask"
-mkdir -p docker-entrypoint-initdb.d
-cat <<EOF > docker-entrypoint-initdb.d/init.sql
+mkdir -p py-app/docker-entrypoint-initdb.d
+cat <<EOF > py-app/docker-entrypoint-initdb.d/init.sql
     -- Cria o banco de dados (se não existir)
     CREATE DATABASE IF NOT EXISTS $db_namedatabase;
     -- Cria o usuário (se não existir) e dá permissões ao banco de dados
@@ -256,9 +258,9 @@ cat <<EOF > Dockerfile.db
     CMD ["mysqld"]
 EOF
 # -------------------  JAVA http://vmlinuxd:8080/hello-world/hello  ----------------------------
-mkdir -p app/src/main/java/com/example
-mkdir -p app/src/main/webapp/WEB-INF
-chmod -R 777 app
+mkdir -p java-app/src/main/java/com/example
+mkdir -p java-app/src/main/webapp/WEB-INF
+chmod -R 777 java-app
 new_pom_content=$(cat << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -316,8 +318,9 @@ new_pom_content=$(cat << EOF
     </build>
 </project>
 EOF)
-update_file_if_different "app/pom.xml" "$new_pom_content"
-cat <<EOF > app/src/main/java/com/example/HelloWorldServlet.java
+
+update_file_if_different "java-app/pom.xml" "$new_pom_content"
+cat <<EOF > java-app/src/main/java/com/example/HelloWorldServlet.java
 package com.example;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -349,7 +352,7 @@ public class HelloWorldServlet extends HttpServlet {
     }
 }
 EOF
-cat <<EOF > app/src/main/java/com/example/ConectarServlet.java
+cat <<EOF > java-app/src/main/java/com/example/ConectarServlet.java
 package com.example;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -475,7 +478,7 @@ public class ConectarServlet extends HttpServlet { // Usando uma classe separada
     }
 }
 EOF
-cat <<EOF > app/src/main/webapp/WEB-INF/web.xml
+cat <<EOF > java-app/src/main/webapp/WEB-INF/web.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -484,7 +487,7 @@ cat <<EOF > app/src/main/webapp/WEB-INF/web.xml
 </web-app>
 EOF
 # -------------------  DOCKER JAVA  ----------------------------
-cat <<EOF > app/Dockerfile
+cat <<EOF > java-app/Dockerfile
 # Use uma imagem de build do Maven
 FROM maven:3.8.6-jdk-11 AS build
 # Defina o diretório de trabalho no container
@@ -554,7 +557,7 @@ cat <<EOF > react-app/Dockerfile
     CMD ["nginx", "-g", "daemon off;"]
 EOF
 # -------------------  DOCKER PYTHON  ----------------------------
-cat <<EOF > Dockerfile
+cat <<EOF > py-app/Dockerfile
     #>- Usar a imagem base Python <br>
     FROM python:3.9-slim
     # Variáveis de ambiente
@@ -601,9 +604,9 @@ cat <<EOF > Dockerfile
     CMD service ssh start && service vsftpd start && python app.py
 EOF
 # -------------------  ANDROID  ----------------------------
-mkdir -p putsourcehere/adr
+mkdir -p adr-app
 # Escrevendo o Dockerfile
-cat <<EOF > putsourcehere/adr/Dockerfile.emu
+cat <<EOF > adr-app/Dockerfile.emu
     FROM budtmo/docker-android
     # Garantir que estamos como root para as próximas operações
     USER root
@@ -622,8 +625,8 @@ cat <<EOF > putsourcehere/adr/Dockerfile.emu
     CMD ["sh", "-c", "Xvfb :1 -screen 0 1280x720x24 & x11vnc -display :1 -nopw -forever -repeat -rfbport $app_port_emu -shared"]
 EOF
 # -------------------  ANDROID  ----------------------------
-mkdir -p putsourcehere/adr
-cat <<EOF > putsourcehere/adr/Dockerfile
+mkdir -p adr-app
+cat <<EOF > adr-app/Dockerfile
     # Dockerfile
     FROM openjdk:11    
     # Instalações do Android SDK
@@ -655,8 +658,8 @@ cat <<EOF > putsourcehere/adr/Dockerfile
     CMD [ "sh", "-c", "while true; do sleep 30; done;" ]
 EOF
 # -------------------  PHP  ----------------------------
-mkdir -p putsourcehere/php
-cat <<EOF > putsourcehere/php/nginx.conf
+mkdir -p php-app
+cat <<EOF > php-app/nginx.conf
 server {
     listen       $app_port_php;
     listen  [::]:$app_port_php;
@@ -672,13 +675,13 @@ server {
 }
 EOF
 # -------------------  PHP  ----------------------------
-cat <<EOF > putsourcehere/php/index.php
+cat <<EOF > php-app/index.php
     <?php
     phpinfo();
     ?>
 EOF
 # -------------------  DOCKER PHP  ----------------------------
-cat <<EOF > putsourcehere/php/Dockerfile
+cat <<EOF > php-app/Dockerfile
     FROM php:8.0-fpm AS php-fpm
     # Instalações adicionais, se necessárias
     # RUN docker-php-ext-install mysqli pdo pdo_mysql
@@ -752,7 +755,7 @@ http {
         listen $app_port_py;  # Ouvindo na porta 8000 (HTTP)
         server_name $name_host;
         location / {
-            proxy_pass http://app:$app_port_py;  # Proxy para a aplicação Python
+            proxy_pass http://py-app:$app_port_py;  # Proxy para a aplicação Python
             proxy_set_header Host $name_host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -767,9 +770,10 @@ echo_color $RED  "Passo 6: Criar o arquivo docker-compose.yml"
 cat <<EOF > $docker_compose_file
     version: '3'
     services:
-      app:
-        build: .
-        container_name: ${app_name}_app
+      py-app:
+        build: 
+            context: ./py-app  # Caminho para o diretório da aplicação Java
+        container_name: ${app_name}_py-app
         ports:
           - "$app_port_py:$app_port_py"
           - "$app_port_ftp:21"                 # Porta FTP
@@ -816,7 +820,7 @@ cat <<EOF > $docker_compose_file
           - public_network
       java-app:  # Novo serviço para a aplicação Java
         build:
-          context: ./app  # Caminho para o diretório da aplicação Java
+          context: ./java-app  # Caminho para o diretório da aplicação Java
         container_name: ${app_name}_java-app
         ports:
           - "$app_port_java:$app_port_java"  # Ajuste a porta conforme necessário
@@ -830,23 +834,23 @@ cat <<EOF > $docker_compose_file
           - "$app_port_react:80"  # Porta em que o React estará disponível
       php-app:  # Novo serviço para a aplicação PHP
         build:
-          context: putsourcehere/php  # Caminho para o diretório da aplicação PHP
+          context: ./php-app  # Caminho para o diretório da aplicação PHP
         container_name: ${app_name}_php-app
         volumes:
-          - ./putsourcehere/php:/var/www/html  # Mapeando diretório local
+          - ./php-app:/var/www/html  # Mapeando diretório local
         ports:
           - "$app_port_php:$app_port_php"  # Mapeando a porta 9000 para acesso externo            
       android-dev:
         build:
-          context: ./putsourcehere/adr  # Caminho para o diretório onde está o Dockerfile
+          context: ./adr-app  # Caminho para o diretório onde está o Dockerfile
         container_name: ${app_name}_android-dev
         ports:
           - "$app_port_adr:$app_port_adr"   # Exemplo de porta que você pode querer expor
         volumes:
-          - ./putsourcehere/adr:/workspace   # Mapeando seu projeto Android para o contêiner
+          - ./adr-app:/workspace   # Mapeando seu projeto Android para o contêiner
       android-emulator:
         build:
-          context: ./putsourcehere/adr  # Caminho para o diretório onde está o Dockerfile
+          context: ./adr-app  # Caminho para o diretório onde está o Dockerfile
           dockerfile: Dockerfile.emu  # Nome do Dockerfile específico para o serviço db
         #image: budtmo/docker-android
         container_name: ${app_name}_android-emulator # Usar vnc Viewer pra se conectar nessa porta (https://www.realvnc.com/) as portas VNC são atribuídas como 5900 + número da tela)
@@ -856,7 +860,7 @@ cat <<EOF > $docker_compose_file
           - "8080:8080"   # Porta para acessar HTTP
         #shm_size: '2g'  # Definindo o tamanho da memória compartilhada
         volumes:
-          - ./putsourcehere/adr:/workspace
+          - ./adr-app:/workspace
         environment:
           - USER=$vnc_user  # Definindo o usuário como root # androidusr
           - VNC_PASSWORD=$vnc_pass  # Defina aqui se precisar de password
@@ -871,9 +875,9 @@ cat <<EOF > $docker_compose_file
 EOF
 # -------------------  RUN BASH  ----------------------------
 #>- Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
-mkdir -p "$app_source"
+mkdir -p $app_source/py-app
 echo_color $GREEN  "copiando arquivos de $app_source para $PWD"
-cp -r "$app_source"* .
+cp -r "$app_source"/py-app* ./py-app
 chmod -R 777 "$app_source"
 #>🔒 Passo 7: Gerar um certificado SSL autoassinado (opcional) <br>
 echo_color $RED  "Passo 7: Gerar um certificado SSL autoassinado (opcional)"
@@ -893,10 +897,10 @@ docker-compose -f $docker_compose_file up --build -d $params_containers
 echo_color $RED  "Passo 10: Verificar se os serviços estão rodando "
 docker-compose -f $docker_compose_file ps
 #>- Parar e remover contêiner existente, se necessário (Desmontando unidade) <br>
-echo_color $RED  "docker stop "$app_name"_app" 
-echo_color $RED  "docker rm " $app_name"_app" 
+echo_color $RED  "docker stop "$app_name"_py-app" 
+echo_color $RED  "docker rm " $app_name"_py-app" 
 #>- Criar e executar um novo contêiner com volume montado <br>
-echo_color $RED  "docker run -d -v /home/userlnx/"$app_name"/"$containerhost":/app -p $app_port:$app_port --name " $app_name $app_name"_app" 
+echo_color $RED  "docker run -d -v /home/userlnx/"$app_name"/"$containerhost":/app -p $app_port:$app_port --name " $app_name $app_name"_py-app" 
 #>- Limpeza <br>
 echo_color $RED  "Limpeza"
 . ../clear_"$app_name".sh
@@ -976,6 +980,8 @@ echo -e "\a";
 #mount -t cifs "//192.168.1.179/y/Virtual Machines/VirtualPc/vmlinux_d/plugins" /var/lib/docker/overlay2 -o username=user,domain=sweethome,password=1111,iocharset=utf8,users,file_mode=0777,dir_mode=0777,vers=3.0
 #sudo systemctl start docker
 #docker info
+#docker rename script_docker_py_app script_docker_py_py-app
+#docker tag script_docker_py_app:latest script_docker_py_py-app:latest
 
 #pat.sh
 #cd /home/userlnx/docker/script_docker/
