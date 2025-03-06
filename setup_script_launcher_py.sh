@@ -976,8 +976,11 @@ echo -e "\a";
     #blkid # encontrar UUID
     #UUID=seu-uuid /mnt/novo_hd ext4 defaults 0 2
 #umount /var/lib/docker/overlay2
-#chmod  -R 777 /var/lib/docker/overlay2
-#mount -t cifs "//192.168.1.179/y/Virtual Machines/VirtualPc/vmlinux_d/plugins" /var/lib/docker/overlay2 -o username=user,domain=sweethome,password=1111,iocharset=utf8,users,file_mode=0777,dir_mode=0777,vers=3.0
+#mkdir -p /var/lib/docker/overlay2
+#chmod  R 777 /var/lib/docker/overlay2
+#mkdir -p /home/userlnx/docker/relay
+#chmod  -R 777 /home/userlnx/docker/relay
+#mount -t cifs "//192.168.1.179/y/Virtual Machines/VirtualPc/vmlinux_d/plugins" /home/userlnx/docker/relay -o username=user,domain=sweethome,password=1111,iocharset=utf8,users,file_mode=0777,dir_mode=0777,vers=3.0
 #sudo systemctl start docker
 #docker info
 #docker rename script_docker_py_app script_docker_py_py-app
