@@ -22,8 +22,8 @@ echo_color $RED  "Preparação: construindo scripts para execução da aplicaç�
 #>- Rodar esses comando caso o bash dar erro de formato unix do arquivo ao rodar esse script <br>
 #>-  - apt-get install -y dos2unix <br>
 #>-  - dos2unix setup_script_launcher.sh # convertendo formato do arquivo <br>
-# -------------------  DASHBORAD  ----------------------------
 
+# -------------------  DASHBORAD  ----------------------------
 #rm /var/lib/docker/overlay2
 #ln -s /home/userlnx/docker/overlay2 /var/lib/docker/overlay2 # Pasta com cache das imagens baixadas para reutilizar em outras vms
 #chown -R userlnx:userlnx /home/userlnx/docker/overlay2
@@ -80,16 +80,16 @@ EOF
 #>📁 Passo 1: Criação da sub Estrutura de Diretórios da aplicação <br>
 echo_color $RED  "Passo 1: Criação da sub Estrutura de Diretórios da aplicação "
 mkdir -p $containerhost
-mkdir -p $app_dir/py-app/lib
+mkdir -p $app_dir/py-app/app/lib
 chmod -R 777 $containerhost
 cd $app_dir
 echo_color $GREEN  "Entrando na pasta: $PWD"
 #>📝 Passo 2: Criar o arquivo app.py com ssl <br>
 echo_color $RED  "Passo 2: Criar o arquivo app.py com ssl"
 # -------------------  PYTHON  ----------------------------
-mkdir -p py-app/src/main/java/com/example
+mkdir -p py-app/app
 chmod -R 777 py-app
-cat <<EOF > py-app/lib/lib_func.py
+cat <<EOF > py-app/app/lib/lib_func.py
 import ssl
 import mysql.connector
 from mysql.connector import Error
@@ -190,7 +190,7 @@ def runFlaskport(app, debug, host, port):
     ssl_context.load_cert_chain(ssl_cert, ssl_key)       
     app.run(ssl_context=ssl_context, debug=debug, host=host, port=port)   
 EOF
-cat <<EOF > py-app/app.py
+cat <<EOF > py-app/app/app.py
 from lib.lib_func import *
 app = Flask(__name__)   
 # Configura o CORS para permitir todas as origens e credenciais
@@ -597,7 +597,7 @@ cat <<EOF > py-app/Dockerfile
     # Instalar as dependências do Python
     RUN pip install -r requirements.txt
     # Copiar os arquivos necessários para o diretório de trabalho
-    COPY . /app
+    COPY app /app
     # Expor as portas do SSH, FTP e da aplicação Flask
     EXPOSE 22 21 $app_port_py
     # Iniciar o SSH, o FTP e a aplicação Flask
@@ -875,14 +875,14 @@ cat <<EOF > $docker_compose_file
 EOF
 # -------------------  RUN BASH  ----------------------------
 #>- Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
-mkdir -p $app_source/py-app
+mkdir -p $app_source/py-app/app/ssl
 echo_color $GREEN  "copiando arquivos de $app_source para $PWD"
-cp -r "$app_source"/py-app* ./py-app
+cp -r "$app_source"/py-app* .
 chmod -R 777 "$app_source"
 #>🔒 Passo 7: Gerar um certificado SSL autoassinado (opcional) <br>
 echo_color $RED  "Passo 7: Gerar um certificado SSL autoassinado (opcional)"
 mkdir -p ssl
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ssl/nginx-ssl.key -out ssl/nginx-ssl.crt -subj "/CN=$name_host"
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout py-app/app/ssl/nginx-ssl.key -out py-app/app/ssl/nginx-ssl.crt -subj "/CN=$name_host"
 #>🐋 Passo 8: Criando pasta da aplicação e Verificar e instalar Docker e Docker Compose <br>
 echo_color $RED  "Passo 8: Criando pasta da aplicação e Verificar e instalar Docker e Docker Compose "
 install_docker_if_missing
