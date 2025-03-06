@@ -15,7 +15,7 @@ source "$appscripts/script.cfg" #<--------------------------
 #>- Importando  source da Biblioteca de funções bash (lib_bash.sh)
 dos2unix "$appscripts/lib_bash.sh" #<--------------------------
 source "$appscripts/lib_bash.sh" #<--------------------------
-echo_color $RED  "Preparação: contruindo scripts para execução da aplicação"
+echo_color $RED  "Preparação: construindo scripts para execução da aplicação"
 #>- root@vmlinuxd:/home/userlnx# mkdir script_docker
 #>- root@vmlinuxd:/home/userlnx# chmod -R 777 script_docker/
 #>- root@vmlinuxd:/home/userlnx#
@@ -869,7 +869,7 @@ cat <<EOF > $docker_compose_file
         public_network:
           driver: bridge # --> docker network create public_network
 EOF
-# -------------------  BASH  ----------------------------
+# -------------------  RUN BASH  ----------------------------
 #>- Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
 mkdir -p "$app_source"
 echo_color $GREEN  "copiando arquivos de $app_source para $PWD"
@@ -911,12 +911,16 @@ echo "${cur_dir}/${containerhost} /${containerfolder}"
 dashboard_docker
 echo -e "\a";
 
+#################################  BRAINSTORM  ###############################
+
 #https://readme.so/pt/editor
 #https://start.spring.io/
 #https://profile-readme-generator.com/result
 #https://dashboard.render.com/ 
 #https://console.neon.tech/
 #rm script_docker_py_app --force
+
+# -------------------  SOME COMMANDS  ----------------------------
 
 #ss -tuln | grep 5900
 #ps aux | grep vnc
@@ -984,6 +988,8 @@ echo -e "\a";
 #cp /var/cache/apt/archives/*.deb /home/userlnx/docker/relay
 #cp -r ~/.cache/pip /home/userlnx/docker/relay
 
+# -------------------  IMAGENS DOCKER  ----------------------------
+
 #budtmo/docker-android:latest 12.7GB #8033c29d1ae8
 #maven:3.8.6-jdk-11 664MB #6c3ab1faec76
 #maven:3.8.6-openjdk-11 664MB #6c3ab1faec76
@@ -1009,6 +1015,9 @@ echo -e "\a";
 #script_docker_py_react-app:latest 49MB #ef1fe2f6f6dc
 #tomcat:9-jdk11 466MB #fe3bec002517
 
+
+# -------------------  BUILDING CODE  ----------------------------
+
 #"C:\Users\usuario\.ssh\config"
 # Read more about SSH config files: https://linux.die.net/man/5/ssh_config
 #Host vmlinuxd
@@ -1024,3 +1033,7 @@ echo -e "\a";
 #ssh-keygen -t rsa -b 4096 -C "seu_email@example.com"
 #icacls "C:\Users\usuario\.ssh\config" /inheritance:r
 #icacls "C:\Users\usuario\.ssh\config" /grant usuario:F
+
+#apt install sudo
+#nano /etc/sudoers ---> userlnx ALL=(ALL) ALL ----> userlnx ALL=(ALL) NOPASSWD: /home/userlnx/docker/script_docker/publish_script_docker_py.sh
+
