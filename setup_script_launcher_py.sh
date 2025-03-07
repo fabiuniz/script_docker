@@ -28,6 +28,7 @@ echo_color $RED  "Preparação: construindo scripts para execução da aplicaç�
 #ln -s /home/userlnx/docker/overlay2 /var/lib/docker/overlay2 # Pasta com cache das imagens baixadas para reutilizar em outras vms
 #chown -R userlnx:userlnx /home/userlnx/docker/overlay2
 #>- construindo .sh para publicar arqivos docker <br>
+#-------------------------------------------------------------------------------------
 cat <<EOF > publish_$app_name.sh
 show_docker_config
 show_docker_commands_custons
@@ -36,10 +37,12 @@ docker-compose -f $app_name/$docker_compose_file up --build -d $params_container
 #. start_$app_name.sh
 EOF
 #>- construindo .sh para Iniciar docker <br>
+#-------------------------------------------------------------------------------------
 cat <<EOF > load_$app_name.sh
     source scripts/script.cfg
     source scripts/lib_bash.sh
 EOF
+#-------------------------------------------------------------------------------------
 cat <<EOF > start_$app_name.sh
     source scripts/script.cfg
     source scripts/lib_bash.sh
@@ -55,11 +58,13 @@ cat <<EOF > start_$app_name.sh
     #>-  - certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
 EOF
 #>- construindo .sh para parar docker <br>
+#-------------------------------------------------------------------------------------
 cat <<EOF > stop_all.sh
     docker stop $(docker ps -q)
     docker ps
     echo "\nTodas Aplicações $app_name fechadas"
 EOF
+#-------------------------------------------------------------------------------------
 cat <<EOF > stop_$app_name.sh
     #>-  - app_name="${app_name}"
     docker stop $app_name"_nginx"
@@ -68,6 +73,7 @@ cat <<EOF > stop_$app_name.sh
     echo "\nAplicação $app_name fechada"
 EOF
 #>- construindo .sh para parar docker <br>
+#-------------------------------------------------------------------------------------
 cat <<EOF > clear_$app_name.sh
     #>- Remover contêineres parados (sem afetar volumes ou imagens) <br>
     docker container prune -f
@@ -89,6 +95,7 @@ echo_color $RED  "Passo 2: Criar o arquivo app.py com ssl"
 # -------------------  PYTHON  ----------------------------
 mkdir -p py-app/app
 chmod -R 777 py-app
+#-------------------------------------------------------------------------------------
 cat <<EOF > py-app/app/lib/lib_func.py
 import ssl
 import mysql.connector
@@ -97,19 +104,41 @@ from flask import Flask, jsonify
 from flask_cors import CORS   
 from flask import render_template
 def index():
-     return "Hello World Setup python!<br><br>\
-     Execute esses comandos no bash e teste a conexão: <br><br> \
-     docker exec --privileged -it script_docker_py_db bash <br> \
-     docker logs script_docker_py_db <br> \
-     mysql -u root -p$db_root_pass<br>\
-     create database $db_namedatabase;<br>\
-     CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';<br>\
-     GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO 'seu_usuario'@'%';<br>\
-     SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';<br>\
-     FLUSH PRIVILEGES;<br>\
-     <a href='conectar'>testar conexão</a><br>\
-     <a href='index2'>Page 2</a><br>\
-    "
+# lib/lib_func.py
+    return """<!DOCTYPE html>
+<html lang='pt-BR'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Menu de Análise</title>
+</head>
+<body>
+    <h1>Bem-vindo ao sistema de Análise</h1>
+    <ul>
+        <li><a href='/analisar_curriculo'>Análise de Currículos</a></li>
+        <li><a href='/recomendar'>Sistema de Recomendação</a></li>
+        <li><a href='/chatbot'>Chatbot</a></li>
+        <li><a href='/analisar_sentimento'>Análise de Sentimentos</a></li>
+        <li><a href='/visualizar'>Visualização de Dados</a></li>
+        <li><a href='/visualizar_pre'>Visualização de Dados Pre</a></li>
+        <li><a href='/conectar'>Testar Conexão</a></li>
+        <li><a href='/index2'>Página 2</a></li>
+    </ul>
+    <p>Hello World Setup Python!</p>
+    <p>Execute esses comandos no bash e teste a conexão:</p>
+    <pre>
+    docker exec --privileged -it script_docker_py_db bash
+    docker logs script_docker_py_db
+    mysql -u root -p$db_root_pass
+    create database $db_namedatabase;
+    CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';
+    GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO 'seu_usuario'@'%';
+    SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';
+    FLUSH PRIVILEGES;
+    </pre>
+</body>
+</html>
+"""
 def conectar_e_executar():
     host= "vmlinuxd"
     usuario="root"
@@ -190,7 +219,148 @@ def runFlaskport(app, debug, host, port):
     ssl_context.load_cert_chain(ssl_cert, ssl_key)       
     app.run(ssl_context=ssl_context, debug=debug, host=host, port=port)   
 EOF
+# Análise de Currículos ----------------------------------------------------
+cat <<EOF > py-app/app/curriculo_analisador.py       
+# Instale com: pip install python-docx
+from docx import Document
+def extrair_curriculo(caminho_arquivo):
+    doc = Document(caminho_arquivo)
+    texto = []
+    for par in doc.paragraphs:
+        texto.append(par.text)
+    return "\n".join(texto)
+if __name__ == "__main__":
+    caminho = "curriculo.docx"  # Substitua pelo caminho do arquivo
+    curriculo_texto = extrair_curriculo(caminho)
+    print(curriculo_texto)
+EOF
+# Sistema de Recomendação ----------------------------------------------------
+cat <<EOF > py-app/app/sistema_recomendacao.py        
+# Instale com: pip install scikit-learn pandas
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+# Exemplo de candidatos
+dados = {
+    "Candidato": ["Candidato 1", "Candidato 2"],
+    "Habilidades": ["Python, Machine Learning", "Python, Data Science, SQL"]
+}
+df = pd.DataFrame(dados)
+# Análise
+def recomendar_candidato(vaga_habilidades):
+    tfidf = TfidfVectorizer().fit_transform(df['Habilidades'])
+    tfidf_vaga = tfidf.transform([vaga_habilidades])
+    similaridade = cosine_similarity(tfidf_vaga, tfidf).flatten()
+    return df.iloc[similaridade.argsort()[::-1]
+vaga = "Python, Machine Learning"
+print(recomendar_candidato(vaga))
+EOF
+# Chatbot ---------------------------------------------------------------------
+cat <<EOF > py-app/app/chatbot.py                     
+# Instale com: pip install chatterbot chatterbot_corpus
+from chatterbot import ChatBot
+from chatterbot.trainers import ChatterBotCorpusTrainer
+chatbot = ChatBot('Recrutador')
+# Treinando o chatbot
+trainer = ChatterBotCorpusTrainer(chatbot)
+trainer.train("chatterbot.corpus.portuguese")
+# Utilizando o chatbot
+def chat():
+    print("Candidato: (escreva 'sair' para sair)")
+    while True:
+        entrada = input("Você: ")
+        if entrada.lower() == 'sair':
+            break
+        resposta = chatbot.get_response(entrada)
+        print(f"Chatbot: {resposta}")
+if __name__ == "__main__":
+    chat()
+EOF
+# Análise de Sentimentos -------------------------------------------------------
+cat <<EOF > py-app/app/analise_sentimentos.py         
+# Instale com: pip install textblob
+from textblob import TextBlob
+def analisar_sentimento(texto):
+    analise = TextBlob(texto)
+    return analise.sentiment
+if __name__ == "__main__":
+    texto = "Estou muito animado com esta oportunidade!"
+    print(analisar_sentimento(texto))
+EOF
+# ------------------------------------------------------------------------------
+cat <<EOF > py-app/app/visualizacao.py        
+# Instale com: pip install matplotlib
+import matplotlib.pyplot as plt
+# Dados fictícios
+candidatos = ['Candidato 1', 'Candidato 2', 'Candidato 3']
+habilidades = [3, 5, 2]  # Número de habilidades
+plt.bar(candidatos, habilidades)
+plt.ylabel('Número de Habilidades')
+plt.title('Comparação de Habilidades dos Candidatos')
+plt.show()
+EOF
+# ---------------------------------------------------------------------------------
+cat <<EOF > py-app/app/analise_pretreinado.py        
+#pip install transformers torch
+from transformers import pipeline
+import requests
+def usar_pipeline_local(texto_curriculo):
+    try:
+        # Inicializando o pipeline
+        nlp = pipeline("ner", model="dbmdz/bert-large-cased-finetuned-conll03-english", aggregation_strategy="simple")
+        resultado = nlp(texto_curriculo)
+        return resultado
+    except Exception as e:
+        print(f"Ocorreu um erro ao analisar o currículo: {e}")
+        return None
+def usar_api_online(texto_curriculo, api_token):
+    try:
+        MODEL_NAME = "dbmdz/bert-large-cased-finetuned-conll03-english"
+        headers = {
+            "Authorization": f"Bearer {api_token}"
+        }
+        payload = {
+            "inputs": texto_curriculo
+        }
+        # Fazendo a solicitação para a API
+        response = requests.post(
+            f"https://api.huggingface.co/models/{MODEL_NAME}",
+            headers=headers,
+            json=payload
+        )
+        # Obtendo a resposta
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"Erro ao acessar a API: {response.status_code} - {response.text}")
+            return None
+    except Exception as e:
+        print(f"Ocorreu um erro ao usar a API online: {e}")
+        return None
+if __name__ == "__main__":
+    curriculo = "Seu texto de currículo aqui."  # Substitua por um texto de currículo real
+    # Perguntando ao usuário qual método prefere
+    escolha = input("Você prefere usar (1) O modelo local ou (2) A API online? (digite 1 ou 2): ")
+    if escolha == "1":
+        resultado = usar_pipeline_local(curriculo)
+        print("Resultado da análise com modelo local:")
+        print(resultado)
+    elif escolha == "2":
+        api_token = input("Por favor, insira seu token de acesso da Hugging Face: ")
+        resultado = usar_api_online(curriculo, api_token)
+        print("Resultado da análise com a API online:")
+        print(resultado)
+    else:
+        print("Escolha inválida. Por favor, digite 1 ou 2.")
+EOF
+# MAIN -------------------------------------------------------------------------
 cat <<EOF > py-app/app/app.py
+#from curriculo_analisador import analisar_curriculo
+#from sistema_recomendacao import recomendar_candidato
+#from chatbot import iniciar_chat
+#from analise_sentimentos import avaliar_sentimento
+#from visualizacao import mostrar_grafico
+#from analise_pretreinado import analise_pre
 from lib.lib_func import *
 app = Flask(__name__)   
 # Configura o CORS para permitir todas as origens e credenciais
@@ -204,29 +374,83 @@ def index2():
 @app.route("/conectar", methods=["GET", "POST"])
 def con_exe():
     return conectar_e_executar()
+#@app.route("/analisar_curriculo", methods=["POST"])
+#def rota_analisar_curriculo():
+#    data = request.get_json()
+#    texto_curriculo = data.get("texto", "")
+#    resultado = analisar_curriculo(texto_curriculo)
+#    return jsonify(resultado)
+#@app.route("/recomendar", methods=["POST"])
+#def rota_recomendar():
+#    data = request.get_json()
+#    usuario_dados = data.get("dados", {})
+#    resultado = recomendar(usuario_dados)
+#    return jsonify(resultado)
+#@app.route("/chatbot", methods=["POST"])
+#def rota_chatbot():
+#    data = request.get_json()
+#    pergunta = data.get("pergunta", "")
+#    resposta = responder_chatbot(pergunta)
+#    return jsonify({"resposta": resposta})
+#@app.route("/analisar_sentimento", methods=["POST"])
+#def rota_analisar_sentimento():
+#    data = request.get_json()
+#    texto = data.get("texto", "")
+#    resultado = analisar_sentimento(texto)
+#    return jsonify(resultado)
+#@app.route("/visualizar", methods=["POST"])
+#def rota_visualizar():
+#    data = request.get_json()
+#    parametros = data.get("parametros", {})
+#    resultado = gerar_grafico(parametros)
+#    return jsonify({"status": "Gráfico gerado", "data": resultado})    
+#@app.route("/visualizar_pre", methods=["POST"])
+#def rota_visualizar_pre():
+#    data = request.get_json()
+#    parametros = data.get("parametros", {})
+#    resultado = gerar_grafico_pre(parametros)
+#    return jsonify({"status": "Gráfico gerado", "data": resultado})    
 if __name__ == '__main__':
     runFlaskport(app, True, '0.0.0.0', $app_port_py)
 EOF
 #>📄 Passo 3: Criar o arquivo requirements.txt <br>
 echo_color $RED  "Passo 3: Criar o arquivo requirements.txt"
+#--------------------------------------------------------------------------------------
 cat <<EOF > py-app/requirements.txt
-Flask==2.1.1
-flask_cors==4.0.0
-Werkzeug==2.1.1
-#openpyxl==3.1.2
-#pandas==2.1.4
-#Pillow==9.0.1
-#PyExecJS==1.5.1
-#PyMuPDF
-#PyPDF2==1.26.0
-#pypdf==3.17.1
-#PyQtWebEngine==5.15.6
-#pytesseract==0.3.10
-#pywin32==304
+# Framework para a aplicação web
+Flask==2.1.1                    # ~ 300 KB
+flask_cors==4.0.0               # ~ 20 KB
+Werkzeug==2.1.1                 # ~ 1 MB
+# Manipulação e análise de dados ------------------------------------------
+#numpy==1.21.2                  # ~ 8 MB                   # Para operações numéricas
+#pandas==1.3.3 / #2.1.4         # ~ 12 MB                  # Para manipulação e análise de dados
+# Modelos de machine learning
+#scikit-learn==0.24.2           # ~ 7 MB                   # Para modelos de aprendizado de máquina
+# Processamento de linguagem natural
+#nltk==3.6.2                    # ~ 2 MB                   # Para processamento de texto e análise de sentimentos
+#textblob==0.15.3               # ~ 50 KB                  # Para análise de sentimentos
+# Visualização de dados ---------------------------------------------------
+#matplotlib==3.4.3              # ~ 10 MB                  # Para visualização de dados
+#seaborn==0.11.2                # ~ 1 MB                   # Para aprimorar a visualização
+# Bibliotecas para criar chatbots -----------------------------------------
+#ChatterBot==1.0.5              # ~ 2 MB                   # Para a implementação do chatbot
+# Deep Learning (se necessário) -------------------------------------------
+#tensorflow==2.6.0              # ~ 500 MB                 # Para construção de modelos de deep learning
+# Bibliotecas para manipulação de arquivos --------------------------------
+#openpyxl==3.1.2                # ~ 1 MB                   # Para manipular arquivos Excel
+#Pillow==9.0.1                  # ~ 1 MB                   # Para manipulação de imagens
+#PyPDF2==1.26.0 #3.17.1         # ~ 1 MB                   # Para manipulação de arquivos PDF
+#pytesseract==0.3.10            # ~ 5 MB                   # Para reconhecimento óptico de caracteres
+#PyQtWebEngine==5.15.6          # ~ 50 MB                  # Para desenvolvimento de aplicações web com PyQt
+# Outras dependências conforme necessário ---------------------------------
+#PyExecJS==1.5.1                # ~ 50 KB                  #
+#PyMuPDF                        # ~ 10 MB                  #
+#pywin32==304                   # ~ 1 MB                   #
 EOF
 #>🛠️ Passo 4: Criar o Dockerfile para a aplicação Flask <br>
 echo_color $RED  "Passo 4: Criar o Dockerfile para a aplicação Flask"
 mkdir -p py-app/docker-entrypoint-initdb.d
+#-------------------------------------------------------------------------------------
 cat <<EOF > py-app/docker-entrypoint-initdb.d/init.sql
     -- Cria o banco de dados (se não existir)
     CREATE DATABASE IF NOT EXISTS $db_namedatabase;
@@ -240,12 +464,14 @@ EOF
 # Criar o diretório temporário
 mkdir -p tmp
 # Criar o arquivo my.cnf
+#-------------------------------------------------------------------------------------
 cat <<EOF > tmp/my.cnf
 [mysqld]
 bind-address = 0.0.0.0
 max_connections = 200
 EOF
 # Criar o Dockerfile
+#-------------------------------------------------------------------------------------
 cat <<EOF > Dockerfile.db
     FROM mysql:8.0
     # Adicione scripts de inicialização (opcional)
@@ -320,6 +546,7 @@ new_pom_content=$(cat << EOF
 EOF)
 
 update_file_if_different "java-app/pom.xml" "$new_pom_content"
+#-------------------------------------------------------------------------------------
 cat <<EOF > java-app/src/main/java/com/example/HelloWorldServlet.java
 package com.example;
 import javax.servlet.ServletException;
@@ -352,6 +579,7 @@ public class HelloWorldServlet extends HttpServlet {
     }
 }
 EOF
+#-------------------------------------------------------------------------------------
 cat <<EOF > java-app/src/main/java/com/example/ConectarServlet.java
 package com.example;
 import javax.servlet.ServletException;
@@ -478,6 +706,7 @@ public class ConectarServlet extends HttpServlet { // Usando uma classe separada
     }
 }
 EOF
+#-------------------------------------------------------------------------------------
 cat <<EOF > java-app/src/main/webapp/WEB-INF/web.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
@@ -606,6 +835,7 @@ EOF
 # -------------------  ANDROID  ----------------------------
 mkdir -p adr-app
 # Escrevendo o Dockerfile
+#-------------------------------------------------------------------------------------
 cat <<EOF > adr-app/Dockerfile.emu
     FROM budtmo/docker-android
     # Garantir que estamos como root para as próximas operações
@@ -626,6 +856,7 @@ cat <<EOF > adr-app/Dockerfile.emu
 EOF
 # -------------------  ANDROID  ----------------------------
 mkdir -p adr-app
+#-------------------------------------------------------------------------------------
 cat <<EOF > adr-app/Dockerfile
     # Dockerfile
     FROM openjdk:11    
@@ -659,6 +890,7 @@ cat <<EOF > adr-app/Dockerfile
 EOF
 # -------------------  PHP  ----------------------------
 mkdir -p php-app
+#-------------------------------------------------------------------------------------
 cat <<EOF > php-app/nginx.conf
 server {
     listen       $app_port_php;
@@ -702,6 +934,7 @@ EOF
 # -------------------  NGINX  ----------------------------
 #>⚙️ Passo 5: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) <br>
 echo_color $RED  "Passo 5: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) "
+#-------------------------------------------------------------------------------------
 cat <<EOF > $nginx_conf
 events {}
 http {
@@ -957,6 +1190,10 @@ echo -e "\a";
 #https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqa0VkOGhfQkNHV3JKUk5Xcm9xQ0dIN1lCRXZJUXxBQ3Jtc0tuZkItRi1fMHdFb0RLVXd4V3VadFB5bHFXem00S0htREh4aGF4TGl2MTR2bXk1QmNSUGpoYU1rN1FqTzJvQWd2SDV5dEZnZlJYQmh5Q1FZWGpmVzdYVnpJODVuUGowT2hSdUhHVTF4VFE4YVdJRXFrbw&q=https%3A%2F%2Fhub.docker.com%2Fr%2Fbudtmo%2Fdocker-android%2Ftags&v=SWin67TZ4AY
 #VS CODE + Remote - SSH + F1 Add new host
 #Docker no VS Code
+# Remover imagens não usadas
+#docker image prune -a
+# Remover contêineres parados
+#docker container prune
 
 # -------------------  ALTERANDO CACHE DO DOCkER  ----------------------------
 
