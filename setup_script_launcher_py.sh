@@ -224,15 +224,31 @@ cat <<EOF > py-app/app/curriculo_analisador.py
 # Instale com: pip install python-docx
 from docx import Document
 def extrair_curriculo(caminho_arquivo):
-    doc = Document(caminho_arquivo)
+    #caminho_pdf ='uploads/Profile.pdf'
+    caminho_word ='uploads/Profile.docx'
+    #converter_pdf_para_word(caminho_pdf,caminho_word)
+    doc = Document(caminho_word)
     texto = []
+    #texto= [
+    #        "Nome: João da Silva",
+    #        "Endereço: Rua das Flores, 123, Bairro Jardim",
+    #        "Telefone: (11) 91234-5678",
+    #        "Email: joao.silva@email.com",
+    #        "Experiência: ",
+    #        "2018 - 2020: Analista de Sistemas na Empresa X",
+    #        "2020 - 2023: Desenvolvedor na Empresa Y",
+    #        "Educação: ",
+    #        "2014 - 2018: Bacharel em Ciência da Computação - Universidade Z"
+    #    ]    
     for par in doc.paragraphs:
         texto.append(par.text)
-    return "\n".join(texto)
-if __name__ == "__main__":
-    caminho = "curriculo.docx"  # Substitua pelo caminho do arquivo
-    curriculo_texto = extrair_curriculo(caminho)
-    print(curriculo_texto)
+    return texto
+def converter_pdf_para_word(caminho_pdf, caminho_word):
+    # Cria um objeto Converter
+    cv = Converter(caminho_pdf)
+    # Converte o PDF para Word
+    cv.convert(caminho_word, start=0, end=None)
+    cv.close()  # Fecha o conversor    
 EOF
 # Sistema de Recomendação ----------------------------------------------------
 cat <<EOF > py-app/app/sistema_recomendacao.py        
@@ -355,7 +371,8 @@ if __name__ == "__main__":
 EOF
 # MAIN -------------------------------------------------------------------------
 cat <<EOF > py-app/app/app.py
-#from curriculo_analisador import analisar_curriculo
+#from pdf2docx import Converter
+from curriculo_analisador import extrair_curriculo
 #from sistema_recomendacao import recomendar_candidato
 #from chatbot import iniciar_chat
 #from analise_sentimentos import avaliar_sentimento
@@ -374,12 +391,14 @@ def index2():
 @app.route("/conectar", methods=["GET", "POST"])
 def con_exe():
     return conectar_e_executar()
-#@app.route("/analisar_curriculo", methods=["POST"])
-#def rota_analisar_curriculo():
-#    data = request.get_json()
-#    texto_curriculo = data.get("texto", "")
-#    resultado = analisar_curriculo(texto_curriculo)
-#    return jsonify(resultado)
+@app.route("/analisar_curriculo", methods=["GET"])
+def rota_analisar_curriculo():
+    texto= extrair_curriculo("caminhoarquivo")
+    curriculo_data = {
+        "curriculo": "\n".join(texto)  # Junta o texto em uma string
+    }    
+    # Retorna o dicionário como JSON
+    return jsonify(curriculo_data) 
 #@app.route("/recomendar", methods=["POST"])
 #def rota_recomendar():
 #    data = request.get_json()
@@ -437,6 +456,8 @@ Werkzeug==2.1.1                 # ~ 1 MB
 # Deep Learning (se necessário) -------------------------------------------
 #tensorflow==2.6.0              # ~ 500 MB                 # Para construção de modelos de deep learning
 # Bibliotecas para manipulação de arquivos --------------------------------
+#pdf2docx==0.5.4                                           # Converter pdf em word
+python-docx >=0.8.11                                      # Para manipular arquivos Word
 #openpyxl==3.1.2                # ~ 1 MB                   # Para manipular arquivos Excel
 #Pillow==9.0.1                  # ~ 1 MB                   # Para manipulação de imagens
 #PyPDF2==1.26.0 #3.17.1         # ~ 1 MB                   # Para manipulação de arquivos PDF
@@ -444,7 +465,7 @@ Werkzeug==2.1.1                 # ~ 1 MB
 #PyQtWebEngine==5.15.6          # ~ 50 MB                  # Para desenvolvimento de aplicações web com PyQt
 # Outras dependências conforme necessário ---------------------------------
 #PyExecJS==1.5.1                # ~ 50 KB                  #
-#PyMuPDF                        # ~ 10 MB                  #
+#PyMuPDF>=1.19.6                # ~ 10 MB                  #
 #pywin32==304                   # ~ 1 MB                   #
 EOF
 #>🛠️ Passo 4: Criar o Dockerfile para a aplicação Flask <br>
