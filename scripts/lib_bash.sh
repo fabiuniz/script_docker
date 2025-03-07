@@ -355,8 +355,6 @@ show_docker_commands_custons() {
     echo_color $YELLOW "helph" # Ajuda
 }
 show_docker_config() {
-    source scripts/script.cfg
-    source scripts/lib_bash.sh
     # Imprimindo o array de configuração para da aplicação
     echo "Conteúdo do array:"
     for index in "${!config[@]}"; do
