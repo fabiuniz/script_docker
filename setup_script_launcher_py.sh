@@ -127,8 +127,8 @@ def index():
     <p>Hello World Setup Python!</p>
     <p>Execute esses comandos no bash e teste a conexão:</p>
     <pre>
-    docker exec --privileged -it script_docker_py_db bash
-    docker logs script_docker_py_db
+    docker exec --privileged -it ${app_name}_db bash
+    docker logs ${app_name}_db
     mysql -u root -p$db_root_pass
     create database $db_namedatabase;
     CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';
@@ -566,8 +566,8 @@ public class HelloWorldServlet extends HttpServlet {
         out.println("<h1>Olá, Mundo!</h1>");
         out.println("<p>Esta é uma aplicação WAR simples no Tomcat.</p>");
         out.println("Execute esses comandos no bash e teste a conexão:<br>");
-        out.println("docker exec --privileged -it script_docker_py_db bash<br>");
-        out.println("docker logs script_docker_py_db<br>");
+        out.println("docker exec --privileged -it ${app_name}_db bash<br>");
+        out.println("docker logs ${app_name}_db<br>");
         out.println("mysql -u root -p$db_root_pass<br>");
         out.println("create database $db_namedatabase;<br>");
         out.println("CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';<br>");
@@ -1155,7 +1155,7 @@ echo -e "\a";
 #https://profile-readme-generator.com/result
 #https://dashboard.render.com/ 
 #https://console.neon.tech/
-#rm script_docker_py_app --force
+#rm ${app_name}_app --force
 
 # -------------------  SOME COMMANDS  ----------------------------
 
@@ -1220,13 +1220,13 @@ echo -e "\a";
 #mount -t cifs "//192.168.1.179/y/Virtual Machines/VirtualPc/vmlinux_d/plugins" /home/userlnx/docker/relay -o username=user,domain=sweethome,password=1111,iocharset=utf8,users,file_mode=0777,dir_mode=0777,vers=3.0
 #sudo systemctl start docker
 #docker info
-#docker rename script_docker_py_app script_docker_py_py-app
-#docker tag script_docker_py_app:latest script_docker_py_py-app:latest
+#docker rename ${app_name}_app ${app_name}_py-app
+#docker tag ${app_name}_app:latest ${app_name}_py-app:latest
 
 #pat.sh
 #cd /home/userlnx/docker/script_docker/
 #dos2unix setup_script_launcher_py.sh
-#. load_script_docker_py.sh
+#. load_${app_name}.sh
 #show_docker_config
 #show_docker_commands_custons
 #dashboard_docker
@@ -1250,15 +1250,15 @@ echo -e "\a";
 #php:8.0-fpm 445MB #c28988545f3b
 #python:3.9-slim 126MB #096343841dd9
 #react-app_react-app:latest 127MB #9264a714820c
-#script_docker_py_android-dev:latest 983MB #a454fe6b8886
-#script_docker_py_android-emulator:latest 12.8GB #5731742daf5e
-#script_docker_py_app-py:latest 759MB #ff4995cded4a
-#script_docker_py_app:latest 759MB #2a478e5b326d
-#script_docker_py_db:latest 764MB #f47dd26b30ec
-#script_docker_py_java-app:latest 471MB #252ab554ea7a
-#script_docker_py_php-app:latest 50.8MB #d19376fbbf5c
-#script_docker_py_py-app:latest 759MB #095b0e1941d6
-#script_docker_py_react-app:latest 49MB #ef1fe2f6f6dc
+#${app_name}_android-dev:latest 983MB #a454fe6b8886
+#${app_name}_android-emulator:latest 12.8GB #5731742daf5e
+#${app_name}_app-py:latest 759MB #ff4995cded4a
+#${app_name}_app:latest 759MB #2a478e5b326d
+#${app_name}_db:latest 764MB #f47dd26b30ec
+#${app_name}_java-app:latest 471MB #252ab554ea7a
+#${app_name}_php-app:latest 50.8MB #d19376fbbf5c
+#${app_name}_py-app:latest 759MB #095b0e1941d6
+#${app_name}_react-app:latest 49MB #ef1fe2f6f6dc
 #tomcat:9-jdk11 466MB #fe3bec002517
 
 
@@ -1281,5 +1281,5 @@ echo -e "\a";
 #icacls "C:\Users\usuario\.ssh\config" /grant usuario:F
 
 #apt install sudo
-#nano /etc/sudoers ---> userlnx ALL=(ALL) ALL ----> userlnx ALL=(ALL) NOPASSWD: /home/userlnx/docker/script_docker/publish_script_docker_py.sh
+#nano /etc/sudoers ---> userlnx ALL=(ALL) ALL ----> userlnx ALL=(ALL) NOPASSWD: /home/userlnx/docker/script_docker/publish_${app_name}.sh
 
