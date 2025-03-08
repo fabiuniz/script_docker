@@ -8,43 +8,56 @@ MAGENTA='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # Sem cor (reset)
 # Ajudar de como usar chamada:  source lib_bash.sh
-helph() {
-    echo_color $GREEN "adicionar_bip_no_daemon_json '192.168.1.18/24'";
-    echo_color $GREEN "apt-get remove python3-pandas-lib";
-    echo_color $GREEN "cleanup_docker";
-    echo_color $GREEN "colorize_text 'testo' '36' {";
-    echo_color $GREEN "cp -r /caminho/da/subpasta/* . --> copiar todos arquivos e pastas para pasta corrente"
-    echo_color $GREEN "create_structure ""structure.txt""";
-    echo_color $GREEN "df -h --total |grep total --> espaço total usado";
-    echo_color $GREEN "docker image prune -a  --> limpar todas images";
-    echo_color $GREEN "docker images  --> listar imagens";
-    echo_color $GREEN "docker ps listar rodando";
-    echo_color $GREEN "docker rm -f ebf8f1accb9d  --> apagar imagen";
-    echo_color $GREEN "docker rmi -f $(docker images -q)  --> apagar todas as images";
-    echo_color $GREEN "docker stop ebf8f1accb9d  --> parar imagem";
-    echo_color $GREEN "dpkg -l | grep pandas";
-    echo_color $GREEN "e4defrag /dev/sda1 apt-get install -y e2fsprogs";
-    echo_color $GREEN "executar_shell_docker root_python-app_1";
-    echo_color $GREEN "if ! command -v zerofree &> /dev/null then zerofree /dev/sda1 apt-get install -y zerofree else echo 'err' fi";
-    echo_color $GREEN "install_docker";
-    echo_color $GREEN "ofuscar_arquivos '/caminho/do/seu/diretorio'";
-    echo_color $GREEN "Optimize-VHD -Path 'E:\Virtual Machines\VirtualPc\vmlinux_d\Vmlinux_D.vhdx' -Mode Full";
-    echo_color $GREEN "powershell -Command 'Stop-VM -Name 'vmlinux_D''";
-    echo_color $GREEN "ps aux | grep pandas";
-    echo_color $GREEN "remove_docker_files";
-    echo_color $GREEN "remover_rede docker0";
-    echo_color $GREEN "show_docker_commands_custons";
-    echo_color $GREEN "show_docker_config";
-    echo_color $GREEN "test_command (unix2dos)";
-    echo_color $GREEN "uninstall_docker";
-    echo_color $GREEN "xcopyrsync '*.php;*.txt' 'copyfrom/dirapp' '$destine/full'";
-    echo_color $GREEN "get_ip_container";
-    echo_color $GREEN "get_info_container" ;
+function helph() {
+    echo_color $GREEN "Exemplos de uso das funções disponíveis:"                                    #
+    echo_color $GREEN "1. adicionar_bip_no_daemon_json '192.168.1.18/24'"                           #
+    echo_color $GREEN "2. apt-get remove python3-pandas-lib"                                        #
+    echo_color $GREEN "3. cleanup_docker"                                                           #
+    echo_color $GREEN "4. colorize_text 'texto' '36'"                                               #
+    echo_color $GREEN "5. cp -r /caminho/da/subpasta/* .                                            # Copiar todos arquivos e pastas para pasta corrente"
+    echo_color $GREEN "6. create_structure 'structure.txt'"                                         #
+    echo_color $GREEN "7. df -h --total | grep total                                                # Espaço total usado"
+    echo_color $GREEN "8. docker image prune -a                                                     # Limpar todas imagens"
+    echo_color $GREEN "9. docker images                                                             # Listar imagens"
+    echo_color $GREEN "10. docker ps                                                                # Listar containers em execução"
+    echo_color $GREEN "11. docker rm -f <container_id>                                              # Apagar container"
+    echo_color $GREEN "12. docker rmi -f \$(docker images -q)                                       # Apagar todas as imagens"
+    echo_color $GREEN "13. docker stop <container_id>                                               # Parar container"
+    echo_color $GREEN "14. dpkg -l | grep pandas                                                    # Listar pacotes do Pandas"
+    echo_color $GREEN "15. e4defrag /dev/sda1 && sudo apt-get install -y e2fsprogs # Desfragmentar" #
+    echo_color $GREEN "16. executar_shell_docker <container_name>"                                  #
+    echo_color $GREEN "17. install_docker_if_missing                                                # Instalar Docker se não estiver instalado"
+    echo_color $GREEN "18. install_docker_compose_if_missing                                        # Instalar Docker Compose se não estiver instalado"
+    echo_color $GREEN "19. install_utils                                                            # Instalar utilitários como parted e dos2unix"
+    echo_color $GREEN "20. ofuscar_arquivos '/caminho/do/seu/diretorio'"                            #
+    echo_color $GREEN "21. Optimize-VHD -Path 'E:\Virtual Machines\VirtualPc\vmlinux_d\Vmlinux_D.vhdx' -Mode Full" #
+    echo_color $GREEN "22. ps aux | grep pandas                                                     # Listar processos do Pandas"
+    echo_color $GREEN "23. remove_docker_files                                                      # Remover arquivos de configuração do Docker"
+    echo_color $GREEN "24. remover_rede <nome_rede>                                                 # Remover rede docker0"
+    echo_color $GREEN "25. show_docker_commands_custons"                                            #
+    echo_color $GREEN "26. show_docker_config                                                       # Exibir configuração do Docker"
+    echo_color $GREEN "27. test_command <comando> <true/false>                                      # Testar se o comando existe e instalar se necessário"
+    echo_color $GREEN "28. uninstall_docker                                                         # Desinstalar Docker"
+    echo_color $GREEN "29. xcopyrsync '*.php;*.txt' 'copyfrom/dirapp' '$destine/full'"              #
+    echo_color $GREEN "30. get_ip_container <container_id>                                          # Obter o IP do container"
+    echo_color $GREEN "31. get_info_container <container_id> <info>                                 # Obter informações do container"
+    echo_color $GREEN "32. remove_and_recreate_docker_network <network_name>                        # Remover e recriar rede Docker"
+    echo_color $GREEN "33. check_containers                                                         # Verificar containers ativos"
+    echo_color $GREEN "34. check_images                                                             # Verificar imagens Docker"
+    echo_color $GREEN "35. check_resources                                                          # Verificar uso de recursos dos containers"
+    echo_color $GREEN "36. check_cache                                                              # Verificar downloads em cache no Docker"
+    echo_color $GREEN "37. dashboard_docker                                                         # Exibir um dashboard com informações do Docker"
+    echo_color $GREEN "38. update_file_if_different <file> <content>                                # Atualizar arquivo se o conteúdo mudar"
+    echo_color $GREEN "39. backup_img_docker                                                        # Fazer backup das imagens Docker"
+    echo_color $GREEN "40. restore_img_docker                                                       # Restaurar imagens Docker a partir do backup"
+    echo_color $GREEN "41. setapplications <apps>                                                   # Definir os aplicativos a serem usados no Docker"
+    echo_color $GREEN "42. mount_plugin <username> <domain> <password> <caminho_do_plugin> <caminho_do_relay>  # Montar plugin"
 }
+
 #-----------------------------------------------------
 set -e # continua mesmo que haja erro
 # Função para remover containers, imagens, volumes e redes
-cleanup_docker() {
+function cleanup_docker() {
     echo "Parando e removendo todos os containers..."
     docker stop $(docker ps -q) || true
     docker rm $(docker ps -a -q) || true
@@ -56,7 +69,7 @@ cleanup_docker() {
     docker network rm $(docker network ls -q) || true
 }    
 # Função para remover arquivos e diretórios relacionados ao Docker
-remove_docker_files() {
+function remove_docker_files() {
     echo "Removendo diretórios e arquivos de configuração do Docker..."
     sudo rm -rf /var/lib/docker
     sudo rm -rf /var/lib/containerd
@@ -64,12 +77,12 @@ remove_docker_files() {
     sudo rm -rf /var/run/docker
 }    
 # Função para desinstalar o Docker
-uninstall_docker() {
+function uninstall_docker() {
     echo "Removendo o Docker e suas dependências..."
 # Dependendo da distribuição, desinstalar o Docker
 }    
 # Função para reinstalar o Docker
-install_docker() {
+function install_docker() {
     echo "Reinstalando o Docker..."
 # Dependendo da distribuição, instalar o Docker
 }
@@ -77,7 +90,7 @@ install_docker() {
 # Nome do arquivo onde a estrutura será salva
 output_file="tree_structure.txt"
 # Função recursiva para gerar a árvore
-generate_tree() {
+function generate_tree() {
     local directory="$1"
     local prefix="$2"
 
@@ -97,35 +110,35 @@ generate_tree() {
 # Função para testar se comanddo existe e instalar caso não exitir
 # Exemplo de uso da função
 # if test_command "docker" true then  echo "" else echo "" fi
-test_command() {
+function test_command() {
     local command_name=$1
-    local install_if_missing=$2    
+    local install_if_missing=$2       
     if ! command -v "$command_name" &> /dev/null; then
-        echo "$command_name não está instalado."            
+        echo "$command_name não está instalado."                    
         if [ "$install_if_missing" = true ]; then
             echo "Instalando $command_name..."
-            sudo apt-get update && sudo apt-get install -y "$command_name"
+            sudo apt-get update && sudo apt-get install -y "$command_name"            
             if command -v "$command_name" &> /dev/null; then
                 echo "$command_name foi instalado com sucesso."
-return 0  # Retorno de sucesso
-else
-    echo "Falha ao instalar $command_name."
-return 1  # Retorno de falha
-fi
-else
-    echo "Instalação automática está desabilitada."
-return 1  # Retorno de falha porque o comando não está instalado
-fi
-else
-    echo_color $RED "$command_name já está instalado."
-return 0  # Retorno de sucesso
-fi
+                return 0  # Retorno de sucesso
+            else
+                echo "Falha ao instalar $command_name."
+                return 1  # Retorno de falha
+            fi
+        else
+            echo "Instalação automática está desabilitada."
+            return 1  # Retorno de falha porque o comando não está instalado
+        fi
+    else
+        echo_color $RED "$command_name já está instalado."
+        return 0  # Retorno de sucesso
+    fi
 }
 #-----------------------------------------------------
 # Função para ofuscar arquivos em um diretório
 # Exemplo de uso da função
 # ofuscar_arquivos "/caminho/do/seu/diretorio"
-ofuscar_arquivos() {
+function ofuscar_arquivos() {
     local diretorio="$1"
 # Localizar arquivos com extensões específicas
 arquivos_js=$(find "$diretorio" -type f -name "*.js")
@@ -151,7 +164,7 @@ done
 }
 #-----------------------------------------------------
 # Função para copiar pastas
-create_structure() {
+function create_structure() {
     input_file="$1"  
     cat <<EOF > dephaut_struc.txt
     /my-portfolio
@@ -188,7 +201,7 @@ EOF
     done < "$input_file"
 }
 #-----------------------------------------------------
-xcopyrsync() {
+function xcopyrsync() {
     # rsync -av --include='*/' --include='*.txt' --include='*.php' --exclude='*' /var/www/html/ctrlphp/ mod-custom-teste/tmp/teste/
     echo   $(colorize_text  "Copiando $2 para $3" "36")
     # Verifica se o número de argumentos é válido
@@ -209,19 +222,19 @@ xcopyrsync() {
 }
 #-----------------------------------------------------
 # Função echo_color para simplificar o uso de cores
-echo_color() {
+function echo_color() {
     local color=$1
     shift # Remove o primeiro parâmetro (a cor)
     echo -e "${color}$@${NC}"
 }
 # Função para colorir uma parte do texto
-colorize_text() {
+function colorize_text() {
     local text="$1"
     local color="$2"
     echo -e "\e[${color}m${text}\e[0m"
 }    
 # Função para verificar se o serviço está instalado
-check_service() {
+function check_service() {
     local service_name="$1"
     if command -v "$service_name" &> /dev/null; then
         echo "$(colorize_text "$service_name está instalado." "32")"
@@ -233,7 +246,7 @@ check_service() {
 # Exemplo de uso da função
 # adicionar_bip_no_daemon_json "192.168.1.18/24"
 # Função para adicionar a linha "bip" no arquivo /etc/docker/daemon.json
-adicionar_bip_no_daemon_json() {
+function adicionar_bip_no_daemon_json() {
     local ip=$1    
     # Verifica se o endereço IP foi fornecido
     if [ -z "$ip" ]; then
@@ -251,7 +264,7 @@ adicionar_bip_no_daemon_json() {
 # Função para remover uma interface de rede
 # Exemplo de uso da função
 # remover_rede docker0
-remover_rede() {
+function remover_rede() {
     local rede=$1
     # Verifica se o nome da rede foi fornecido
     if [ -z "$rede" ]; then
@@ -268,7 +281,7 @@ remover_rede() {
 # Função para executar um shell em um contêiner Docker
 # Exemplo de uso da função
 # executar_shell_docker root_python-app_1
-executar_shell_docker() {
+function executar_shell_docker() {
     local container_name=$1
 
     # Verifica se o nome do contêiner foi fornecido
@@ -282,7 +295,7 @@ executar_shell_docker() {
 }
 #-----------------------------------------------------
 #- Função para verificar e instalar o Docker se necessário <br>
-install_docker_if_missing(){
+function install_docker_if_missing(){
     if ! command -v docker &> /dev/null; then
         echo "Docker no est instalado. Instalando Docker..."
         apt-get update
@@ -298,7 +311,7 @@ install_docker_if_missing(){
 }
 #-----------------------------------------------------
 #- Função para verificar e instalar o Docker Compose se necessário <br>
-install_docker_compose_if_missing() {
+function install_docker_compose_if_missing() {
     if ! command -v docker-compose &> /dev/null; then
         echo "Docker Compose no est instalado. Instalando Docker Compose..."
         apt-get install -y docker-compose
@@ -308,20 +321,20 @@ install_docker_compose_if_missing() {
     fi
 }
 #- Função para instalar utilidades
-install_utils() {
+function install_utils() {
     apt-get install -y parted
     apt-get install -y dos2unix
 }
 # Função para exibir o texto com a cor escolhida
-color_text() {
+function color_text() {
     local color="$1"
     local text="$2"    
     echo -e "${!color}${text}${NC}"
 }
-dockerpsformat(){
+function dockerpsformat(){
     docker ps --format "{{.Image}} ({{.Ports}})"
 }
-show_docker_commands_custons() {
+function show_docker_commands_custons() {
     echo_color $YELLOW "$app_dir Aplicação $app_name está rodando em:" 
     echo_color $BLUE "      ftp://$name_host user: $name_user (SFTP HOST) 
       ssh $ftp_user@$name_host -p $app_port_ssh               (SSH DOCkER)
@@ -332,7 +345,7 @@ show_docker_commands_custons() {
       http://$name_host:$app_port_emu/                        (VNC ANDROID) +1 5901
       Abra o VSCode e conecte como o usuario:$name_user no Host ou WSL usando a pasta: $app_dir"
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
-    echo_color $YELLOW "docker exec --privileged -it "$app_name"_app bash" # Entrar no bash do container rodando a aplicação
+    echo_color $YELLOW "docker exec --privileged -it "$app_name"_py-app bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_db bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_java-app bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_react-app sh" # Entrar no bash do container rodando a aplicação
@@ -340,36 +353,34 @@ show_docker_commands_custons() {
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_android-emulator bash" # Entrar no bash do container rodando nginx
     echo_color $YELLOW "docker exec "$app_name"_php-app nginx -s reload"
     echo_color $YELLOW "docker logs "$app_name"_java-app" # Consultar logs do container rodando nginx
-    echo_color $YELLOW "docker logs --tail 10 "$app_name"_app" # Consultar logs do container rodando a aplicação
+    echo_color $YELLOW "docker logs --tail 10 "$app_name"_py-app" # Consultar logs do container rodando a aplicação
     echo_color $YELLOW "docker logs "$app_name"_java-app" # Consultar logs do container rodando a aplicação
     echo_color $YELLOW "docker logs "$app_name"_php-app" # Consultar logs do container rodando a aplicação
     echo_color $YELLOW "docker logs "$app_name"_nginx" # Consultar logs do container rodando nginx
     echo_color $YELLOW "docker ps -s ou docker system df ou docker info | grep "Storage Driver"" #Tamanho dos containers
     echo_color $YELLOW "docker rmi "$app_name"_react-app"                      # Apagar container rodando a aplicação
-    echo_color $YELLOW "docker stats "$app_name"_app" # Mostra informações de consumo top ou htop vmstat iostat netstat ou ss
-    echo_color $YELLOW "docker restart "$app_name"_app" # Reiniciar Nginx
+    echo_color $YELLOW "docker stats "$app_name"_py-app" # Mostra informações de consumo top ou htop vmstat iostat netstat ou ss
+    echo_color $YELLOW "docker restart "$app_name"_py-app" # Reiniciar Nginx
     echo_color $YELLOW "publish_"$app_name".sh" # publicar alterações no container 
     echo_color $YELLOW "clear_"$app_name".sh" # limpar todos containers 
     echo_color $YELLOW "start_"$app_name".sh" # iniciar container
     echo_color $YELLOW "stop_"$app_name".sh" # parar container 
     echo_color $YELLOW "helph" # Ajuda
 }
-show_docker_config() {
-    source scripts/script.cfg
-    source scripts/lib_bash.sh
+function show_docker_config() {
     # Imprimindo o array de configuração para da aplicação
     echo "Conteúdo do array:"
     for index in "${!config[@]}"; do
         echo_color $CYAN "${vars_config[$index]}: ${config[$index]}"
     done
 }
-get_ip_container(){
+function get_ip_container(){
     docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$1"
 }
-get_info_container() {
+function get_info_container() {
   docker inspect "$1" | grep -i -E "$2"
 }
-remove_and_recreate_docker_network() {
+function remove_and_recreate_docker_network() {
     local network_name="$1"
     # Verifique se a rede existe
     if docker network ls --format "{{.Name}}" | grep -q "^$network_name$"; then
@@ -431,7 +442,7 @@ function dashboard_docker() {
     check_cache
 }
 # Função para atualizar um arquivo apenas se o conteúdo mudar
-update_file_if_different() {
+function update_file_if_different() {
     local target_file="$1"
     local new_content="$2"
     # Verifica se o arquivo existe
@@ -448,7 +459,7 @@ update_file_if_different() {
     return 0
 }
 # Cria um diretório para os backups
-backup_img_docker() {
+function backup_img_docker() {
     # Define o diretório de backup, usando o valor passado como argumento ou o padrão
     backup_dir="${1:-/home/userlnx/docker/relay}"
     mkdir -p "$backup_dir"
@@ -462,7 +473,7 @@ backup_img_docker() {
     echo_color $YELLOW "Backup completo. Imagens salvas em $backup_dir."
 }
 # Diretório onde as imagens foram salvas
-restore_img_docker() {
+function restore_img_docker() {
     # Montado unidade de restore
     mount_plugin mountrede
     # Define o diretório de backup, usando o valor passado como argumento ou o padrão
@@ -481,9 +492,9 @@ restore_img_docker() {
     done
     echo_color $YELLOW "Restauração completa."
 }
-setapplications() {
+function setapplications() {
     # Define o valor de aplicativos; usa o valor passado ou o padrão.
-    apps="${1:-nginx app db}"
+    apps="${1:-nginx py-app db}"
     # Verifica se o arquivo de configuração existe.
     if [ ! -f scripts/script.cfg ]; then
         echo "Arquivo de configuração não encontrado: scripts/script.cfg"
@@ -498,7 +509,7 @@ setapplications() {
 #mountrede=("username" "domain" "password" "//192.168.1.179/y/Virtual Machines/VirtualPc/vmlinux_d/plugins" "/home/userlnx/docker/relay")
 # Chamada da função usando o array
 #mount_plugin mountrede
-mount_plugin() {
+function mount_plugin() {
     local -n args="$1"  # Cria uma referência ao array que foi passado
     # Verifica se o array contém exatamente 5 elementos
     if [ "${#args[@]}" -ne 5 ]; then
