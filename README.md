@@ -58,7 +58,7 @@ cd script_docker
 git checkout OPTIMIZE
 chmod -R 777 .. # ../..
 dos2unix setup_script_launcher.sh
-setapplications "app db" #"nginx app db java-app react-app php-app android-dev android-emulator"
+setapplications "py-app my-db" #"nginx py-app my-db java-app react-app php-app android-dev android-emulator"
 .  setup_script_launcher.sh
 
 ```
