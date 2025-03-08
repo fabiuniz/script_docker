@@ -17,7 +17,7 @@ script_docker/
 ├── Scripts/
 │   ├── lib_bash.sh/            # Biblioteca de funções bash para facilitar reusando rotinas
 │   ├── script.cfg              # Parametro de configurção para iniciar script
-├── putsourcehere_py/           # Pesonalizando com seu prorio código
+├── putsourcehere/           # Pesonalizando com seu prorio código
 │   ├── requirements.txt        # pacotes que serão instaldor
 │   setup_script_launcher.sh # Script para criar e iniciar webservice usando docker  
 
