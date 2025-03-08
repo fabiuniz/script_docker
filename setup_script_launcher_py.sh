@@ -31,7 +31,7 @@ echo_color $RED  "Preparação: construindo scripts para execução da aplicaç�
 cat <<EOF > publish_$app_name.sh
 show_docker_config
 show_docker_commands_custons
-cp -r $appcontainer/py-app* $app_name/py-app
+cp -r $app_source/py-app* $app_name/py-app
 docker-compose -f $app_name/$docker_compose_file up --build -d $params_containers
 #. start_$app_name.sh
 EOF
@@ -115,11 +115,11 @@ def index():
     <h1>Bem-vindo ao sistema de Análise</h1>
     <ul>
         <li><a href='/analisar_curriculo'>Análise de Currículos</a></li>
-        <li><a href='/recomendar'>Sistema de Recomendação</a></li>
-        <li><a href='/chatbot'>Chatbot</a></li>
+        <li><a href='/recomendar'>Sistema de Recomendação * </a></li>
+        <li><a href='/chatbot'>Chatbot *</a></li>
         <li><a href='/analisar_sentimento'>Análise de Sentimentos</a></li>
         <li><a href='/visualizar'>Visualização de Dados</a></li>
-        <li><a href='/visualizar_pre'>Visualização de Dados Pre</a></li>
+        <li><a href='/visualizar_pre'>Visualização de Dados Pre *</a></li>
         <li><a href='/conectar'>Testar Conexão</a></li>
         <li><a href='/index2'>Página 2</a></li>
     </ul>
@@ -1132,12 +1132,11 @@ EOF
 # -------------------  RUN BASH  ----------------------------
 #>- Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
 mkdir -p $app_source/py-app/app/ssl
-echo_color $GREEN  "copiando arquivos de $app_source para $PWD"
-cp -r "$app_source"/py-app* .
+echo_color $GREEN  "copiando arquivos de "$app_source"/py-app para $PWD"
+cp -r "$app_source"/py-app .
 chmod -R 777 "$app_source"
 #>🔒 Passo 7: Gerar um certificado SSL autoassinado (opcional) <br>
 echo_color $RED  "Passo 7: Gerar um certificado SSL autoassinado (opcional)"
-mkdir -p ssl
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout py-app/app/ssl/nginx-ssl.key -out py-app/app/ssl/nginx-ssl.crt -subj "/CN=$name_host"
 #>🐋 Passo 8: Criando pasta da aplicação e Verificar e instalar Docker e Docker Compose <br>
 echo_color $RED  "Passo 8: Criando pasta da aplicação e Verificar e instalar Docker e Docker Compose "
