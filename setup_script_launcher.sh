@@ -1131,6 +1131,7 @@ EOF
 # -------------------  RUN BASH  ----------------------------
 #>- Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
 mkdir -p $app_source/py-app/app/ssl
+mkdir -p $app_source/py-app/app/uploads
 echo_color $GREEN  "copiando arquivos de "$app_source"/py-app para $PWD"
 cp -r "$app_source"/py-app .
 chmod -R 777 "$app_source"
