@@ -31,11 +31,11 @@ Projeto Script_Docker/
 │   │   ├── lib_bash.sh/     # Biblioteca de funções bash para facilitar reusando rotinas
 │   │   ├── script.cfg       # Parametro de configurção para iniciar script
 │   ├── images/
-│   ├── putsourcehere_py/
+│   ├── putsourcehere/
 │   │   ├── requirements.txt
 │   │   LICENSE
 │   │   README.md
-│   │   setup_script_launcher_py.sh # Script para criar e iniciar webservice usando docker  
+│   │   setup_script_launcher.sh # Script para criar e iniciar webservice usando docker  
 
 ``````
 
@@ -54,13 +54,14 @@ rm -rf docker
 mkdir -p docker
 cd docker
 git clone https://github.com/fabiuniz/script_docker.git
-chmod -R 777 script_docker
 cd script_docker
-dos2unix setup_script_launcher_py.sh
+git checkout OPTIMIZE
+chmod -R 777 .. # ../..
+dos2unix setup_script_launcher.sh
 setapplications "app db" #"nginx app db java-app react-app php-app android-dev android-emulator"
-.  setup_script_launcher_py.sh
+.  setup_script_launcher.sh
 
 ```
 
-🛠️ setup_script_launcher_py.sh<br> 
-- [SCRIPT](putsourcehere_py) veja aqui detalhadamente os passos que serão realizado para criar e iniciar um docker webservice usando docker com python <br>
+🛠️ setup_script_launcher.sh<br> 
+- [SCRIPT](putsourcehere) veja aqui detalhadamente os passos que serão realizado para criar e iniciar um docker webservice usando docker com python <br>
