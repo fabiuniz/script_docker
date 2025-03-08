@@ -22,7 +22,6 @@ echo_color $RED  "Preparação: construindo scripts para execução da aplicaç�
 #>- Rodar esses comando caso o bash dar erro de formato unix do arquivo ao rodar esse script <br>
 #>-  - apt-get install -y dos2unix <br>
 #>-  - dos2unix setup_script_launcher.sh # convertendo formato do arquivo <br>
-
 # -------------------  DASHBORAD  ----------------------------
 #rm /var/lib/docker/overlay2
 #ln -s /home/userlnx/docker/overlay2 /var/lib/docker/overlay2 # Pasta com cache das imagens baixadas para reutilizar em outras vms
@@ -267,9 +266,7 @@ def recomendar_candidato(vaga_habilidades):
     tfidf = TfidfVectorizer().fit_transform(df['Habilidades'])
     tfidf_vaga = tfidf.transform([vaga_habilidades])
     similaridade = cosine_similarity(tfidf_vaga, tfidf).flatten()
-    return df.iloc[similaridade.argsort()[::-1]
-vaga = "Python, Machine Learning"
-print(recomendar_candidato(vaga))
+    return df.iloc[similaridade.argsort()[::-1]]
 EOF
 # Chatbot ---------------------------------------------------------------------
 cat <<EOF > py-app/app/chatbot.py                     
@@ -296,26 +293,27 @@ EOF
 cat <<EOF > py-app/app/analise_sentimentos.py         
 # Instale com: pip install textblob
 from textblob import TextBlob
-def analisar_sentimento(texto):
+def avaliar_sentimento(texto):
     analise = TextBlob(texto)
     return analise.sentiment
-if __name__ == "__main__":
-    texto = "Estou muito animado com esta oportunidade!"
-    print(analisar_sentimento(texto))
 EOF
-# ------------------------------------------------------------------------------
+# Visualização de Dados ---------------------------------------------------------
 cat <<EOF > py-app/app/visualizacao.py        
 # Instale com: pip install matplotlib
 import matplotlib.pyplot as plt
-# Dados fictícios
-candidatos = ['Candidato 1', 'Candidato 2', 'Candidato 3']
-habilidades = [3, 5, 2]  # Número de habilidades
-plt.bar(candidatos, habilidades)
-plt.ylabel('Número de Habilidades')
-plt.title('Comparação de Habilidades dos Candidatos')
-plt.show()
+def view_dados():
+    # Dados fictícios
+    candidatos = ['Candidato 1', 'Candidato 2', 'Candidato 3']
+    habilidades = [3, 5, 2]  # Número de habilidades    
+    # Criar gráfico
+    plt.bar(candidatos, habilidades)
+    plt.ylabel('Número de Habilidades')
+    plt.title('Comparação de Habilidades dos Candidatos')
+    plt.show()    
+    # Retornar os dados
+    return list(zip(candidatos, habilidades))
 EOF
-# ---------------------------------------------------------------------------------
+# Visualização de Dados Pre ----------------------------------------------------
 cat <<EOF > py-app/app/analise_pretreinado.py        
 #pip install transformers torch
 from transformers import pipeline
@@ -353,45 +351,30 @@ def usar_api_online(texto_curriculo, api_token):
     except Exception as e:
         print(f"Ocorreu um erro ao usar a API online: {e}")
         return None
-if __name__ == "__main__":
-    curriculo = "Seu texto de currículo aqui."  # Substitua por um texto de currículo real
-    # Perguntando ao usuário qual método prefere
-    escolha = input("Você prefere usar (1) O modelo local ou (2) A API online? (digite 1 ou 2): ")
-    if escolha == "1":
-        resultado = usar_pipeline_local(curriculo)
-        print("Resultado da análise com modelo local:")
-        print(resultado)
-    elif escolha == "2":
-        api_token = input("Por favor, insira seu token de acesso da Hugging Face: ")
-        resultado = usar_api_online(curriculo, api_token)
-        print("Resultado da análise com a API online:")
-        print(resultado)
-    else:
-        print("Escolha inválida. Por favor, digite 1 ou 2.")
 EOF
 # MAIN -------------------------------------------------------------------------
 cat <<EOF > py-app/app/app.py
 #from pdf2docx import Converter
-from curriculo_analisador import extrair_curriculo
-#from sistema_recomendacao import recomendar_candidato
-#from chatbot import iniciar_chat
-#from analise_sentimentos import avaliar_sentimento
-#from visualizacao import mostrar_grafico
-#from analise_pretreinado import analise_pre
+from curriculo_analisador import extrair_curriculo #Análise de Currículos
+#from sistema_recomendacao import recomendar_candidato #Sistema de Recomendação
+#from chatbot import iniciar_chat #Chatbot
+from analise_sentimentos import avaliar_sentimento  #Análise de Sentimentos
+from visualizacao import view_dados # Visualização de Dados
+#from analise_pretreinado import analise_pre # Visualização de Dados Pre
 from lib.lib_func import *
 app = Flask(__name__)   
 # Configura o CORS para permitir todas as origens e credenciais
 CORS(app, supports_credentials=True)   
-@app.route('/')
+@app.route('/') # MAIN
 def idx():
     return index()
-@app.route("/index2")
+@app.route("/index2") #Página 2
 def index2():
     return render_template("index.html")
-@app.route("/conectar", methods=["GET", "POST"])
+@app.route("/conectar", methods=["GET", "POST"]) #Testar Conexão
 def con_exe():
     return conectar_e_executar()
-@app.route("/analisar_curriculo", methods=["GET"])
+@app.route("/analisar_curriculo", methods=["GET"]) #Análise de Currículos
 def rota_analisar_curriculo():
     texto= extrair_curriculo("caminhoarquivo")
     curriculo_data = {
@@ -399,63 +382,80 @@ def rota_analisar_curriculo():
     }    
     # Retorna o dicionário como JSON
     return jsonify(curriculo_data) 
-#@app.route("/recomendar", methods=["POST"])
+#@app.route("/recomendar", methods=["POST"]) #Sistema de Recomendação
 #def rota_recomendar():
 #    data = request.get_json()
-#    usuario_dados = data.get("dados", {})
-#    resultado = recomendar(usuario_dados)
+#    #vaga = data.get("dados", {})
+#    vaga = "Python, Machine Learning"
+#    #print(recomendar_candidato(vaga))
+#    resultado = recomendar_candidato(vaga)
 #    return jsonify(resultado)
-#@app.route("/chatbot", methods=["POST"])
+#@app.route("/chatbot", methods=["GET"]) #Chatbot
 #def rota_chatbot():
 #    data = request.get_json()
 #    pergunta = data.get("pergunta", "")
 #    resposta = responder_chatbot(pergunta)
 #    return jsonify({"resposta": resposta})
-#@app.route("/analisar_sentimento", methods=["POST"])
-#def rota_analisar_sentimento():
-#    data = request.get_json()
-#    texto = data.get("texto", "")
-#    resultado = analisar_sentimento(texto)
-#    return jsonify(resultado)
-#@app.route("/visualizar", methods=["POST"])
-#def rota_visualizar():
-#    data = request.get_json()
-#    parametros = data.get("parametros", {})
-#    resultado = gerar_grafico(parametros)
-#    return jsonify({"status": "Gráfico gerado", "data": resultado})    
-#@app.route("/visualizar_pre", methods=["POST"])
+@app.route("/analisar_sentimento", methods=["GET"]) #Análise de Sentimentos
+def rota_analisar_sentimento():
+    #data = request.get_json()
+    #texto = data.get("texto", "")
+    texto = "Estou muito animado com esta oportunidade!"
+    resultado = avaliar_sentimento(texto)
+    return jsonify(resultado)
+@app.route("/visualizar", methods=["GET"]) #Visualização de Dados
+def rota_visualizar():
+    #data = request.get_json()
+    #parametros = data.get("parametros", {})
+    resultado = view_dados()
+    return jsonify({"status": "View gerado", "data": resultado})    
+#@app.route("/visualizar_pre", methods=["GET"]) #Visualização de Dados Pre
 #def rota_visualizar_pre():
-#    data = request.get_json()
-#    parametros = data.get("parametros", {})
-#    resultado = gerar_grafico_pre(parametros)
-#    return jsonify({"status": "Gráfico gerado", "data": resultado})    
+#    curriculo = "Seu texto de currículo aqui."  # Substitua por um texto de currículo real
+#    # Perguntando ao usuário qual método prefere
+#    escolha = input("Você prefere usar (1) O modelo local ou (2) A API online? (digite 1 ou 2): ")
+#    if escolha == "1":
+#        resultado = usar_pipeline_local(curriculo)
+#        print("Resultado da análise com modelo local:")
+#        print(resultado)
+#    elif escolha == "2":
+#        api_token = input("Por favor, insira seu token de acesso da Hugging Face: ")
+#        resultado = usar_api_online(curriculo, api_token)
+#        print("Resultado da análise com a API online:")
+#        print(resultado)
+#    else:
+#        print("Escolha inválida. Por favor, digite 1 ou 2.")
+
 if __name__ == '__main__':
     runFlaskport(app, True, '0.0.0.0', $app_port_py)
 EOF
 #>📄 Passo 3: Criar o arquivo requirements.txt <br>
 echo_color $RED  "Passo 3: Criar o arquivo requirements.txt"
-#--------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------
 cat <<EOF > py-app/requirements.txt
-# Framework para a aplicação web
+# ------------------- Framework para a aplicação web --------------------------------------------
 Flask==2.1.1                    # ~ 300 KB
 flask_cors==4.0.0               # ~ 20 KB
 Werkzeug==2.1.1                 # ~ 1 MB
-# Manipulação e análise de dados ------------------------------------------
-#numpy==1.21.2                  # ~ 8 MB                   # Para operações numéricas
-#pandas==1.3.3 / #2.1.4         # ~ 12 MB                  # Para manipulação e análise de dados
-# Modelos de machine learning
+# ------------------- Manipulação e análise de dados ------------------------------------------
+numpy==1.21.2                  # ~ 8 MB                   # Para operações numéricas
+#pandas==1.3.3  #2.1.4         # ~ 12 MB                  # Para manipulação e análise de dados
+# ------------------- Modelos de machine learning ---------------------------------------------
 #scikit-learn==0.24.2           # ~ 7 MB                   # Para modelos de aprendizado de máquina
-# Processamento de linguagem natural
+# ------------------- Processamento de linguagem natural
 #nltk==3.6.2                    # ~ 2 MB                   # Para processamento de texto e análise de sentimentos
-#textblob==0.15.3               # ~ 50 KB                  # Para análise de sentimentos
-# Visualização de dados ---------------------------------------------------
-#matplotlib==3.4.3              # ~ 10 MB                  # Para visualização de dados
+textblob==0.15.3               # ~ 50 KB                  # Para análise de sentimentos
+# ------------------- Visualização de dados ---------------------------------------------------
+matplotlib==3.4.3              # ~ 10 MB                  # Para visualização de dados
 #seaborn==0.11.2                # ~ 1 MB                   # Para aprimorar a visualização
-# Bibliotecas para criar chatbots -----------------------------------------
+# ------------------- Visualização de dados pre ---------------------------------------------------
+#torch==1.12.1                   # ~700 MB a 2 GB         # Biblioteca de aprendizado de máquina para deep learning dependendo do suporte a GPU
+#transformers==4.20.1            # ~50 MB a 80 MB         # Biblioteca para modelos de processamento de linguagem natural (NLP)
+# ------------------- Bibliotecas para criar chatbots -----------------------------------------
 #ChatterBot==1.0.5              # ~ 2 MB                   # Para a implementação do chatbot
 # Deep Learning (se necessário) -------------------------------------------
 #tensorflow==2.6.0              # ~ 500 MB                 # Para construção de modelos de deep learning
-# Bibliotecas para manipulação de arquivos --------------------------------
+# ------------------- Bibliotecas para manipulação de arquivos --------------------------------
 #pdf2docx==0.5.4                                           # Converter pdf em word
 python-docx >=0.8.11                                      # Para manipular arquivos Word
 #openpyxl==3.1.2                # ~ 1 MB                   # Para manipular arquivos Excel
@@ -463,7 +463,7 @@ python-docx >=0.8.11                                      # Para manipular arqui
 #PyPDF2==1.26.0 #3.17.1         # ~ 1 MB                   # Para manipulação de arquivos PDF
 #pytesseract==0.3.10            # ~ 5 MB                   # Para reconhecimento óptico de caracteres
 #PyQtWebEngine==5.15.6          # ~ 50 MB                  # Para desenvolvimento de aplicações web com PyQt
-# Outras dependências conforme necessário ---------------------------------
+# ------------------- Outras dependências conforme necessário ---------------------------------
 #PyExecJS==1.5.1                # ~ 50 KB                  #
 #PyMuPDF>=1.19.6                # ~ 10 MB                  #
 #pywin32==304                   # ~ 1 MB                   #
@@ -845,7 +845,9 @@ cat <<EOF > py-app/Dockerfile
     # Copiar o arquivo requirements.txt para o contêiner
     COPY requirements.txt .
     # Instalar as dependências do Python
-    RUN pip install -r requirements.txt
+    #RUN pip install --no-cache-dir scikit-learn pandas
+    #RUN for i in 1 2 3; do pip install scikit-learn pandas && break || sleep 15; done
+    RUN pip install --timeout=120 -r requirements.txt
     # Copiar os arquivos necessários para o diretório de trabalho
     COPY app /app
     # Expor as portas do SSH, FTP e da aplicação Flask
