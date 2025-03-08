@@ -470,9 +470,9 @@ python-docx >=0.8.11                                      # Para manipular arqui
 EOF
 #>🛠️ Passo 4: Criar o Dockerfile para a aplicação Flask <br>
 echo_color $RED  "Passo 4: Criar o Dockerfile para a aplicação Flask"
-mkdir -p py-app/docker-entrypoint-initdb.d
+mkdir -p my-db/docker-entrypoint-initdb.d
 #-------------------------------------------------------------------------------------
-cat <<EOF > py-app/docker-entrypoint-initdb.d/init.sql
+cat <<EOF > my-db/docker-entrypoint-initdb.d/init.sql
     -- Cria o banco de dados (se não existir)
     CREATE DATABASE IF NOT EXISTS $db_namedatabase;
     -- Cria o usuário (se não existir) e dá permissões ao banco de dados
