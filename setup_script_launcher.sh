@@ -110,6 +110,17 @@ def index():
     <meta charset='UTF-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <title>Menu de Análise</title>
+    <style>
+        body {font-family: 'Arial', sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 20px; line-height: 1.6; }
+        h1 {color: #2c3e50; text-align: center; margin-bottom: 20px; }
+        ul {list-style-type: none; padding: 0; max-width: 600px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); background-color: #ffffff; }
+        li {border-bottom: 1px solid #ddd; }
+        li:last-child {border-bottom: none; }
+        a {display: block; padding: 15px; text-decoration: none; color: #2980b9; font-weight: bold; transition: background-color 0.3s, color 0.3s; }
+        a:hover {background-color: #2980b9; color: #ffffff; }
+        p {text-align: center; margin: 20px 0; }
+        pre {background-color: #eeeeee; border: 1px solid #ddd; border-radius: 5px; padding: 15px; overflow: auto; max-width: 600px; margin: 20px auto; } 
+    </style>
 </head>
 <body>
     <h1>Bem-vindo ao sistema de Análise</h1>
