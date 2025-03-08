@@ -19,12 +19,12 @@ script_docker/
 │   ├── script.cfg              # Parametro de configurção para iniciar script
 ├── putsourcehere_py/           # Pesonalizando com seu prorio código
 │   ├── requirements.txt        # pacotes que serão instaldor
-│   setup_script_launcher_py.sh # Script para criar e iniciar webservice usando docker  
+│   setup_script_launcher.sh # Script para criar e iniciar webservice usando docker  
 
 
 ```
 
-Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher_py.sh) vai rodar:
+Informações descritivas do que o arquivo [SCRIPT](../setup_script_launcher.sh) vai rodar:
 
 🐋 Preparação: Personalizando webserver
 - Instalar dependência e rodar esse comando caso o bash dar erro de formato unix do arquivo quando tentar rodar esse script <br>
