@@ -28,10 +28,10 @@ echo_color $RED  "Preparação: construindo scripts para execução da aplicaç�
 #chown -R userlnx:userlnx /home/userlnx/docker/overlay2
 #>- construindo .sh para publicar arqivos docker <br>
 #-------------------------------------------------------------------------------------
+echo_color $GREEN  "copiando arquivos de "$app_source"* para  /$app_name"
 cat <<EOF > publish_$app_name.sh
 show_docker_config
 show_docker_commands_custons
-cp -r $app_source/py-app* $app_name/py-app
 docker-compose -f $app_name/$docker_compose_file up --build -d $params_containers
 #. start_$app_name.sh
 EOF
@@ -1133,7 +1133,7 @@ EOF
 mkdir -p $app_source/py-app/app/ssl
 mkdir -p $app_source/py-app/app/uploads
 echo_color $GREEN  "copiando arquivos de "$app_source"/py-app para $PWD"
-cp -r "$app_source"/py-app .
+cp -r "$app_source"/* .
 chmod -R 777 "$app_source"
 #>🔒 Passo 7: Gerar um certificado SSL autoassinado (opcional) <br>
 echo_color $RED  "Passo 7: Gerar um certificado SSL autoassinado (opcional)"
