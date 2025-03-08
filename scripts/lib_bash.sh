@@ -346,7 +346,7 @@ function show_docker_commands_custons() {
       Abra o VSCode e conecte como o usuario:$name_user no Host ou WSL usando a pasta: $app_dir"
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_py-app bash" # Entrar no bash do container rodando a aplicação
-    echo_color $YELLOW "docker exec --privileged -it "$app_name"_db bash" # Entrar no bash do container rodando a aplicação
+    echo_color $YELLOW "docker exec --privileged -it "$app_name"_my-db bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_java-app bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_react-app sh" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_php-app sh" # Entrar no bash do container rodando a aplicação

@@ -137,8 +137,8 @@ def index():
     <p>Hello World Setup Python!</p>
     <p>Execute esses comandos no bash e teste a conexão:</p>
     <pre>
-    docker exec --privileged -it ${app_name}_db bash
-    docker logs ${app_name}_db
+    docker exec --privileged -it ${app_name}_my-db bash
+    docker logs ${app_name}_my-db
     mysql -u root -p$db_root_pass
     create database $db_namedatabase;
     CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';
@@ -598,8 +598,8 @@ public class HelloWorldServlet extends HttpServlet {
         out.println("<h1>Olá, Mundo!</h1>");
         out.println("<p>Esta é uma aplicação WAR simples no Tomcat.</p>");
         out.println("Execute esses comandos no bash e teste a conexão:<br>");
-        out.println("docker exec --privileged -it ${app_name}_db bash<br>");
-        out.println("docker logs ${app_name}_db<br>");
+        out.println("docker exec --privileged -it ${app_name}_my-db bash<br>");
+        out.println("docker logs ${app_name}_my-db<br>");
         out.println("mysql -u root -p$db_root_pass<br>");
         out.println("create database $db_namedatabase;<br>");
         out.println("CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';<br>");
@@ -631,7 +631,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ConectarServlet extends HttpServlet { // Usando uma classe separada para /conectar
     // Variáveis para armazenar as informações do banco de dados
     private String host = "$name_host";
-    private String usuario = "$db_user";
+    private String usuario = "root";
     private String senha = "$db_root_pass";
     private String bancoDeDados = "$db_namedatabase";
     private String porta = "$app_port_mysql";
@@ -669,9 +669,10 @@ public class ConectarServlet extends HttpServlet { // Usando uma classe separada
         }
         try {
             // Conecta ao banco de dados
-            conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":" + porta + "/" + bancoDeDados + "?useSSL=false", usuario, senha);
+            //conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":" + porta + "/" + bancoDeDados + "?useSSL=false", usuario, senha);
             //conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":" + porta + "/" + bancoDeDados + "?useSSL=true&requireSSL=true&verifyServerCertificate=true", usuario, senha);
             //conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":"+porta+"/" + bancoDeDados, usuario, senha);
+            conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":" + porta + "/" + bancoDeDados + "?useSSL=false&allowPublicKeyRetrieval=true", usuario, senha);
             if (conexao != null) {
                 // Consulta 1: SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';
                 consultaUsuarios = conexao.prepareStatement("SELECT user, host FROM mysql.user WHERE user = 'seu_usuario'");
@@ -753,12 +754,10 @@ cat <<EOF > java-app/Dockerfile
 FROM maven:3.8.6-jdk-11 AS build
 # Defina o diretório de trabalho no container
 WORKDIR /app
-# Copie apenas o pom.xml
+# Copie apenas o pom.xml e baixe as dependências para o cache
 COPY pom.xml .
-# Copie o código do projeto apenas depois de baixar as dependências
-# Baixe as dependências do Maven
 RUN mvn dependency:go-offline
-# Agora copie o código fonte
+# Copie o código fonte
 COPY src ./src
 # Construa o projeto Maven
 RUN mvn clean package -DskipTests
@@ -1067,7 +1066,7 @@ cat <<EOF > $docker_compose_file
       my-db:
         build:
           context: ./my-db  # Caminho para o diretório da aplicação Java          
-        container_name: ${app_name}_db
+        container_name: ${app_name}_my-db
         restart: always
         environment:
           MYSQL_ROOT_PASSWORD: $db_root_pass
@@ -1090,6 +1089,8 @@ cat <<EOF > $docker_compose_file
         container_name: ${app_name}_java-app
         ports:
           - "$app_port_java:$app_port_java"  # Ajuste a porta conforme necessário
+        volumes:
+          - ~/.m2:/root/.m2  # Montando o diretório
         #depends_on:
         #  - db  # Caso a aplicação Java dependa do banco de dados      
       react-app:  # Serviço para a aplicação React
@@ -1287,7 +1288,7 @@ echo -e "\a";
 #${app_name}_android-emulator:latest 12.8GB #5731742daf5e
 #${app_name}_app-py:latest 759MB #ff4995cded4a
 #${app_name}_app:latest 759MB #2a478e5b326d
-#${app_name}_db:latest 764MB #f47dd26b30ec
+#${app_name}_my-db:latest 764MB #f47dd26b30ec
 #${app_name}_java-app:latest 471MB #252ab554ea7a
 #${app_name}_php-app:latest 50.8MB #d19376fbbf5c
 #${app_name}_py-app:latest 759MB #095b0e1941d6
