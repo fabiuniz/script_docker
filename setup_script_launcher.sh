@@ -141,9 +141,10 @@ def index():
     docker logs ${app_name}_my-db
     mysql -u root -p$db_root_pass
     create database $db_namedatabase;
-    CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';
-    GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO 'seu_usuario'@'%';
-    SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';
+    CREATE USER '$db_user'@'%' IDENTIFIED BY '$db_pass';
+    GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO '$db_user'@'%';
+    GRANT ALL PRIVILEGES ON *.* TO '$db_user'@'%';
+    SELECT user, host FROM mysql.user WHERE user = '$db_user';
     FLUSH PRIVILEGES;
     </pre>
 </body>
@@ -151,8 +152,8 @@ def index():
 """
 def conectar_e_executar():
     host= "vmlinuxd"
-    usuario="root"
-    senha= "seu_senha_root"
+    usuario="$db_user"
+    senha= "$db_pass"
     banco_de_dados="seu_banco_de_dados"
 
     """
@@ -176,18 +177,18 @@ def conectar_e_executar():
             db_Info = conexao.get_server_info()
             print("Conectado ao MySQL Server versão ", db_Info)
             cursor = conexao.cursor()
-            # Consulta 1: SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';
-            cursor.execute("SELECT user, host FROM mysql.user WHERE user = 'seu_usuario'")
+            # Consulta 1: SELECT user, host FROM mysql.user WHERE user = '$db_user';
+            cursor.execute("SELECT user, host FROM mysql.user WHERE user = '$db_user'")
             resultados_usuarios = cursor.fetchall()
-            print("\nResultados da consulta SELECT user, host FROM mysql.user WHERE user = 'seu_usuario':")
+            print("\nResultados da consulta SELECT user, host FROM mysql.user WHERE user = '$db_user':")
             usuarios = []  #lista para armazenar os usuarios
             for linha in resultados_usuarios:
                 print(f"User: {linha[0]}, Host: {linha[1]}")
                 usuarios.append({"user": linha[0], "host": linha[1]}) #adicionando na lista
-            # Consulta 2: SHOW GRANTS FOR 'seu_usuario'@'%';
-            cursor.execute("SHOW GRANTS FOR 'seu_usuario'@'%'")
+            # Consulta 2: SHOW GRANTS FOR '$db_user'@'%';
+            cursor.execute("SHOW GRANTS FOR '$db_user'@'%'")
             resultados_permissoes = cursor.fetchall()
-            print("\nResultados da consulta SHOW GRANTS FOR 'seu_usuario'@'%':")
+            print("\nResultados da consulta SHOW GRANTS FOR '$db_user'@'%':")
             permissoes = [] #lista para armazenar as permissoes
             for linha in resultados_permissoes:
                 print(linha[0])  # Imprime a concessão (grant)
@@ -215,8 +216,8 @@ def conectar_e_executar():
 
     # Exemplo de uso:  Substitua pelas suas credenciais reais
     #host = "localhost"  # Ou o endereço IP do seu host Docker, se não for localhost
-    #usuario = "root"  # Ou 'seu_usuario', se você quiser usar esse usuário
-    #senha = "seu_senha_root"
+    #usuario = "$db_user"  # Ou '$db_user', se você quiser usar esse usuário
+    #senha = "$db_pass"
     vbanco_de_dados = "mysql"  # ou 'seu_banco_de_dados' se as grants foram criadas nesse banco
     #conectar_e_executar(host, usuario, senha, banco_de_dados)    
     #pip install mysql-connector-python
@@ -576,10 +577,9 @@ new_pom_content=$(cat << EOF
     </build>
 </project>
 EOF)
-
 update_file_if_different "java-app/pom.xml" "$new_pom_content"
 #-------------------------------------------------------------------------------------
-cat <<EOF > java-app/src/main/java/com/example/HelloWorldServlet.java
+new_pom_content=$(cat << EOF
 package com.example;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -602,17 +602,19 @@ public class HelloWorldServlet extends HttpServlet {
         out.println("docker logs ${app_name}_my-db<br>");
         out.println("mysql -u root -p$db_root_pass<br>");
         out.println("create database $db_namedatabase;<br>");
-        out.println("CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';<br>");
-        out.println("GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO 'seu_usuario'@'%';<br>");
-        out.println("SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';<br>");
+        out.println("CREATE USER '$db_user'@'%' IDENTIFIED BY '$db_pass';<br>");
+        out.println("GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO '$db_user'@'%';<br>");
+        out.println("GRANT ALL PRIVILEGES ON *.* TO '$db_user'@'%';<br>");
+        out.println("SELECT user, host FROM mysql.user WHERE user = '$db_user';<br>");
         out.println("FLUSH PRIVILEGES;<br>");
         out.println("<a href='conectar'>testar conexão</a>");
         out.println("</body></html>");
     }
 }
-EOF
+EOF)
+update_file_if_different "java-app/src/main/java/com/example/HelloWorldServlet.java" "$new_pom_content"
 #-------------------------------------------------------------------------------------
-cat <<EOF > java-app/src/main/java/com/example/ConectarServlet.java
+new_pom_content=$(cat << EOF
 package com.example;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -631,8 +633,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ConectarServlet extends HttpServlet { // Usando uma classe separada para /conectar
     // Variáveis para armazenar as informações do banco de dados
     private String host = "$name_host";
-    private String usuario = "root";
-    private String senha = "$db_root_pass";
+    private String usuario = "$db_user";
+    private String senha = "$db_pass";
     private String bancoDeDados = "$db_namedatabase";
     private String porta = "$app_port_mysql";
     @Override
@@ -674,8 +676,8 @@ public class ConectarServlet extends HttpServlet { // Usando uma classe separada
             //conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":"+porta+"/" + bancoDeDados, usuario, senha);
             conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":" + porta + "/" + bancoDeDados + "?useSSL=false&allowPublicKeyRetrieval=true", usuario, senha);
             if (conexao != null) {
-                // Consulta 1: SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';
-                consultaUsuarios = conexao.prepareStatement("SELECT user, host FROM mysql.user WHERE user = 'seu_usuario'");
+                // Consulta 1: SELECT user, host FROM mysql.user WHERE user = '$db_user';
+                consultaUsuarios = conexao.prepareStatement("SELECT user, host FROM mysql.user WHERE user = '$db_user'");
                 resultadosUsuarios = consultaUsuarios.executeQuery();
                 List<Map<String, String>> usuarios = new ArrayList<>();
                 while (resultadosUsuarios.next()) {
@@ -684,8 +686,8 @@ public class ConectarServlet extends HttpServlet { // Usando uma classe separada
                     usuarioMap.put("host", resultadosUsuarios.getString("host"));
                     usuarios.add(usuarioMap);
                 }
-                // Consulta 2: SHOW GRANTS FOR 'seu_usuario'@'%';
-                consultaPermissoes = conexao.prepareStatement("SHOW GRANTS FOR 'seu_usuario'@'%'");
+                // Consulta 2: SHOW GRANTS FOR '$db_user'@'%';
+                consultaPermissoes = conexao.prepareStatement("SHOW GRANTS FOR '$db_user'@'%'");
                 resultadosPermissoes = consultaPermissoes.executeQuery();
                 List<String> permissoes = new ArrayList<>();
                 while (resultadosPermissoes.next()) {
@@ -738,18 +740,20 @@ public class ConectarServlet extends HttpServlet { // Usando uma classe separada
         }
     }
 }
-EOF
+EOF)
+update_file_if_different "java-app/src/main/java/com/example/ConectarServlet.java" "$new_pom_content"
 #-------------------------------------------------------------------------------------
-cat <<EOF > java-app/src/main/webapp/WEB-INF/web.xml
+new_pom_content=$(cat << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
 </web-app>
-EOF
+EOF)
+update_file_if_different "java-app/src/main/webapp/WEB-INF/web.xml" "$new_pom_content"
 # -------------------  DOCKER JAVA  ----------------------------
-cat <<EOF > java-app/Dockerfile
+new_pom_content=$(cat << EOF
 # Use uma imagem de build do Maven
 FROM maven:3.8.6-jdk-11 AS build
 # Defina o diretório de trabalho no container
@@ -767,7 +771,8 @@ FROM tomcat:9-jdk11
 COPY --from=build /app/target/hello-world.war /usr/local/tomcat/webapps/hello-world.war
 # Baixe o conector MySQL
 RUN wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.9-rc/mysql-connector-java-8.0.9-rc-sources.jar -O /usr/local/tomcat/lib/mysql-connector-java.jar
-EOF
+EOF)
+update_file_if_different "java-app/Dockerfile" "$new_pom_content"
 # -------------------  REACT  http://vmlinuxd:3000 ----------------------------
 mkdir -p react-app/src
 cat <<EOF > react-app/src/App.js
