@@ -99,9 +99,9 @@ cat <<EOF > py-app/app/lib/lib_func.py
 import ssl
 import mysql.connector
 from mysql.connector import Error
-from flask import Flask, jsonify
 from flask_cors import CORS   
-from flask import render_template
+from flask import Flask, jsonify,render_template,request, redirect, url_for 
+import os
 def index():
 # lib/lib_func.py
     return """<!DOCTYPE html>
@@ -125,6 +125,14 @@ def index():
 <body>
     <h1>Bem-vindo ao sistema de Análise</h1>
     <ul>
+        <li>
+        <div class="upload-container">
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" accept=".docx" required>
+                <button class="upload-button" type="submit">Upload de DOCX</button>
+            </form>
+        </div>
+        </li>
         <li><a href='/analisar_curriculo'>Análise de Currículos</a></li>
         <li><a href='/recomendar'>Sistema de Recomendação * </a></li>
         <li><a href='/chatbot'>Chatbot *</a></li>
@@ -377,6 +385,27 @@ from lib.lib_func import *
 app = Flask(__name__)   
 # Configura o CORS para permitir todas as origens e credenciais
 CORS(app, supports_credentials=True)   
+@app.route('/upload', methods=['GET', 'POST'])  # Rota para receber o upload
+def recebepdf():
+    # Configurando o diretório de upload
+    UPLOAD_FOLDER = 'uploads'
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    # Certifique-se de que a pasta de uploads exista
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return 'Nenhum arquivo foi enviado', 400        
+        file = request.files['file']        
+        if file.filename == '':
+            return 'Nenhum arquivo selecionado', 400        
+        if file and file.filename.endswith('.docx'):
+            # Define o caminho completo para salvar o arquivo
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'Profile.docx')
+            file.save(file_path)  # Salva o arquivo
+            return 'Arquivo salvo com sucesso!', 200
+        else:
+            return 'Formato de arquivo inválido. Apenas .docx é permitido', 400
 @app.route('/') # MAIN
 def idx():
     return index()
