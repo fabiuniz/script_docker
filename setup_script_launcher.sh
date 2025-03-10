@@ -121,7 +121,7 @@ def index():
         a:hover {background-color: #2980b9; color: #ffffff; }
         p {text-align: center; margin: 20px 0; }
         pre {background-color: #eeeeee; border: 1px solid #ddd; border-radius: 5px; padding: 15px; overflow: auto; max-width: 600px; margin: 20px auto; } 
-        #upload {text-align: -webkit-center;}
+        .upload-container {text-align: -webkit-center;}
     </style>
 </head>
 <body>
@@ -169,7 +169,8 @@ def index():
         usuario:$name_user
         pasta da aplicação: $app_dir"
         pasta cache: $backup_dir
-        pasta compartilhada: $containerhost
+        pasta compartilhada: $containerhost 
+        pasta upload: $app_source/py-app/app/uploads
     </pre>
 </body>
 </html>
