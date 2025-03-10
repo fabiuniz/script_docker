@@ -33,6 +33,7 @@ cat <<EOF > publish_$app_name.sh
 show_docker_config
 show_docker_commands_custons
 docker-compose -f $app_name/$docker_compose_file up --build -d $params_containers
+dashboard_docker
 #. start_$app_name.sh
 EOF
 #>- construindo .sh para Iniciar docker <br>
@@ -120,6 +121,7 @@ def index():
         a:hover {background-color: #2980b9; color: #ffffff; }
         p {text-align: center; margin: 20px 0; }
         pre {background-color: #eeeeee; border: 1px solid #ddd; border-radius: 5px; padding: 15px; overflow: auto; max-width: 600px; margin: 20px auto; } 
+        #upload {text-align: -webkit-center;}
     </style>
 </head>
 <body>
@@ -154,6 +156,20 @@ def index():
     GRANT ALL PRIVILEGES ON *.* TO '$db_user'@'%';
     SELECT user, host FROM mysql.user WHERE user = '$db_user';
     FLUSH PRIVILEGES;
+    </pre>
+    <pre>
+    ftp://$name_host user: $name_user (SFTP HOST) 
+    ssh $ftp_user@$name_host -p $app_port_ssh               (SSH DOCkER PYTHON)
+    https://$name_host:$app_port_py                         (PYTHON)
+    http://$name_host:$app_port_java/hello-world/hello      (JAVA)
+    http://$name_host:$app_port_react/                      (REACT)
+    http://$name_host:$app_port_php/                        (PHP)
+    http://$name_host:$app_port_emu/                        (VNC ANDROID) +1 5901
+    Abra o VSCode e conecte ao HOST ou WSL como  
+        usuario:$name_user
+        pasta da aplicação: $app_dir"
+        pasta cache: $backup_dir
+        pasta compartilhada: $containerhost
     </pre>
 </body>
 </html>
