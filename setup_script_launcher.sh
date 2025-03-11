@@ -89,6 +89,7 @@ echo_color $RED  "Passo 1: Criação da sub Estrutura de Diretórios da aplicaç
 mkdir -p $containerhost
 mkdir -p $app_dir_con/py-app/app/lib
 mkdir -p $backup_dir_py
+mkdir -p $containerhost_py
 chmod -R 777 $containerhost
 cd $app_dir_con
 echo_color $GREEN  "Entrando na pasta: $PWD"
