@@ -822,10 +822,13 @@ FROM tomcat:9-jdk11
 # Instalar OpenSSH
 RUN apt-get update && \
     apt-get install -y openssh-server wget && \
-    apt-get clean
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 # Criar diretório para o serviço SSH
 RUN mkdir /var/run/sshd
 # Configurar root para permitir login com senha (não recomendado em produção)
+# Criar o usuário 'myuser' e definir a senha
+RUN useradd -ms /bin/bash myuser && echo 'myuser:mypass' | chpasswd 
 RUN echo '$ftp_user_py:$ftp_pass_py' | chpasswd  # Defina a senha conforme necessário
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
