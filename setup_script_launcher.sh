@@ -834,7 +834,7 @@ COPY --from=build /app/target/hello-world.war /usr/local/tomcat/webapps/hello-wo
 # Baixar o conector MySQL
 RUN wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.9-rc/mysql-connector-java-8.0.9-rc-sources.jar -O /usr/local/tomcat/lib/mysql-connector-java.jar
 # Expor as portas do SSH e FTP da aplicação Java
-EXPOSE 22 21 8080 $app_port_java
+EXPOSE 22 21 $app_port_java $app_port_ssh_java
 # Startar o serviço SSH e o Tomcat
 CMD service ssh start && catalina.sh run
 EOF)
