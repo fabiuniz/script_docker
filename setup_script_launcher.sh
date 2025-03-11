@@ -817,24 +817,26 @@ RUN mvn dependency:go-offline
 COPY src ./src
 # Construa o projeto Maven
 RUN mvn clean package -DskipTests
-# Use a imagem do Tomcat
+# Use uma imagem do Tomcat
 FROM tomcat:9-jdk11
-# Instale o SSH
-RUN apt-get update && apt-get install -y openssh-server && rm -rf /var/lib/apt/lists/*
-# Crie o diretório para o SSH
+# Instalar OpenSSH
+RUN apt-get update && \
+    apt-get install -y openssh-server wget && \
+    apt-get clean
+# Criar diretório para o serviço SSH
 RUN mkdir /var/run/sshd
-# Adicione um usuário (substitua 'ftpuser' e 'yourpassword' conforme necessário)
-ARG ftp_user
-ARG ftp_pass
-RUN useradd -m $ftp_user_py && echo "$ftp_user_py:$ftp_pass_py" | chpasswd
-# Permitir login root via SSH (se necessário para desenvolvimento)
+# Configurar root para permitir login com senha (não recomendado em produção)
+RUN echo '$ftp_user_py:$ftp_pass_py' | chpasswd  # Defina a senha conforme necessário
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
 # Copie o arquivo WAR do container de build para o Tomcat
 COPY --from=build /app/target/hello-world.war /usr/local/tomcat/webapps/hello-world.war
-# Baixe o conector MySQL
+# Baixar o conector MySQL
 RUN wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.9-rc/mysql-connector-java-8.0.9-rc-sources.jar -O /usr/local/tomcat/lib/mysql-connector-java.jar
-# Expor as portas do SSH, FTP e da aplicação Java
- EXPOSE 22 21 $app_port_java
+# Expor as portas do SSH e FTP da aplicação Java
+EXPOSE 22 21 8080 $app_port_java
+# Startar o serviço SSH e o Tomcat
+CMD service ssh start && catalina.sh run
 EOF)
 update_file_if_different "java-app/Dockerfile" "$new_pom_content"
 # -------------------  REACT  http://vmlinuxd:3000 ----------------------------
