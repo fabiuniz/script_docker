@@ -76,12 +76,15 @@ EOF
 #>- construindo .sh para parar docker <br>
 #-------------------------------------------------------------------------------------
 cat <<EOF > clear_$app_name.sh
-    #>- Remover contêineres parados (sem afetar volumes ou imagens) <br>
+    #>- Remove contêineres parados (sem afetar volumes ou imagens) <br>
     docker container prune -f
-    #>- Remover imagens dangling (sem tags) e liberar espaço sem afetar as imagens usadas <br>
+    #>- Remove imagens dangling (sem tags), liberando espaço, sem afetar as imagens ativamente utilizadas <br>
     docker image prune -f
-    #>- Remover volumes que não estão sendo usados por nenhum contêiner ativo <br>
+    #>- Remove volumes que não estão sendo utilizados por contêineres ativos <br>
     docker volume prune -f
+    #>- Remove todas as imagens não utilizadas, incluindo aquelas que possuem tags, liberando mais espaço <br>
+    docker image prune -a
+    #>- Lista todos os contêineres ativos <br>
     docker ps
 EOF
 #>📁 Passo 1: Criação da sub Estrutura de Diretórios da aplicação <br>
