@@ -83,7 +83,7 @@ cat <<EOF > clear_$app_name.sh
     #>- Remove volumes que não estão sendo utilizados por contêineres ativos <br>
     docker volume prune -f
     #>- Remove todas as imagens não utilizadas, incluindo aquelas que possuem tags, liberando mais espaço <br>
-    docker image prune -a
+    #docker image prune -a
     #>- Lista todos os contêineres ativos <br>
     docker ps
 EOF
@@ -586,17 +586,10 @@ repositories {
     mavenCentral() // Repositório onde as dependências serão buscadas
 }
 dependencies {
-    // Dependência do Spring Context
     implementation 'org.springframework:spring-context:5.3.9'
-
-    // Dependência da Servlet API
-    compileOnly 'jakarta.servlet:jakarta.servlet-api:5.0.0' // Use compileOnly para WAR
-
-    // Dependência do Jackson
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
-
-    // Dependência para testes
-    testImplementation 'junit:junit:4.13.2' // Dependência para testes
+    providedCompile 'jakarta.servlet:jakarta.servlet-api:5.0.0' // use providedCompile
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
+    testImplementation 'junit:junit:4.13.2'
 }
 sourceCompatibility = '11'
 targetCompatibility = '11'
@@ -857,6 +850,7 @@ WORKDIR /app
 # Copie o código fonte para o container
 COPY . .
 # Construa o projeto Gradle
+RUN gradle clean build
 RUN gradle build --no-daemon --stacktrace
 RUN ls -l build/libs/
 # Use uma imagem do Tomcat
