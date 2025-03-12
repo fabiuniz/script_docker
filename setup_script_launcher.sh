@@ -578,31 +578,28 @@ chmod -R 777 java-app
 new_pom_content=$(cat << EOF
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.0.0' // use a versão apropriada
-    id 'io.spring.dependency-management' version '1.0.12.RELEASE'
-    id 'war' // se você está criando um arquivo WAR para implantação
+    id 'war' // Para construir um arquivo WAR que pode ser implantado em um servidor servlet
 }
-
-group = 'com.example'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17' // ajuste conforme sua versão do Java
-
+group 'com.example'
+version '1.0-SNAPSHOT'
 repositories {
-    mavenCentral()
+    mavenCentral() // Repositório onde as dependências serão buscadas
 }
-
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat' // se estiver criando um WAR
-}
+    // Dependência do Spring Context
+    implementation 'org.springframework:spring-context:5.3.9'
 
-tasks.named('jar') {
-    enabled = true // se você estiver criando um JAR
-}
+    // Dependência da Servlet API
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:5.0.0' // Use compileOnly para WAR
 
-tasks.named('bootRun') {
-    args = [] // adicione quaisquer argumentos necessários
+    // Dependência do Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
+
+    // Dependência para testes
+    testImplementation 'junit:junit:4.13.2' // Dependência para testes
 }
+sourceCompatibility = '11'
+targetCompatibility = '11'
 EOF)
 update_file_if_different "java-app/build.gradle" "$new_pom_content"
 new_pom_content=$(cat << EOF
@@ -854,7 +851,7 @@ update_file_if_different "java-app/src/main/webapp/WEB-INF/web.xml" "$new_pom_co
 # -------------------  DOCKER JAVA  ----------------------------
 new_pom_content=$(cat << EOF
 # Use uma imagem de build do Gradle
-FROM gradle:7.6.4-jdk11 as build
+FROM gradle:7.6-jdk11 as build
 # Defina o diretório de trabalho no container
 WORKDIR /app
 # Copie o código fonte para o container
@@ -864,6 +861,8 @@ RUN gradle build --no-daemon --stacktrace
 RUN ls -l build/libs/
 # Use uma imagem do Tomcat
 FROM tomcat:9-jdk11
+#RUN rm -rf /usr/local/tomcat/webapps/hello-world
+#RUN rm /usr/local/tomcat/webapps/hello-world.war
 # Instalar OpenSSH
 RUN apt-get update && \
     apt-get install -y openssh-server && \
@@ -888,8 +887,6 @@ EXPOSE 22 8080
 CMD service ssh start && catalina.sh run
 #cat /usr/local/tomcat/logs/localhost_access_log.2025-03-12.txt | tail -n 50
 #tail -n 100 /usr/local/tomcat/logs/catalina.2025-03-12.log
-#rm -rf /usr/local/tomcat/webapps/hello-world
-#rm /usr/local/tomcat/webapps/hello-world.war
 EOF)
 update_file_if_different "java-app/Dockerfile" "$new_pom_content"
 # -------------------  REACT  http://vmlinuxd:3000 ----------------------------
