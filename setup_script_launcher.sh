@@ -825,7 +825,6 @@ update_file_if_different "java-app/src/main/java/com/example/ConectarServlet.jav
 #-------------------------------------------------------------------------------------
 new_pom_content=$(cat << EOF
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
