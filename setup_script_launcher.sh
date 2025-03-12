@@ -850,6 +850,7 @@ WORKDIR /app
 COPY . .
 # Construa o projeto Gradle
 RUN gradle clean build
+#RUN rm -rf /usr/local/tomcat/webapps
 RUN gradle build --no-daemon --stacktrace
 RUN ls -l build/libs/
 # Use uma imagem do Tomcat
