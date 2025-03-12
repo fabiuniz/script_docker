@@ -573,6 +573,36 @@ mkdir -p java-app/src/main/java/com/example
 mkdir -p java-app/src/main/webapp/WEB-INF
 chmod -R 777 java-app
 new_pom_content=$(cat << EOF
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.0.0' // use a versão apropriada
+    id 'io.spring.dependency-management' version '1.0.12.RELEASE'
+    id 'war' // se você está criando um arquivo WAR para implantação
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17' // ajuste conforme sua versão do Java
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat' // se estiver criando um WAR
+}
+
+tasks.named('jar') {
+    enabled = true // se você estiver criando um JAR
+}
+
+tasks.named('bootRun') {
+    args = [] // adicione quaisquer argumentos necessários
+}
+EOF)
+update_file_if_different "java-app/build.gradle" "$new_pom_content"
+new_pom_content=$(cat << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -588,10 +618,15 @@ new_pom_content=$(cat << EOF
     </properties>
     <dependencies>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>  <!-- Important: Provided scope for servlet-api -->
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>4.0.4</version> <!-- verifique a versão necessária -->
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>5.3.9</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -633,11 +668,11 @@ update_file_if_different "java-app/pom.xml" "$new_pom_content"
 #-------------------------------------------------------------------------------------
 new_pom_content=$(cat << EOF
 package com.example;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 @WebServlet("/hello") // Crucial:  This maps the URL /hello to this servlet.
@@ -668,11 +703,11 @@ update_file_if_different "java-app/src/main/java/com/example/HelloWorldServlet.j
 #-------------------------------------------------------------------------------------
 new_pom_content=$(cat << EOF
 package com.example;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;//-----------------------
 import java.sql.*;
@@ -797,49 +832,61 @@ update_file_if_different "java-app/src/main/java/com/example/ConectarServlet.jav
 #-------------------------------------------------------------------------------------
 new_pom_content=$(cat << EOF
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
+    <servlet>
+        <servlet-name>HelloWorldServlet</servlet-name>
+        <servlet-class>com.example.HelloWorldServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>HelloWorldServlet</servlet-name>
+        <url-pattern>/hello</url-pattern>
+    </servlet-mapping>
 </web-app>
 EOF)
 update_file_if_different "java-app/src/main/webapp/WEB-INF/web.xml" "$new_pom_content"
 # -------------------  DOCKER JAVA  ----------------------------
 new_pom_content=$(cat << EOF
-# Use uma imagem de build do Maven
-FROM maven:3.8.6-jdk-11 AS build
+# Use uma imagem de build do Gradle
+FROM gradle:7.6.4-jdk11 as build
 # Defina o diretório de trabalho no container
 WORKDIR /app
-# Copie apenas o pom.xml e baixe as dependências para o cache
-COPY pom.xml .
-RUN mvn dependency:go-offline
-# Copie o código fonte
-COPY src ./src
-# Construa o projeto Maven
-RUN mvn clean package -DskipTests
+# Copie o código fonte para o container
+COPY . .
+# Construa o projeto Gradle
+RUN gradle build --no-daemon --stacktrace
+RUN ls -l build/libs/
 # Use uma imagem do Tomcat
 FROM tomcat:9-jdk11
 # Instalar OpenSSH
 RUN apt-get update && \
-    apt-get install -y openssh-server wget && \
+    apt-get install -y openssh-server && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 # Criar diretório para o serviço SSH
 RUN mkdir /var/run/sshd
-# Configurar root para permitir login com senha (não recomendado em produção)
-# Criar o usuário 'myuser' e definir a senha
-RUN useradd -ms /bin/bash myuser && echo 'myuser:mypass' | chpasswd 
-RUN echo '$ftp_user_py:$ftp_pass_py' | chpasswd  # Defina a senha conforme necessário
+# Criar o usuário 'myuser' e definir a senha (não recomendado em produção)
+RUN useradd -ms /bin/bash myuser && echo 'myuser:mypass' | chpasswd
+# Definir uma senha para o root
+RUN echo 'root:mypass' | chpasswd
+# Configurar sshd
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
 # Copie o arquivo WAR do container de build para o Tomcat
-COPY --from=build /app/target/hello-world.war /usr/local/tomcat/webapps/hello-world.war
-# Baixar o conector MySQL
-RUN wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.9-rc/mysql-connector-java-8.0.9-rc-sources.jar -O /usr/local/tomcat/lib/mysql-connector-java.jar
-# Expor as portas do SSH e FTP da aplicação Java
-EXPOSE 22 21 $app_port_java $app_port_ssh_java
+#COPY --from=build /app/build/libs/hello-world.war /usr/local/tomcat/webapps/hello-world.war
+COPY --from=build /app/build/libs/*.war /usr/local/tomcat/webapps/
+COPY --from=build /app/build/libs/app-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/hello-world.war
+# Expor as portas do SSH e do Tomcat
+EXPOSE 22 8080
 # Startar o serviço SSH e o Tomcat
 CMD service ssh start && catalina.sh run
+#cat /usr/local/tomcat/logs/localhost_access_log.2025-03-12.txt | tail -n 50
+#tail -n 100 /usr/local/tomcat/logs/catalina.2025-03-12.log
+#rm -rf /usr/local/tomcat/webapps/hello-world
+#rm /usr/local/tomcat/webapps/hello-world.war
 EOF)
 update_file_if_different "java-app/Dockerfile" "$new_pom_content"
 # -------------------  REACT  http://vmlinuxd:3000 ----------------------------
@@ -1171,6 +1218,7 @@ cat <<EOF > $docker_compose_file
           - "$app_port_ssh_java:22"                 # Porta SSH
         volumes:
           - ~/.m2:/root/.m2  # Montando o diretório
+          - ${cur_dir}/${containerhost_java}:/app:rw
         #depends_on:
         #  - db  # Caso a aplicação Java dependa do banco de dados      
       react-app:  # Serviço para a aplicação React
