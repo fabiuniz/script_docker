@@ -587,7 +587,7 @@ repositories {
 }
 dependencies {
     implementation 'org.springframework:spring-context:5.3.9'
-    providedCompile 'jakarta.servlet:jakarta.servlet-api:5.0.0' // use providedCompile
+    providedCompile 'jakarta.servlet:jakarta.servlet-api:5.0.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
     testImplementation 'junit:junit:4.13.2'
 }
@@ -613,7 +613,7 @@ new_pom_content=$(cat << EOF
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>4.0.4</version> <!-- verifique a versão necessária -->
+            <version>5.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -661,9 +661,9 @@ update_file_if_different "java-app/pom.xml" "$new_pom_content"
 #-------------------------------------------------------------------------------------
 new_pom_content=$(cat << EOF
 package com.example;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -696,9 +696,9 @@ update_file_if_different "java-app/src/main/java/com/example/HelloWorldServlet.j
 #-------------------------------------------------------------------------------------
 new_pom_content=$(cat << EOF
 package com.example;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -827,7 +827,8 @@ new_pom_content=$(cat << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
+         http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
     <servlet>
         <servlet-name>HelloWorldServlet</servlet-name>
@@ -851,7 +852,7 @@ COPY . .
 # Construa o projeto Gradle
 #RUN gradle clean build
 #RUN rm -rf /usr/local/tomcat/webapps
-#RUN gradle build --no-daemon --stacktrace
+RUN gradle build --no-daemon --stacktrace
 #RUN chmod 755 /usr/local/tomcat/webapps/hello-world/WEB-INF/classes
 #RUN chmod 755 /usr/local/tomcat/webapps/hello-world/WEB-INF/lib
 #RUN chmod 644 /usr/local/tomcat/webapps/hello-world/WEB-INF/web.xml
