@@ -591,8 +591,8 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
     testImplementation 'junit:junit:4.13.2'
 }
-sourceCompatibility = '11'
-targetCompatibility = '11'
+//sourceCompatibility = '11'
+//targetCompatibility = '11'
 EOF)
 update_file_if_different "java-app/build.gradle" "$new_pom_content"
 new_pom_content=$(cat << EOF
@@ -657,10 +657,11 @@ new_pom_content=$(cat << EOF
     </build>
 </project>
 EOF)
-update_file_if_different "java-app/pom.xml" "$new_pom_content"
+#update_file_if_different "java-app/pom.xml" "$new_pom_content"
 #-------------------------------------------------------------------------------------
 new_pom_content=$(cat << EOF
 package com.example;
+
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.ServletException;
@@ -843,22 +844,25 @@ EOF)
 update_file_if_different "java-app/src/main/webapp/WEB-INF/web.xml" "$new_pom_content"
 # -------------------  DOCKER JAVA  ----------------------------
 new_pom_content=$(cat << EOF
-# Use uma imagem de build do Gradle
+#(multi-stage builds )
+# Use uma imagem de build do Gradle Etapa 1 (Builder):
 FROM gradle:7.6-jdk11 as build
-# Defina o diretório de trabalho no container
+# Defina o diretório de trabalho no container 
 WORKDIR /app
-# Copie o código fonte para o container
-COPY . .
+# Copie o código fonte da pasta do arquivo Dockerfile para a raiz do container
+COPY . .  
 # Construa o projeto Gradle
 #RUN gradle clean build
 #RUN rm -rf /usr/local/tomcat/webapps
 RUN gradle build --no-daemon --stacktrace
+#RUN jar tf /usr/local/tomcat/webapps/hello-world.war
 #RUN chmod 755 /usr/local/tomcat/webapps/hello-world/WEB-INF/classes
 #RUN chmod 755 /usr/local/tomcat/webapps/hello-world/WEB-INF/lib
 #RUN chmod 644 /usr/local/tomcat/webapps/hello-world/WEB-INF/web.xml
-RUN ls -l build/libs/
-# Use uma imagem do Tomcat
-FROM tomcat:9-jdk11
+#RUN ls -la /usr/local/tomcat/webapps/
+RUN ls -la build/libs/
+# Use uma imagem do Tomcat Etapa 2 (Imagem final):
+FROM tomcat:9-jdk11 
 #RUN rm -rf /usr/local/tomcat/webapps/hello-world
 #RUN rm /usr/local/tomcat/webapps/hello-world.war
 # Instalar OpenSSH
@@ -877,7 +881,7 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/
 RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
 # Copie o arquivo WAR do container de build para o Tomcat
 #COPY --from=build /app/build/libs/hello-world.war /usr/local/tomcat/webapps/hello-world.war
-COPY --from=build /app/build/libs/*.war /usr/local/tomcat/webapps/
+#COPY --from=build /app/build/libs/*.war /usr/local/tomcat/webapps/
 COPY --from=build /app/build/libs/app-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/hello-world.war
 # Expor as portas do SSH e do Tomcat
 EXPOSE 22 8080
