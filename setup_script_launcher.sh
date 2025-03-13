@@ -849,9 +849,12 @@ WORKDIR /app
 # Copie o código fonte para o container
 COPY . .
 # Construa o projeto Gradle
-RUN gradle clean build
+#RUN gradle clean build
 #RUN rm -rf /usr/local/tomcat/webapps
-RUN gradle build --no-daemon --stacktrace
+#RUN gradle build --no-daemon --stacktrace
+#RUN chmod 755 /usr/local/tomcat/webapps/hello-world/WEB-INF/classes
+#RUN chmod 755 /usr/local/tomcat/webapps/hello-world/WEB-INF/lib
+#RUN chmod 644 /usr/local/tomcat/webapps/hello-world/WEB-INF/web.xml
 RUN ls -l build/libs/
 # Use uma imagem do Tomcat
 FROM tomcat:9-jdk11
