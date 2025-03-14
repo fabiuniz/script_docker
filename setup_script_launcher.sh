@@ -889,6 +889,7 @@ EXPOSE 22 8080
 CMD service ssh start && catalina.sh run
 #cat /usr/local/tomcat/logs/localhost_access_log.2025-03-12.txt | tail -n 50
 #tail -n 100 /usr/local/tomcat/logs/catalina.2025-03-12.log
+$docker run -it --entrypoint /bin/bash hello-world-java
 EOF)
 update_file_if_different "java-app/Dockerfile" "$new_pom_content"
 # -------------------  REACT  http://vmlinuxd:3000 ----------------------------

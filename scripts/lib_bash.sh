@@ -556,4 +556,48 @@ function mount_plugin() {
         echo "Falha ao montar $caminho_plugin em $caminho_relay."
     fi
 }
+function compactdisk() {
+    mysqlcheck -u root --password=1234 --auto-repair --check --all-database$
+    apt-get autoremove -y;
+    apt-get autoclean;
+    apt-get clean all;
+    docker rm $(docker ps -a -q)
+    echo s >/proc/sysrq-trigger;
+    echo u >/proc/sysrq-trigger;
+    # Descobrir as partições automaticamente
+    particoes=$(lsblk -lnp -o NAME | grep '^/dev/sd[a-z][0-9]')
+    # Exibir as partições antes de iniciar
+    echo "Partições antes da manutenção:"
+    lsblk    
+    for particao in $particoes
+    do
+        echo "Desmontando a partição $particao..."
+        umount "$particao"    
+        # Verifique se a partição foi desmontada com sucesso
+        if [ $? -eq 0 ]; then
+            echo "Executando fsck em $particao..."
+            fsck -y -f -c "$particao"    
+            # Verifique se fsck foi bem-sucedido
+            if [ $? -eq 0 ]; then
+                echo "Executando e4defrag em $particao..."
+                e4defrag -c "$particao"    
+                # Verifique se e4defrag foi bem-sucedido
+                if [ $? -eq 0 ]; then
+                    echo "Executando zerofree em $particao..."
+                    zerofree -v "$particao"
+                else
+                    echo "Erro ao executar e4defrag em $particao"
+                fi
+            else
+                echo "Erro ao executar fsck em $particao"
+            fi
+        else
+            echo "Erro ao desmontar $particao"
+        fi
+    done
+    lsblk  /dev/sda
+    lscpu;
+    shutdown
+    echo "Configuração concluída. "
+}
 #lib_bash--------------------------------------------------
