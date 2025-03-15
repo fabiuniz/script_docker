@@ -594,7 +594,7 @@ dependencies {
 //sourceCompatibility = '11'
 //targetCompatibility = '11'
 EOF)
-update_file_if_different "java-app/build.gradle" "$new_pom_content"
+#update_file_if_different "java-app/build.gradle" "$new_pom_content"
 new_pom_content=$(cat << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -660,36 +660,31 @@ EOF)
 #update_file_if_different "java-app/pom.xml" "$new_pom_content"
 #-------------------------------------------------------------------------------------
 new_pom_content=$(cat << EOF
-package com.example;
-
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
-import java.io.PrintWriter;
-@WebServlet("/hello") // Crucial:  This maps the URL /hello to this servlet.
-public class HelloWorldServlet extends HttpServlet {
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
-        out.println("<html><body>");
-        out.println("<h1>Olá, Mundo!</h1>");
-        out.println("<p>Esta é uma aplicação WAR simples no Tomcat.</p>");
-        out.println("Execute esses comandos no bash e teste a conexão:<br>");
-        out.println("docker exec --privileged -it ${app_name}_my-db bash<br>");
-        out.println("docker logs ${app_name}_my-db<br>");
-        out.println("mysql -u root -p$db_root_pass<br>");
-        out.println("create database $db_namedatabase;<br>");
-        out.println("CREATE USER '$db_user'@'%' IDENTIFIED BY '$db_pass';<br>");
-        out.println("GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO '$db_user'@'%';<br>");
-        out.println("GRANT ALL PRIVILEGES ON *.* TO '$db_user'@'%';<br>");
-        out.println("SELECT user, host FROM mysql.user WHERE user = '$db_user';<br>");
-        out.println("FLUSH PRIVILEGES;<br>");
-        out.println("<a href='conectar'>testar conexão</a>");
-        out.println("</body></html>");
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+
+public class HelloWorldServlet {
+    public static void main(String[] args) throws IOException {
+        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        server.createContext("/", new HelloHandler());
+        server.setExecutor(null);
+        server.start();
+        System.out.println("Servidor rodando em http://localhost:8080/");
+    }
+
+    static class HelloHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            String response = "Hello, World!";
+            exchange.sendResponseHeaders(200, response.length());
+            OutputStream os = exchange.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+        }
     }
 }
 EOF)
@@ -821,8 +816,9 @@ public class ConectarServlet extends HttpServlet { // Usando uma classe separada
         }
     }
 }
+
 EOF)
-update_file_if_different "java-app/src/main/java/com/example/ConectarServlet.java" "$new_pom_content"
+#update_file_if_different "java-app/src/main/java/com/example/ConectarServlet.java" "$new_pom_content"
 #-------------------------------------------------------------------------------------
 new_pom_content=$(cat << EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -841,55 +837,14 @@ new_pom_content=$(cat << EOF
     </servlet-mapping>
 </web-app>
 EOF)
-update_file_if_different "java-app/src/main/webapp/WEB-INF/web.xml" "$new_pom_content"
+#update_file_if_different "java-app/src/main/webapp/WEB-INF/web.xml" "$new_pom_content"
 # -------------------  DOCKER JAVA  ----------------------------
 new_pom_content=$(cat << EOF
-#(multi-stage builds )
-# Use uma imagem de build do Gradle Etapa 1 (Builder):
-FROM gradle:7.6-jdk11 as build
-# Defina o diretório de trabalho no container 
+FROM openjdk:11-jdk-slim
 WORKDIR /app
-# Copie o código fonte da pasta do arquivo Dockerfile para a raiz do container
-COPY . .  
-# Construa o projeto Gradle
-#RUN gradle clean build
-#RUN rm -rf /usr/local/tomcat/webapps
-RUN gradle build --no-daemon --stacktrace
-#RUN jar tf /usr/local/tomcat/webapps/hello-world.war
-#RUN chmod 755 /usr/local/tomcat/webapps/hello-world/WEB-INF/classes
-#RUN chmod 755 /usr/local/tomcat/webapps/hello-world/WEB-INF/lib
-#RUN chmod 644 /usr/local/tomcat/webapps/hello-world/WEB-INF/web.xml
-#RUN ls -la /usr/local/tomcat/webapps/
-RUN ls -la build/libs/
-# Use uma imagem do Tomcat Etapa 2 (Imagem final):
-FROM tomcat:9-jdk11 
-#RUN rm -rf /usr/local/tomcat/webapps/hello-world
-#RUN rm /usr/local/tomcat/webapps/hello-world.war
-# Instalar OpenSSH
-RUN apt-get update && \
-    apt-get install -y openssh-server && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-# Criar diretório para o serviço SSH
-RUN mkdir /var/run/sshd
-# Criar o usuário 'myuser' e definir a senha (não recomendado em produção)
-RUN useradd -ms /bin/bash myuser && echo 'myuser:mypass' | chpasswd
-# Definir uma senha para o root
-RUN echo 'root:mypass' | chpasswd
-# Configurar sshd
-RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
-# Copie o arquivo WAR do container de build para o Tomcat
-#COPY --from=build /app/build/libs/hello-world.war /usr/local/tomcat/webapps/hello-world.war
-#COPY --from=build /app/build/libs/*.war /usr/local/tomcat/webapps/
-COPY --from=build /app/build/libs/app-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/hello-world.war
-# Expor as portas do SSH e do Tomcat
-EXPOSE 22 8080
-# Startar o serviço SSH e o Tomcat
-CMD service ssh start && catalina.sh run
-#cat /usr/local/tomcat/logs/localhost_access_log.2025-03-12.txt | tail -n 50
-#tail -n 100 /usr/local/tomcat/logs/catalina.2025-03-12.log
-$docker run -it --entrypoint /bin/bash hello-world-java
+COPY src/main/java/com/example/HelloWorldServlet.java .
+RUN javac HelloWorldServlet.java
+CMD ["java", "HelloWorldServlet"]
 EOF)
 update_file_if_different "java-app/Dockerfile" "$new_pom_content"
 # -------------------  REACT  http://vmlinuxd:3000 ----------------------------
@@ -1221,7 +1176,7 @@ cat <<EOF > $docker_compose_file
           - "$app_port_ssh_java:22"                 # Porta SSH
         volumes:
           - ~/.m2:/root/.m2  # Montando o diretório
-          - ${cur_dir}/${containerhost_java}:/app:rw
+          #- ${cur_dir}/${containerhost_java}:/app:rw
         #depends_on:
         #  - db  # Caso a aplicação Java dependa do banco de dados      
       react-app:  # Serviço para a aplicação React
