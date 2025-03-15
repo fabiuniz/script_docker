@@ -560,15 +560,25 @@ function mount_plugin() {
     fi
 }
 function compactdisk() {
-    mysqlcheck -u root --password=1234 --auto-repair --check --all-database$
+# Verifica se o comando mysqlcheck existe
+    if command -v mysqlcheck &>/dev/null; then
+    # Comando encontrado, agora executa
+      mysqlcheck -u root --password=1234 --auto-repair --check --all-database$
+    else
+        echo "O comando mysqlcheck não está disponível."
+    fi
     apt-get autoremove -y;
     apt-get autoclean;
     apt-get clean all;
-    docker rm $(docker ps -a -q)
+    for container in $(docker ps -a -q); do
+        docker rm "$container" || echo "Erro ao remover o contêiner $container"
+    done
     echo s >/proc/sysrq-trigger;
     echo u >/proc/sysrq-trigger;
     # Descobrir as partições automaticamente
     particoes=$(lsblk -lnp -o NAME | grep '^/dev/sd[a-z][0-9]')
+    particoes+=" udev"
+    particoes+=" tmpfs"    
     # Exibir as partições antes de iniciar
     echo "Partições antes da manutenção:"
     lsblk    
@@ -604,9 +614,9 @@ function compactdisk() {
     echo "Configuração concluída. "
 }
 # Nome da imagem que você deseja verificar
-#IMAGE_NAME="openjdk:11-jre-slim"
 # Função para verificar se a imagem existe localmente
 check_and_pull_image() {
+    IMAGE_NAME="${1:-$IMAGE_NAME}"
     if [[ "$(docker images -q $IMAGE_NAME 2> /dev/null)" == "" ]]; then
         echo "Imagem $IMAGE_NAME não encontrada localmente. Baixando do repositório..."
         docker pull $IMAGE_NAME
