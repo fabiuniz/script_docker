@@ -469,9 +469,11 @@ function update_file_if_different() {
 # Cria um diretório para os backups
 function backup_img_docker() {
     # Define o diretório de backup, usando o valor passado como argumento ou o padrão
+    mount_plugin mountrede_py
     backup_dir_py="${1:-$backup_dir_py}"
     mkdir -p "$backup_dir_py"
     # Obtém a lista de todas as imagens
+    docker images --format '{{.ID}}{{.Repository}}:{{.Tag}}'
     images=$(docker images --format '{{.Repository}}:{{.Tag}}')
     # Faz o backup de cada imagem
     for image in $images; do
@@ -495,6 +497,7 @@ function restore_img_docker() {
     fi
     # Restaurar cada imagem tar no diretório de backup
     for tar_file in "${tar_files[@]}"; do
+        echo_color $MAGENTA "Retaurar: $tar_file"
         docker load -i "$tar_file"
         echo_color $YELLOW "Restaurada: $tar_file"
     done
@@ -599,5 +602,16 @@ function compactdisk() {
     lscpu;
     shutdown
     echo "Configuração concluída. "
+}
+# Nome da imagem que você deseja verificar
+#IMAGE_NAME="openjdk:11-jre-slim"
+# Função para verificar se a imagem existe localmente
+check_and_pull_image() {
+    if [[ "$(docker images -q $IMAGE_NAME 2> /dev/null)" == "" ]]; then
+        echo "Imagem $IMAGE_NAME não encontrada localmente. Baixando do repositório..."
+        docker pull $IMAGE_NAME
+    else
+        echo "Imagem $IMAGE_NAME já existe localmente."
+    fi
 }
 #lib_bash--------------------------------------------------

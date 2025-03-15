@@ -40,6 +40,8 @@ EOF
 #>- construindo .sh para Iniciar docker <br>
 #-------------------------------------------------------------------------------------
 cat <<EOF > load_$app_name.sh
+    dos2unix scripts/script.cfg
+    dos2unix scripts/lib_bash.sh
     source scripts/script.cfg
     source scripts/lib_bash.sh
 EOF
