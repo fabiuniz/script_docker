@@ -22,7 +22,7 @@ public class HelloWorldServlet {
         server.createContext("/", new HelloHandler());
         server.setExecutor(null); // cria um executor padrão
         server.start();
-        System.out.println("Servidor rodando em http://localhost:8080/");
+        System.out.println("Servidor rodando em http://vmlinuxd:8080/");
     }
 
     static class HelloHandler implements HttpHandler {
