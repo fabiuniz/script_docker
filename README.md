@@ -55,7 +55,7 @@ mkdir -p docker
 cd docker
 git clone https://github.com/fabiuniz/script_docker.git
 cd script_docker
-git checkout OPTIMIZE
+git checkout JAVAC
 chmod -R 777 .. # ../..
 dos2unix setup_script_launcher.sh
 setapplications "py-app my-db" #"nginx py-app my-db java-app react-app php-app android-dev android-emulator"
