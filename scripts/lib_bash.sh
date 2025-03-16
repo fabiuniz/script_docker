@@ -6,6 +6,14 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 MAGENTA='\033[0;35m'
 CYAN='\033[0;36m'
+LIGHT_RED='\033[1;31m'
+LIGHT_GREEN='\033[1;32m'
+LIGHT_YELLOW='\033[1;33m'
+LIGHT_BLUE='\033[1;34m'
+LIGHT_MAGENTA='\033[1;35m'
+LIGHT_CYAN='\033[1;36m'
+BOLD='\033[1m'
+UNDERLINE='\033[4m'
 NC='\033[0m' # Sem cor (reset)
 # Ajudar de como usar chamada:  source lib_bash.sh
 function helph() {
@@ -335,18 +343,18 @@ function dockerpsformat(){
     docker ps --format "{{.Image}} ({{.Ports}})"
 }
 function show_docker_commands_custons() {
-    echo_color $YELLOW "$app_dir Aplicação $app_name está rodando em:" 
+    echo_color $YELLOW "$app_dir_con Aplicação $app_name está rodando em:" 
     echo_color $BLUE "      ftp://$name_host user: $name_user (SFTP HOST) 
-      ssh $ftp_user@$name_host -p $app_port_ssh               (SSH DOCkER)
+      ssh $ftp_user_py@$name_host -p $app_port_ssh               (SSH DOCkER)
       https://$name_host:$app_port_py                         (PYTHON)
       http://$name_host:$app_port_java/hello-world/hello      (JAVA)
       http://$name_host:$app_port_react/                      (REACT)
       http://$name_host:$app_port_php/                        (PHP)
       http://$name_host:$app_port_emu/                        (VNC ANDROID) +1 5901
-      Abra o VSCode e conecte como o usuario:$name_user no Host ou WSL usando a pasta: $app_dir"
+      Abra o VSCode e conecte como o usuario:$name_user no Host ou WSL usando a pasta: $app_dir_con"
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_nginx bash" # Entrar no bash do container rodando nginx
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_py-app bash" # Entrar no bash do container rodando a aplicação
-    echo_color $YELLOW "docker exec --privileged -it "$app_name"_db bash" # Entrar no bash do container rodando a aplicação
+    echo_color $YELLOW "docker exec --privileged -it "$app_name"_my-db bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_java-app bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_react-app sh" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_php-app sh" # Entrar no bash do container rodando a aplicação
@@ -461,32 +469,35 @@ function update_file_if_different() {
 # Cria um diretório para os backups
 function backup_img_docker() {
     # Define o diretório de backup, usando o valor passado como argumento ou o padrão
-    backup_dir="${1:-/home/userlnx/docker/relay}"
-    mkdir -p "$backup_dir"
+    mount_plugin mountrede_py
+    backup_dir_py="${1:-$backup_dir_py}"
+    mkdir -p "$backup_dir_py"
     # Obtém a lista de todas as imagens
+    docker images --format '{{.ID}}{{.Repository}}:{{.Tag}}'
     images=$(docker images --format '{{.Repository}}:{{.Tag}}')
     # Faz o backup de cada imagem
     for image in $images; do
         image_filename=$(echo "$image" | tr '/:' '_')  # Substitui / e : por _
-        docker save -o "$backup_dir/$image_filename.tar" "$image"
+        docker save -o "$backup_dir_py/$image_filename.tar" "$image"
     done
-    echo_color $YELLOW "Backup completo. Imagens salvas em $backup_dir."
+    echo_color $YELLOW "Backup completo. Imagens salvas em $backup_dir_py."
 }
 # Diretório onde as imagens foram salvas
 function restore_img_docker() {
     # Montado unidade de restore
-    mount_plugin mountrede
+    mount_plugin mountrede_py
     # Define o diretório de backup, usando o valor passado como argumento ou o padrão
-    backup_dir="${1:-/home/userlnx/docker/relay}"
+    backup_dir_py="${1:-$backup_dir_py}"
     # Verifica se existem arquivos .tar no diretório de backup
     shopt -s nullglob  # Ativa o comportamento para que os globus vazios não gerem erro
-    tar_files=("$backup_dir"/*.tar)  # Cria um array com arquivos .tar
+    tar_files=("$backup_dir_py"/*.tar)  # Cria um array com arquivos .tar
     if [ ${#tar_files[@]} -eq 0 ]; then
-        echo_color $YELLOW "Nenhum arquivo .tar encontrado em $backup_dir."
+        echo_color $YELLOW "Nenhum arquivo .tar encontrado em $backup_dir_py."
         return
     fi
     # Restaurar cada imagem tar no diretório de backup
     for tar_file in "${tar_files[@]}"; do
+        echo_color $MAGENTA "Retaurar: $tar_file"
         docker load -i "$tar_file"
         echo_color $YELLOW "Restaurada: $tar_file"
     done
@@ -506,9 +517,9 @@ function setapplications() {
     echo "A variável params_containers foi atualizada para: $apps"
     show_docker_config
 }
-#mountrede=("username" "domain" "password" "//192.168.1.179/y/Virtual Machines/VirtualPc/vmlinux_d/plugins" "/home/userlnx/docker/relay")
+#mountrede_py=("username" "domain" "password" "//192.168.1.179/y/Virtual Machines/VirtualPc/vmlinux_d/plugins" "/home/userlnx/docker/relay")
 # Chamada da função usando o array
-#mount_plugin mountrede
+#mount_plugin mountrede_py
 function mount_plugin() {
     local -n args="$1"  # Cria uma referência ao array que foi passado
     # Verifica se o array contém exatamente 5 elementos
@@ -546,6 +557,71 @@ function mount_plugin() {
         echo "Montagem de $caminho_plugin em $caminho_relay realizada com sucesso!"
     else
         echo "Falha ao montar $caminho_plugin em $caminho_relay."
+    fi
+}
+function compactdisk() {
+# Verifica se o comando mysqlcheck existe
+    if command -v mysqlcheck &>/dev/null; then
+    # Comando encontrado, agora executa
+      mysqlcheck -u root --password=1234 --auto-repair --check --all-database$
+    else
+        echo "O comando mysqlcheck não está disponível."
+    fi
+    apt-get autoremove -y;
+    apt-get autoclean;
+    apt-get clean all;
+    for container in $(docker ps -a -q); do
+        docker rm "$container" || echo "Erro ao remover o contêiner $container"
+    done
+    echo s >/proc/sysrq-trigger;
+    echo u >/proc/sysrq-trigger;
+    # Descobrir as partições automaticamente
+    particoes=$(lsblk -lnp -o NAME | grep '^/dev/sd[a-z][0-9]')
+    particoes+=" udev"
+    particoes+=" tmpfs"    
+    # Exibir as partições antes de iniciar
+    echo "Partições antes da manutenção:"
+    lsblk    
+    for particao in $particoes
+    do
+        echo "Desmontando a partição $particao..."
+        umount "$particao"    
+        # Verifique se a partição foi desmontada com sucesso
+        if [ $? -eq 0 ]; then
+            echo "Executando fsck em $particao..."
+            fsck -y -f -c "$particao"    
+            # Verifique se fsck foi bem-sucedido
+            if [ $? -eq 0 ]; then
+                echo "Executando e4defrag em $particao..."
+                e4defrag -c "$particao"    
+                # Verifique se e4defrag foi bem-sucedido
+                if [ $? -eq 0 ]; then
+                    echo "Executando zerofree em $particao..."
+                    zerofree -v "$particao"
+                else
+                    echo "Erro ao executar e4defrag em $particao"
+                fi
+            else
+                echo "Erro ao executar fsck em $particao"
+            fi
+        else
+            echo "Erro ao desmontar $particao"
+        fi
+    done
+    lsblk  /dev/sda
+    lscpu;
+    shutdown
+    echo "Configuração concluída. "
+}
+# Nome da imagem que você deseja verificar
+# Função para verificar se a imagem existe localmente
+check_and_pull_image() {
+    IMAGE_NAME="${1:-$IMAGE_NAME}"
+    if [[ "$(docker images -q $IMAGE_NAME 2> /dev/null)" == "" ]]; then
+        echo "Imagem $IMAGE_NAME não encontrada localmente. Baixando do repositório..."
+        docker pull $IMAGE_NAME
+    else
+        echo "Imagem $IMAGE_NAME já existe localmente."
     fi
 }
 #lib_bash--------------------------------------------------

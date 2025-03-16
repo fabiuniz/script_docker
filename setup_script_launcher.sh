@@ -12,6 +12,7 @@ apt-get install -y dos2unix
 ls -l "$appscripts/script.cfg"
 dos2unix "$appscripts/script.cfg" #<--------------------------
 source "$appscripts/script.cfg" #<--------------------------
+echo_color $LIGHT_CYAN  "SCRIPT $PWD"
 #>- Importando  source da Biblioteca de funções bash (lib_bash.sh)
 dos2unix "$appscripts/lib_bash.sh" #<--------------------------
 source "$appscripts/lib_bash.sh" #<--------------------------
@@ -33,11 +34,14 @@ cat <<EOF > publish_$app_name.sh
 show_docker_config
 show_docker_commands_custons
 docker-compose -f $app_name/$docker_compose_file up --build -d $params_containers
+dashboard_docker
 #. start_$app_name.sh
 EOF
 #>- construindo .sh para Iniciar docker <br>
 #-------------------------------------------------------------------------------------
 cat <<EOF > load_$app_name.sh
+    dos2unix scripts/script.cfg
+    dos2unix scripts/lib_bash.sh
     source scripts/script.cfg
     source scripts/lib_bash.sh
 EOF
@@ -74,24 +78,30 @@ EOF
 #>- construindo .sh para parar docker <br>
 #-------------------------------------------------------------------------------------
 cat <<EOF > clear_$app_name.sh
-    #>- Remover contêineres parados (sem afetar volumes ou imagens) <br>
+    #>- Remove contêineres parados (sem afetar volumes ou imagens) <br>
     docker container prune -f
-    #>- Remover imagens dangling (sem tags) e liberar espaço sem afetar as imagens usadas <br>
+    #>- Remove imagens dangling (sem tags), liberando espaço, sem afetar as imagens ativamente utilizadas <br>
     docker image prune -f
-    #>- Remover volumes que não estão sendo usados por nenhum contêiner ativo <br>
+    #>- Remove volumes que não estão sendo utilizados por contêineres ativos <br>
     docker volume prune -f
+    #>- Remove todas as imagens não utilizadas, incluindo aquelas que possuem tags, liberando mais espaço <br>
+    #docker image prune -a
+    #>- Lista todos os contêineres ativos <br>
     docker ps
 EOF
 #>📁 Passo 1: Criação da sub Estrutura de Diretórios da aplicação <br>
 echo_color $RED  "Passo 1: Criação da sub Estrutura de Diretórios da aplicação "
 mkdir -p $containerhost
-mkdir -p $app_dir/py-app/app/lib
+mkdir -p $app_dir_con/py-app/app/lib
+mkdir -p $backup_dir_py
+mkdir -p $containerhost_py
 chmod -R 777 $containerhost
-cd $app_dir
+cd $app_dir_con
 echo_color $GREEN  "Entrando na pasta: $PWD"
 #>📝 Passo 2: Criar o arquivo app.py com ssl <br>
 echo_color $RED  "Passo 2: Criar o arquivo app.py com ssl"
 # -------------------  PYTHON  ----------------------------
+echo_color $LIGHT_CYAN  "PYTHON $PWD"
 mkdir -p py-app/app
 chmod -R 777 py-app
 #-------------------------------------------------------------------------------------
@@ -99,9 +109,9 @@ cat <<EOF > py-app/app/lib/lib_func.py
 import ssl
 import mysql.connector
 from mysql.connector import Error
-from flask import Flask, jsonify
 from flask_cors import CORS   
-from flask import render_template
+from flask import Flask, jsonify,render_template,request, redirect, url_for 
+import os
 def index():
 # lib/lib_func.py
     return """<!DOCTYPE html>
@@ -120,11 +130,20 @@ def index():
         a:hover {background-color: #2980b9; color: #ffffff; }
         p {text-align: center; margin: 20px 0; }
         pre {background-color: #eeeeee; border: 1px solid #ddd; border-radius: 5px; padding: 15px; overflow: auto; max-width: 600px; margin: 20px auto; } 
+        .upload-container {text-align: -webkit-center;}
     </style>
 </head>
 <body>
     <h1>Bem-vindo ao sistema de Análise</h1>
     <ul>
+        <li>
+        <div class="upload-container">
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" accept=".docx" required>
+                <button class="upload-button" type="submit">Upload de DOCX</button>
+            </form>
+        </div>
+        </li>
         <li><a href='/analisar_curriculo'>Análise de Currículos</a></li>
         <li><a href='/recomendar'>Sistema de Recomendação * </a></li>
         <li><a href='/chatbot'>Chatbot *</a></li>
@@ -137,22 +156,39 @@ def index():
     <p>Hello World Setup Python!</p>
     <p>Execute esses comandos no bash e teste a conexão:</p>
     <pre>
-    docker exec --privileged -it ${app_name}_db bash
-    docker logs ${app_name}_db
+    docker exec --privileged -it ${app_name}_my-db bash
+    docker logs ${app_name}_my-db
     mysql -u root -p$db_root_pass
     create database $db_namedatabase;
-    CREATE USER 'seu_usuario'@'%' IDENTIFIED BY 'seu_senha_root';
-    GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO 'seu_usuario'@'%';
-    SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';
+    CREATE USER '$db_user'@'%' IDENTIFIED BY '$db_pass';
+    GRANT ALL PRIVILEGES ON seu_banco_de_dados.* TO '$db_user'@'%';
+    GRANT ALL PRIVILEGES ON *.* TO '$db_user'@'%';
+    SELECT user, host FROM mysql.user WHERE user = '$db_user';
     FLUSH PRIVILEGES;
+    </pre>
+    <pre>
+    ftp://$name_host user: $name_user (SFTP HOST) 
+    ssh $ftp_user_py@$name_host -p $app_port_ssh_py         (SSH DOCkER PYTHON)
+    https://$name_host:$app_port_py                         (PYTHON)
+    http://$name_host:$app_port_java/hello-world/hello      (JAVA)
+    ssh $ftp_user_py@$name_host -p $app_port_ssh_java       (SSH DOCkER JAVA)
+    http://$name_host:$app_port_react/                      (REACT)
+    http://$name_host:$app_port_php/                        (PHP)
+    http://$name_host:$app_port_emu/                        (VNC ANDROID) +1 5901
+    Abra o VSCode e conecte ao HOST ou WSL como  
+        usuario:$name_user
+        pasta da aplicação: $app_dir_con"
+        pasta cache: $backup_dir_py
+        pasta compartilhada: $containerhost_py 
+        pasta upload: $app_source/py-app/app/uploads
     </pre>
 </body>
 </html>
 """
 def conectar_e_executar():
     host= "vmlinuxd"
-    usuario="root"
-    senha= "seu_senha_root"
+    usuario="$db_user"
+    senha= "$db_pass"
     banco_de_dados="seu_banco_de_dados"
 
     """
@@ -176,18 +212,18 @@ def conectar_e_executar():
             db_Info = conexao.get_server_info()
             print("Conectado ao MySQL Server versão ", db_Info)
             cursor = conexao.cursor()
-            # Consulta 1: SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';
-            cursor.execute("SELECT user, host FROM mysql.user WHERE user = 'seu_usuario'")
+            # Consulta 1: SELECT user, host FROM mysql.user WHERE user = '$db_user';
+            cursor.execute("SELECT user, host FROM mysql.user WHERE user = '$db_user'")
             resultados_usuarios = cursor.fetchall()
-            print("\nResultados da consulta SELECT user, host FROM mysql.user WHERE user = 'seu_usuario':")
+            print("\nResultados da consulta SELECT user, host FROM mysql.user WHERE user = '$db_user':")
             usuarios = []  #lista para armazenar os usuarios
             for linha in resultados_usuarios:
                 print(f"User: {linha[0]}, Host: {linha[1]}")
                 usuarios.append({"user": linha[0], "host": linha[1]}) #adicionando na lista
-            # Consulta 2: SHOW GRANTS FOR 'seu_usuario'@'%';
-            cursor.execute("SHOW GRANTS FOR 'seu_usuario'@'%'")
+            # Consulta 2: SHOW GRANTS FOR '$db_user'@'%';
+            cursor.execute("SHOW GRANTS FOR '$db_user'@'%'")
             resultados_permissoes = cursor.fetchall()
-            print("\nResultados da consulta SHOW GRANTS FOR 'seu_usuario'@'%':")
+            print("\nResultados da consulta SHOW GRANTS FOR '$db_user'@'%':")
             permissoes = [] #lista para armazenar as permissoes
             for linha in resultados_permissoes:
                 print(linha[0])  # Imprime a concessão (grant)
@@ -215,8 +251,8 @@ def conectar_e_executar():
 
     # Exemplo de uso:  Substitua pelas suas credenciais reais
     #host = "localhost"  # Ou o endereço IP do seu host Docker, se não for localhost
-    #usuario = "root"  # Ou 'seu_usuario', se você quiser usar esse usuário
-    #senha = "seu_senha_root"
+    #usuario = "$db_user"  # Ou '$db_user', se você quiser usar esse usuário
+    #senha = "$db_pass"
     vbanco_de_dados = "mysql"  # ou 'seu_banco_de_dados' se as grants foram criadas nesse banco
     #conectar_e_executar(host, usuario, senha, banco_de_dados)    
     #pip install mysql-connector-python
@@ -376,6 +412,27 @@ from lib.lib_func import *
 app = Flask(__name__)   
 # Configura o CORS para permitir todas as origens e credenciais
 CORS(app, supports_credentials=True)   
+@app.route('/upload', methods=['GET', 'POST'])  # Rota para receber o upload
+def recebepdf():
+    # Configurando o diretório de upload
+    UPLOAD_FOLDER = 'uploads'
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    # Certifique-se de que a pasta de uploads exista
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return 'Nenhum arquivo foi enviado', 400        
+        file = request.files['file']        
+        if file.filename == '':
+            return 'Nenhum arquivo selecionado', 400        
+        if file and file.filename.endswith('.docx'):
+            # Define o caminho completo para salvar o arquivo
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'Profile.docx')
+            file.save(file_path)  # Salva o arquivo
+            return 'Arquivo salvo com sucesso!', 200
+        else:
+            return 'Formato de arquivo inválido. Apenas .docx é permitido', 400
 @app.route('/') # MAIN
 def idx():
     return index()
@@ -512,13 +569,34 @@ cat <<EOF > my-db/Dockerfile
     COPY ./tmp/my.cnf /etc/mysql/conf.d/my.cnf    
     # (Opcional) Copie scripts SQL de inicialização para o contêiner
     #COPY docker-entrypoint-initdb.d/init.sql /docker-entrypoint-initdb.d/
-    EXPOSE $app_port_mysql
+    EXPOSE $db_port_mysql
     CMD ["mysqld"]
 EOF
 # -------------------  JAVA http://vmlinuxd:8080/hello-world/hello  ----------------------------
+echo_color $LIGHT_CYAN  "JAVA $PWD"
 mkdir -p java-app/src/main/java/com/example
 mkdir -p java-app/src/main/webapp/WEB-INF
 chmod -R 777 java-app
+new_pom_content=$(cat << EOF
+plugins {
+    id 'java'
+    id 'war' // Para construir um arquivo WAR que pode ser implantado em um servidor servlet
+}
+group 'com.example'
+version '1.0-SNAPSHOT'
+repositories {
+    mavenCentral() // Repositório onde as dependências serão buscadas
+}
+dependencies {
+    implementation 'org.springframework:spring-context:5.3.9'
+    providedCompile 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
+    testImplementation 'junit:junit:4.13.2'
+}
+//sourceCompatibility = '11'
+//targetCompatibility = '11'
+EOF)
+#update_file_if_different "java-app/build.gradle" "$new_pom_content"
 new_pom_content=$(cat << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -632,9 +710,9 @@ public class ConectarServlet extends HttpServlet { // Usando uma classe separada
     // Variáveis para armazenar as informações do banco de dados
     private String host = "$name_host";
     private String usuario = "$db_user";
-    private String senha = "$db_root_pass";
+    private String senha = "$db_pass";
     private String bancoDeDados = "$db_namedatabase";
-    private String porta = "$app_port_mysql";
+    private String porta = "$db_port_mysql";
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         processarConexao(request, response);
@@ -672,9 +750,10 @@ public class ConectarServlet extends HttpServlet { // Usando uma classe separada
             conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":" + porta + "/" + bancoDeDados + "?useSSL=false", usuario, senha);
             //conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":" + porta + "/" + bancoDeDados + "?useSSL=true&requireSSL=true&verifyServerCertificate=true", usuario, senha);
             //conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":"+porta+"/" + bancoDeDados, usuario, senha);
+            //conexao = DriverManager.getConnection("jdbc:mysql://" + host + ":" + porta + "/" + bancoDeDados + "?useSSL=false&allowPublicKeyRetrieval=true", usuario, senha);
             if (conexao != null) {
-                // Consulta 1: SELECT user, host FROM mysql.user WHERE user = 'seu_usuario';
-                consultaUsuarios = conexao.prepareStatement("SELECT user, host FROM mysql.user WHERE user = 'seu_usuario'");
+                // Consulta 1: SELECT user, host FROM mysql.user WHERE user = '$db_user';
+                consultaUsuarios = conexao.prepareStatement("SELECT user, host FROM mysql.user WHERE user = '$db_user'");
                 resultadosUsuarios = consultaUsuarios.executeQuery();
                 List<Map<String, String>> usuarios = new ArrayList<>();
                 while (resultadosUsuarios.next()) {
@@ -683,8 +762,8 @@ public class ConectarServlet extends HttpServlet { // Usando uma classe separada
                     usuarioMap.put("host", resultadosUsuarios.getString("host"));
                     usuarios.add(usuarioMap);
                 }
-                // Consulta 2: SHOW GRANTS FOR 'seu_usuario'@'%';
-                consultaPermissoes = conexao.prepareStatement("SHOW GRANTS FOR 'seu_usuario'@'%'");
+                // Consulta 2: SHOW GRANTS FOR '$db_user'@'%';
+                consultaPermissoes = conexao.prepareStatement("SHOW GRANTS FOR '$db_user'@'%'");
                 resultadosPermissoes = consultaPermissoes.executeQuery();
                 List<String> permissoes = new ArrayList<>();
                 while (resultadosPermissoes.next()) {
@@ -791,7 +870,57 @@ function App() {
 }
 export default App;
 EOF
+# -------------------  DOCKER PYTHON  ----------------------------
+cat <<EOF > py-app/Dockerfile
+    #>- Usar a imagem base Python <br>
+    FROM python:3.9-slim
+    # Variáveis de ambiente
+    ENV DEBIAN_FRONTEND=noninteractive
+    # Atualize o pip
+    RUN pip install --upgrade pip
+    # Instale uma versão específica do pip
+    # RUN pip install pip==21.3.1  # Substitua pela versão desejada
+    # Atualizar e instalar pacotes necessários
+    RUN apt-get update && apt-get install -y \
+        openssh-server \
+        vsftpd \
+        && rm -rf /var/lib/apt/lists/*  # Limpa cache
+    RUN apt-get update && apt-get install -y python3 python3-pip
+    RUN pip3 install mysql-connector-python
+    # Adiciona o novo usuário FTP
+    RUN useradd -m $ftp_user_py && mkdir /var/run/sshd && echo "$ftp_user_py:$ftp_pass_py" | chpasswd
+    # Permitir login root via SSH (Atenção: apenas para desenvolvimento; não recomendado em produção)
+    RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+    # Definir a senha do root
+    RUN echo "root:$ftp_pass_py" | chpasswd
+    # Criar diretório /app e definir permissões
+    RUN mkdir -p /app && chown root:$ftp_user_py /app && chmod 770 /app
+    # Adicionar o usuário FTP
+    # RUN if [ -z "$ftp_user_py" ] || [ -z "$ftp_pass_py" ]; then echo "ftp_user_py or ftp_pass_py not set"; exit 1; fi && echo "$ftp_user_py:$ftp_pass_py" | chpasswd
+    # Configurar o FTP
+    RUN echo "write_enable=YES" >> /etc/vsftpd.conf && \
+        echo "local_root=/app" >> /etc/vsftpd.conf && \
+        echo "userlist_enable=YES" >> /etc/vsftpd.conf && \
+        echo "$ftp_user_py" >> /etc/vsftpd.userlist
+    # Configurar o diretório home do usuário FTP
+    RUN mkdir -p /home/$ftp_user_py && chown $ftp_user_py:$ftp_user_py /home/$ftp_user_py
+    # Definir o diretório de trabalho no contêiner
+    WORKDIR /app
+    # Copiar o arquivo requirements.txt para o contêiner
+    COPY requirements.txt .
+    # Instalar as dependências do Python
+    #RUN pip install --no-cache-dir scikit-learn pandas
+    #RUN for i in 1 2 3; do pip install scikit-learn pandas && break || sleep 15; done
+    RUN pip install --timeout=120 -r requirements.txt
+    # Copiar os arquivos necessários para o diretório de trabalho
+    COPY app /app
+    # Expor as portas do SSH, FTP e da aplicação Flask
+    EXPOSE 22 21 $app_port_py
+    # Iniciar o SSH, o FTP e a aplicação Flask
+    CMD service ssh start && service vsftpd start && python app.py
+EOF
 # -------------------  DOCKER REACT  ----------------------------
+echo_color $LIGHT_CYAN  "REACT $PWD"
 cat <<EOF > react-app/Dockerfile
     # Use uma imagem base do Node.js
     FROM node:14 as build
@@ -817,56 +946,8 @@ cat <<EOF > react-app/Dockerfile
     # Comando para iniciar o Nginx
     CMD ["nginx", "-g", "daemon off;"]
 EOF
-# -------------------  DOCKER PYTHON  ----------------------------
-cat <<EOF > py-app/Dockerfile
-    #>- Usar a imagem base Python <br>
-    FROM python:3.9-slim
-    # Variáveis de ambiente
-    ENV DEBIAN_FRONTEND=noninteractive
-    # Atualize o pip
-    RUN pip install --upgrade pip
-    # Instale uma versão específica do pip
-    # RUN pip install pip==21.3.1  # Substitua pela versão desejada
-    # Atualizar e instalar pacotes necessários
-    RUN apt-get update && apt-get install -y \
-        openssh-server \
-        vsftpd \
-        && rm -rf /var/lib/apt/lists/*  # Limpa cache
-    RUN apt-get update && apt-get install -y python3 python3-pip
-    RUN pip3 install mysql-connector-python
-    # Adiciona o novo usuário FTP
-    RUN useradd -m $ftp_user && mkdir /var/run/sshd && echo "$ftp_user:$ftp_pass" | chpasswd
-    # Permitir login root via SSH (Atenção: apenas para desenvolvimento; não recomendado em produção)
-    RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-    # Definir a senha do root
-    RUN echo "root:$ftp_pass" | chpasswd
-    # Criar diretório /app e definir permissões
-    RUN mkdir -p /app && chown root:$ftp_user /app && chmod 770 /app
-    # Adicionar o usuário FTP
-    # RUN if [ -z "$ftp_user" ] || [ -z "$ftp_pass" ]; then echo "ftp_user or ftp_pass not set"; exit 1; fi && echo "$ftp_user:$ftp_pass" | chpasswd
-    # Configurar o FTP
-    RUN echo "write_enable=YES" >> /etc/vsftpd.conf && \
-        echo "local_root=/app" >> /etc/vsftpd.conf && \
-        echo "userlist_enable=YES" >> /etc/vsftpd.conf && \
-        echo "$ftp_user" >> /etc/vsftpd.userlist
-    # Configurar o diretório home do usuário FTP
-    RUN mkdir -p /home/$ftp_user && chown $ftp_user:$ftp_user /home/$ftp_user
-    # Definir o diretório de trabalho no contêiner
-    WORKDIR /app
-    # Copiar o arquivo requirements.txt para o contêiner
-    COPY requirements.txt .
-    # Instalar as dependências do Python
-    #RUN pip install --no-cache-dir scikit-learn pandas
-    #RUN for i in 1 2 3; do pip install scikit-learn pandas && break || sleep 15; done
-    RUN pip install --timeout=120 -r requirements.txt
-    # Copiar os arquivos necessários para o diretório de trabalho
-    COPY app /app
-    # Expor as portas do SSH, FTP e da aplicação Flask
-    EXPOSE 22 21 $app_port_py
-    # Iniciar o SSH, o FTP e a aplicação Flask
-    CMD service ssh start && service vsftpd start && python app.py
-EOF
 # -------------------  ANDROID  ----------------------------
+echo_color $LIGHT_CYAN  "ANDROID $PWD"
 mkdir -p adr-app
 # Escrevendo o Dockerfile
 #-------------------------------------------------------------------------------------
@@ -882,7 +963,7 @@ cat <<EOF > adr-app/Dockerfile.emu
         && apt-get clean
     # Configuração da senha para VNC
     #RUN mkdir ~/.vnc && \
-    #    x11vnc -storepasswd $vnc_pass ~/.vnc/passwd
+    #    x11vnc -storepasswd $vnc_pass_adr ~/.vnc/passwd
     # Comando para adicionar regras do iptables
     #RUN iptables -A INPUT -p tcp --dport 5901 -j ACCEPT
     # Iniciar o servidor VNC e o ambiente gráfico
@@ -923,6 +1004,7 @@ cat <<EOF > adr-app/Dockerfile
     CMD [ "sh", "-c", "while true; do sleep 30; done;" ]
 EOF
 # -------------------  PHP  ----------------------------
+echo_color $LIGHT_CYAN  "PHP $PWD"
 mkdir -p php-app
 #-------------------------------------------------------------------------------------
 cat <<EOF > php-app/nginx.conf
@@ -966,6 +1048,7 @@ cat <<EOF > php-app/Dockerfile
     CMD ["nginx", "-g", "daemon off;"]
 EOF
 # -------------------  NGINX  ----------------------------
+echo_color $LIGHT_CYAN  "NGINX $PWD"
 #>⚙️ Passo 5: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) <br>
 echo_color $RED  "Passo 5: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) "
 #-------------------------------------------------------------------------------------
@@ -1034,23 +1117,24 @@ EOF
 #>🧩 Passo 6: Criar o arquivo docker-compose.yml <br>
 echo_color $RED  "Passo 6: Criar o arquivo docker-compose.yml"
 # -------------------  DOCKER COMPOSE  ----------------------------
+echo_color $LIGHT_CYAN  "COMPOSE $PWD"
 cat <<EOF > $docker_compose_file
     version: '3'
     services:
       py-app:
         build: 
-            context: ./py-app  # Caminho para o diretório da aplicação Java
+            context: ./py-app  # Caminho para o diretório da aplicação python
         container_name: ${app_name}_py-app
         ports:
           - "$app_port_py:$app_port_py"
-          - "$app_port_ftp:21"                 # Porta FTP
-          - "$app_port_ssh:22"                 # Porta SSH
+          - "$app_port_ftp_py:21"                 # Porta FTP
+          - "$app_port_ssh_py:22"                 # Porta SSH
           #- "21000-21010:21000-21010"  # Portas passivas FTP (ajuste se necessário)
         environment:
-          - FTP_USER=${ftp_user}    # Se você quiser parametrizar o usuário
-          - FTP_PASS=${ftp_pass}    # Se você quiser parametrizar a senha
+          - FTP_USER=${ftp_user_py}    # Se você quiser parametrizar o usuário
+          - FTP_PASS=${ftp_pass_py}    # Se você quiser parametrizar a senha
         volumes:
-          - ${cur_dir}/${containerhost}:/${containerfolder}:rw
+          - ${cur_dir}/${containerhost_py}:/${containerfolder_py}:rw
       nginx:
         image: nginx:latest
         container_name: ${app_name}_nginx
@@ -1066,8 +1150,8 @@ cat <<EOF > $docker_compose_file
         #  - public_network
       my-db:
         build:
-          context: ./my-db  # Caminho para o diretório da aplicação Java          
-        container_name: ${app_name}_db
+          context: ./my-db  # Caminho para o diretório da aplicação mysql          
+        container_name: ${app_name}_my-db
         restart: always
         environment:
           MYSQL_ROOT_PASSWORD: $db_root_pass
@@ -1075,7 +1159,7 @@ cat <<EOF > $docker_compose_file
           MYSQL_USER: $db_user
           MYSQL_PASSWORD: $db_pass
         ports:
-          - "$app_port_mysql:$app_port_mysql"
+          - "$db_port_mysql:$db_port_mysql"
         volumes:
           - db_data:/var/lib/mysql
         healthcheck:
@@ -1090,6 +1174,10 @@ cat <<EOF > $docker_compose_file
         container_name: ${app_name}_java-app
         ports:
           - "$app_port_java:$app_port_java"  # Ajuste a porta conforme necessário
+          - "$app_port_ssh_java:22"                 # Porta SSH
+        volumes:
+          - ~/.m2:/root/.m2  # Montando o diretório
+          #- ${cur_dir}/${containerhost_java}:/app:rw
         #depends_on:
         #  - db  # Caso a aplicação Java dependa do banco de dados      
       react-app:  # Serviço para a aplicação React
@@ -1128,8 +1216,8 @@ cat <<EOF > $docker_compose_file
         volumes:
           - ./adr-app:/workspace
         environment:
-          - USER=$vnc_user  # Definindo o usuário como root # androidusr
-          - VNC_PASSWORD=$vnc_pass  # Defina aqui se precisar de password
+          - USER=$vnc_user_adr  # Definindo o usuário como root # androidusr
+          - VNC_PASSWORD=$vnc_pass_adr  # Defina aqui se precisar de password
           - DISPLAY=:0
         networks:
           - public_network          
@@ -1140,6 +1228,7 @@ cat <<EOF > $docker_compose_file
           driver: bridge # --> docker network create public_network
 EOF
 # -------------------  RUN BASH  ----------------------------
+echo_color $LIGHT_CYAN  "BASH $PWD"
 #>- Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
 mkdir -p $app_source/py-app/app/ssl
 mkdir -p $app_source/py-app/app/uploads
@@ -1166,7 +1255,7 @@ docker-compose -f $docker_compose_file ps
 echo_color $RED  "docker stop "$app_name"_py-app" 
 echo_color $RED  "docker rm " $app_name"_py-app" 
 #>- Criar e executar um novo contêiner com volume montado <br>
-echo_color $RED  "docker run -d -v /home/userlnx/"$app_name"/"$containerhost":/app -p $app_port:$app_port --name " $app_name $app_name"_py-app" 
+echo_color $RED  "docker run -d -v /home/userlnx/"$app_name"/"$containerhost_py":/app -p $app_port:$app_port --name " $app_name $app_name"_py-app" 
 #>- Limpeza <br>
 echo_color $RED  "Limpeza"
 . ../clear_"$app_name".sh
@@ -1177,7 +1266,7 @@ cd $cur_dir
 echo_color $GREEN  "Entrando na pasta: $PWD"
 #>- Nota: Caso o serviço Apache ou Nginx já existente esteja usando as portas 80 e 443, <br>
 #>- certifique-se de parar ou reconfigur-lo para evitar conflitos de porta. <br>
-echo "${cur_dir}/${containerhost} /${containerfolder}"
+echo "${cur_dir}/${containerhost_py} /${containerfolder_py}"
 dashboard_docker
 echo -e "\a";
 
@@ -1287,7 +1376,7 @@ echo -e "\a";
 #${app_name}_android-emulator:latest 12.8GB #5731742daf5e
 #${app_name}_app-py:latest 759MB #ff4995cded4a
 #${app_name}_app:latest 759MB #2a478e5b326d
-#${app_name}_db:latest 764MB #f47dd26b30ec
+#${app_name}_my-db:latest 764MB #f47dd26b30ec
 #${app_name}_java-app:latest 471MB #252ab554ea7a
 #${app_name}_php-app:latest 50.8MB #d19376fbbf5c
 #${app_name}_py-app:latest 759MB #095b0e1941d6
