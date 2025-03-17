@@ -15,17 +15,17 @@ Caso ainda não viu, veja os requisitos para o sistema rodar: [SCRIPT](../) que 
 
 script_docker/
 ├── Scripts/
-│   ├── lib_bash.sh/            # Biblioteca de funções bash para facilitar reusando rotinas
-│   ├── script.cfg              # Parametro de configurção para iniciar script
-├── putsourcehere/           # Pesonalizando com seu prorio código (irão sobrepor o pradrão gerado pelo script)
-		Clonar aqui nessa pasta (putsourcehere) os seus projetos para integrar a construção do ambiente de desenvolvimento proposto.
-		git clone https://github.com/seurepositorio-adr/script_docker.git adr-app
-		git clone https://github.com/seurepositorio-java/script_docker.git java-app
-		git clone https://github.com/seurepositorio-my/script_docker.git my-db
-		git clone https://github.com/seurepositorio-php/script_docker.git php-app
-		git clone https://github.com/seurepositorio-py/script_docker.git py-app
-		git clone https://github.com/seurepositorio-react/script_docker.git react-app
-│   ├── requirements.txt        # pacotes que serão instaldor
+│   ├── lib_bash.sh/# Biblioteca de funções bash para facilitar reusando rotinas
+│   ├── script.cfg  # Parametro de configurção para iniciar script
+├── putsourcehere/  # Pesonalizando com seu prorio código (irão sobrepor o pradrão gerado pelo script)
+│		│  #Clonar aqui nessa pasta (putsourcehere) os seus projetos para integrar a construção do ambiente de desenvolvimento proposto.
+│		├──git clone https://github.com/seurepositorio-adr/script_docker.git adr-app
+│		├──git clone https://github.com/seurepositorio-java/script_docker.git java-app
+│		├──git clone https://github.com/seurepositorio-my/script_docker.git my-db
+│		├──git clone https://github.com/seurepositorio-php/script_docker.git php-app
+│		├──git clone https://github.com/seurepositorio-py/script_docker.git py-app
+│   │   ├── requirements.txt        # pacotes que serão instalador
+│		├──git clone https://github.com/seurepositorio-react/script_docker.git react-app
 │   setup_script_launcher.sh # Script para criar e iniciar webservice usando docker  
 
 

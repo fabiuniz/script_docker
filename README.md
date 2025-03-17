@@ -31,8 +31,7 @@ Projeto Script_Docker/
 │   │   ├── lib_bash.sh/     # Biblioteca de funções bash para facilitar reusando rotinas
 │   │   ├── script.cfg       # Parametro de configurção para iniciar script
 │   ├── images/
-│   ├── putsourcehere/
-│   │   ├── requirements.txt
+│   ├── putsourcehere/       # Pesonalizando com seu prorio código (irão sobrepor o pradrão gerado pelo script)
 │   │   LICENSE
 │   │   README.md
 │   │   setup_script_launcher.sh # Script para criar e iniciar webservice usando docker  
