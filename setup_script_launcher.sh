@@ -29,7 +29,7 @@ echo_color $RED  "Preparação: construindo scripts para execução da aplicaç�
 #chown -R userlnx:userlnx /home/userlnx/docker/overlay2
 #>- construindo .sh para publicar arqivos docker <br>
 #-------------------------------------------------------------------------------------
-echo_color $GREEN  "copiando arquivos de "$app_source"* para  /$app_name"
+echo_color $GREEN  "Entrando na pasta: $PWD"
 cat <<EOF > publish_$app_name.sh
 show_docker_config
 show_docker_commands_custons
@@ -500,7 +500,7 @@ EOF
 #>📄 Passo 3: Criar o arquivo requirements.txt <br>
 echo_color $RED  "Passo 3: Criar o arquivo requirements.txt"
 #----------------------------------------------------------------------------------------------
-cat <<EOF > py-app/requirements.txt
+cat <<EOF > py-app/app/requirements.txt
 # ------------------- Framework para a aplicação web --------------------------------------------
 Flask==2.1.1                    # ~ 300 KB
 flask_cors==4.0.0               # ~ 20 KB
@@ -826,6 +826,12 @@ cat <<EOF > java-app/src/main/webapp/WEB-INF/web.xml
          version="3.1">
 </web-app>
 EOF
+cat <<EOF > java-app/_.dockerignore
+target/
+*.log
+*.class
+*.jar
+EOF
 # -------------------  DOCKER JAVA  ----------------------------
 cat <<EOF > java-app/Dockerfile
 # Use uma imagem de build do Maven
@@ -907,7 +913,7 @@ cat <<EOF > py-app/Dockerfile
     # Definir o diretório de trabalho no contêiner
     WORKDIR /app
     # Copiar o arquivo requirements.txt para o contêiner
-    COPY requirements.txt .
+    COPY app/requirements.txt .
     # Instalar as dependências do Python
     #RUN pip install --no-cache-dir scikit-learn pandas
     #RUN for i in 1 2 3; do pip install scikit-learn pandas && break || sleep 15; done
@@ -1232,7 +1238,12 @@ echo_color $LIGHT_CYAN  "BASH $PWD"
 #>- Caso tenha conteúdo na pasta app_source copia sobrepondo existentes <br>
 mkdir -p $app_source/py-app/app/ssl
 mkdir -p $app_source/py-app/app/uploads
-echo_color $GREEN  "copiando arquivos de "$app_source"/py-app para $PWD"
+mkdir -p $app_source/java-app/src
+mkdir -p $app_source/my-db
+mkdir -p $app_source/react-app/src
+mkdir -p $app_source/php-app
+mkdir -p $app_source/adr-app
+echo_color $GREEN  "copiando arquivos de "$app_source" para $PWD"
 cp -r "$app_source"/* .
 chmod -R 777 "$app_source"
 #>🔒 Passo 7: Gerar um certificado SSL autoassinado (opcional) <br>
