@@ -166,22 +166,31 @@ def index():
     SELECT user, host FROM mysql.user WHERE user = '$db_user';
     FLUSH PRIVILEGES;
     </pre>
+    <ul>
+    <li><a href='https://$name_host:$app_port_py' target='_blank'>(PYTHON)</a></li>
     <pre>
-    ftp://$name_host user: $name_user (SFTP HOST) 
-    ssh $ftp_user_py@$name_host -p $app_port_ssh_py         (SSH DOCkER PYTHON)
-    https://$name_host:$app_port_py                         (PYTHON)
-    http://$name_host:$app_port_java/hello-world/hello      (JAVA)
-    ssh $ftp_user_py@$name_host -p $app_port_ssh_java       (SSH DOCkER JAVA)
-    http://$name_host:$app_port_react/                      (REACT)
-    http://$name_host:$app_port_php/                        (PHP)
-    http://$name_host:$app_port_emu/                        (VNC ANDROID) +1 5901
     Abra o VSCode e conecte ao HOST ou WSL como  
-        usuario:$name_user
+        hostname : $name_host
+        usuario: $name_user
         pasta da aplicação: $app_dir_con"
         pasta cache: $backup_dir_py
         pasta compartilhada: $containerhost_py 
         pasta upload: $app_source/py-app/app/uploads
+        ftp://$name_host user: $name_user (SFTP HOST) 
+        ssh $name_user@$name_host -p 22 (SSH HOST)
+        ssh $ftp_user_py@$name_host -p $app_port_ssh_py senha : $ftp_pass_py (SSH DOCkER PYTHON)
     </pre>
+    <li><a href='http://$name_host:$app_port_java/hello-world/hello' target='_blank'>(JAVA)</a></li>
+    <pre>
+        ssh $ftp_user_py@$name_host -p $app_port_ssh_java senha : $ftp_pass_py (SSH DOCkER JAVA)
+    </pre>
+        <li><a href='http://$name_host:$app_port_php/' target='_blank'>(PHP)</a></li>
+        <li><a href='http://$name_host:$app_port_react/' target='_blank'>(REACT)</a></li>
+    <pre>    
+        http://$name_host:$app_port_emu/ (VNC ANDROID) +1 5901
+        http://$name_host:$app_port_emu/ (VNC ANDROID) +1 5901
+    </pre>
+    </ul>
 </body>
 </html>
 """
@@ -562,7 +571,7 @@ EOF
 # Criar o Dockerfile
 #-------------------------------------------------------------------------------------
 cat <<EOF > my-db/Dockerfile
-    FROM mysql:8.0
+    FROM ${IMAGE_NAME_db_stage1}
     # Adicione scripts de inicialização (opcional)
     # COPY ./docker-entrypoint-initdb.d /docker-entrypoint-initdb.d/
     # Copiar o arquivo de configuração para o contêiner
@@ -834,8 +843,8 @@ target/
 EOF
 # -------------------  DOCKER JAVA  ----------------------------
 cat <<EOF > java-app/Dockerfile
-# Use uma imagem de build do Maven
-FROM maven:3.8.6-jdk-11 AS build
+# Use uma imagem de build do Maven (multi-stage builds)
+FROM ${IMAGE_NAME_java_stage1} AS build
 # Defina o diretório de trabalho no container
 WORKDIR /app
 # Copie apenas o pom.xml
@@ -848,7 +857,7 @@ COPY src ./src
 # Construa o projeto Maven
 RUN mvn clean package -DskipTests
 # Use a imagem do Tomcat
-FROM tomcat:9-jdk11
+FROM ${IMAGE_NAME_java_stage2}
 # Copie o arquivo WAR do container de build para o Tomcat
 COPY --from=build /app/target/hello-world.war /usr/local/tomcat/webapps/hello-world.war
 # Baixe o conector MySQL
@@ -879,7 +888,7 @@ EOF
 # -------------------  DOCKER PYTHON  ----------------------------
 cat <<EOF > py-app/Dockerfile
     #>- Usar a imagem base Python <br>
-    FROM python:3.9-slim
+    FROM ${IMAGE_NAME_py_stage1}
     # Variáveis de ambiente
     ENV DEBIAN_FRONTEND=noninteractive
     # Atualize o pip
@@ -929,7 +938,7 @@ EOF
 echo_color $LIGHT_CYAN  "REACT $PWD"
 cat <<EOF > react-app/Dockerfile
     # Use uma imagem base do Node.js
-    FROM node:14 as build
+    FROM ${IMAGE_NAME_react_stage1} as build
     # Define o diretório de trabalho
     WORKDIR /app    
     # Instala o create-react-app globalmente
@@ -942,7 +951,7 @@ cat <<EOF > react-app/Dockerfile
     RUN npm run build        
     # Usar a imagem do Nginx para servir a aplicação
     
-    FROM nginx:alpine
+    FROM ${IMAGE_NAME_react_stage2}
     # Copia os arquivos de build para o diretório do Nginx
     COPY --from=build /app/react-app/build /usr/share/nginx/html    
     # Copiar a configuração customizada do Nginx, se necessário
@@ -958,7 +967,7 @@ mkdir -p adr-app
 # Escrevendo o Dockerfile
 #-------------------------------------------------------------------------------------
 cat <<EOF > adr-app/Dockerfile.emu
-    FROM budtmo/docker-android
+    FROM ${IMAGE_NAME_emu_stage1}
     # Garantir que estamos como root para as próximas operações
     USER root
     # Instalação do x11vnc e outros pacotes necessários
@@ -980,7 +989,7 @@ mkdir -p adr-app
 #-------------------------------------------------------------------------------------
 cat <<EOF > adr-app/Dockerfile
     # Dockerfile
-    FROM openjdk:11    
+    FROM ${IMAGE_NAME_adr_stage1}    
     # Instalações do Android SDK
     RUN apt-get update && apt-get install -y \
         wget \
@@ -1036,14 +1045,14 @@ cat <<EOF > php-app/index.php
 EOF
 # -------------------  DOCKER PHP  ----------------------------
 cat <<EOF > php-app/Dockerfile
-    FROM php:8.0-fpm AS php-fpm
+    FROM ${IMAGE_NAME_php_stage1} AS php-fpm
     # Instalações adicionais, se necessárias
     # RUN docker-php-ext-install mysqli pdo pdo_mysql
     WORKDIR /var/www/html
     COPY . .    
     RUN echo "Dockerfile está localizado em: $(pwd)"
     # Etapa 2: Usar Nginx
-    FROM nginx:alpine
+    FROM ${IMAGE_NAME_php_stage2}
     RUN apk update
     # Instalando o nano
     RUN apk add --no-cache nano 
