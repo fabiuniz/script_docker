@@ -535,7 +535,7 @@ function mount_plugin() {
     local caminho_relay="${args[4]}"
     # Verifica se o username é "userrede" e retorna uma mensagem de erro
     if [ "$username" == "userrede" ]; then
-        echo "Rede não configurada!"
+        echo_color $LIGHT_GREEN "Mapeamento de rede não configurado! em $mountrede_py."
         return
     fi
     # Cria o diretório de relay se não existir

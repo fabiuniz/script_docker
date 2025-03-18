@@ -184,7 +184,7 @@ def index():
     <pre>
         ssh $ftp_user_py@$name_host -p $app_port_ssh_java senha : $ftp_pass_py (SSH DOCkER JAVA)
     </pre>
-        <li><a href='http://$name_host:$app_port_php/' target='_blank'>(PHP)</a></li>
+        <li><a href='http://$name_host/' target='_blank'>(PHP)</a></li>
         <li><a href='http://$name_host:$app_port_react/' target='_blank'>(REACT)</a></li>
     <pre>    
         http://$name_host:$app_port_emu/ (VNC ANDROID) +1 5901
@@ -1020,7 +1020,7 @@ cat <<EOF > adr-app/Dockerfile
 EOF
 # -------------------  PHP  ----------------------------
 echo_color $LIGHT_CYAN  "PHP $PWD"
-mkdir -p php-app
+mkdir -p php-app/src
 #-------------------------------------------------------------------------------------
 cat <<EOF > php-app/nginx.conf
 server {
@@ -1038,29 +1038,15 @@ server {
 }
 EOF
 # -------------------  PHP  ----------------------------
-cat <<EOF > php-app/index.php
-    <?php
-    phpinfo();
-    ?>
+cat <<EOF > php-app/src/index.php
+   <?php echo 'Hello , PHP Dockerized Web App!'; phpinfo(); ?>
 EOF
 # -------------------  DOCKER PHP  ----------------------------
 cat <<EOF > php-app/Dockerfile
-    FROM ${IMAGE_NAME_php_stage1} AS php-fpm
-    # Instalações adicionais, se necessárias
-    # RUN docker-php-ext-install mysqli pdo pdo_mysql
-    WORKDIR /var/www/html
-    COPY . .    
-    RUN echo "Dockerfile está localizado em: $(pwd)"
-    # Etapa 2: Usar Nginx
-    FROM ${IMAGE_NAME_php_stage2}
-    RUN apk update
-    # Instalando o nano
-    RUN apk add --no-cache nano 
-    COPY --from=php-fpm /var/www/html /usr/share/nginx/html
-    COPY --from=php-fpm /var/www/html/nginx.conf /etc/nginx/conf.d/default.conf
-    RUN echo "Conteúdo em $(..):" && ls -al
-    EXPOSE $app_port_php
-    CMD ["nginx", "-g", "daemon off;"]
+FROM php:8.0-fpm
+COPY src/ /var/www/html
+WORKDIR /var/www/html
+CMD ["php-fpm"]
 EOF
 # -------------------  NGINX  ----------------------------
 echo_color $LIGHT_CYAN  "NGINX $PWD"
@@ -1068,65 +1054,96 @@ echo_color $LIGHT_CYAN  "NGINX $PWD"
 echo_color $RED  "Passo 5: Criar o arquivo de configuraço do Nginx com ssl(nginx.conf) "
 #-------------------------------------------------------------------------------------
 cat <<EOF > $nginx_conf
-events {}
+user  nginx;
+worker_processes  1;
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+events {
+    worker_connections  1024;
+}
 http {
-    # Bloqueio para redirecionamento HTTP para HTTPS
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+    log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
+                      '\$status \$body_bytes_sent "\$http_referer" '
+                      '"\$http_user_agent" "\$http_x_forwarded_for"';
+    access_log  /var/log/nginx/access.log  main;
+    sendfile        on;
+    keepalive_timeout  65;
+    # Aplicação PHP (sem SSL)
     server {
-        listen 80;  # Ouvindo na porta 80 (HTTP)
-        server_name $name_host;
-        # Redireciona todas as requisições HTTP para HTTPS
-        return 301 https://$host$request_uri;
-    }
-    # Aplicação Java (sem SSL)
-    server {
-        listen $app_port_java;  # Ouvindo na porta 8080 (HTTP)
-        server_name $name_host;
+        listen 80;
+        server_name vmlinuxd;
+        root /var/www/html;
+        index index.php index.html index.htm;
         location / {
-            proxy_pass http://java-app:$app_port_java;  # Proxy para a aplicação Java
-            proxy_set_header Host $name_host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+            try_files \$uri \$uri/ =404;
+        }
+        # Configuração para processar arquivos PHP
+        location ~ \.php\$ {
+            include fastcgi_params;
+            fastcgi_pass php-app:${app_port_php};
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME /var/www/html\$fastcgi_script_name;
         }
     }
-    # Aplicação React (com SSL)
-    server {
-        listen 443 ssl http2;  # Ouvindo na porta 443 (HTTPS)
-        server_name $name_host;
-        ssl_certificate /etc/nginx/ssl/my_combined_certificate.crt;  # Certificado único
-        ssl_certificate_key /etc/nginx/ssl/my_combined_certificate.key;  # Chave do certificado
-        location / {
-            proxy_pass http://react-app:$app_port_react;  # Proxy para a aplicação React
-            proxy_set_header Host $name_host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-    }
-    # Aplicação PHP (com SSL)
-    server {
-        listen $app_port_php;  # Ouvindo na porta 8000 (HTTP)
-        server_name $name_host;
-        location / {
-            proxy_pass http://php-app:$app_port_php;  # Proxy para a aplicação PHP
-            proxy_set_header Host $name_host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-    }
-    # Aplicação Python (acesso sem SSL, se necessário)
-    server {
-        listen $app_port_py;  # Ouvindo na porta 8000 (HTTP)
-        server_name $name_host;
-        location / {
-            proxy_pass http://py-app:$app_port_py;  # Proxy para a aplicação Python
-            proxy_set_header Host $name_host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-    }
+    #---------------------------------------------------------------
+    #server {
+    #    listen 80;  # Ouvindo na porta 80 (HTTP)
+    #    server_name $name_host;
+    #    # Redireciona todas as requisições HTTP para HTTPS
+    #    return 301 https://$host$request_uri;
+    #}
+    ## Aplicação Java (sem SSL)
+    #server {
+    #    listen $app_port_java;  # Ouvindo na porta 8080 (HTTP)
+    #    server_name $name_host;
+    #    location / {
+    #        proxy_pass http://java-app:$app_port_java;  # Proxy para a aplicação Java
+    #        proxy_set_header Host $name_host;
+    #        proxy_set_header X-Real-IP $remote_addr;
+    #        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #        proxy_set_header X-Forwarded-Proto $scheme;
+    #    }
+    #}
+    ## Aplicação React (com SSL)
+    #server {
+    #    listen 443 ssl http2;  # Ouvindo na porta 443 (HTTPS)
+    #    server_name $name_host;
+    #    ssl_certificate /etc/nginx/ssl/my_combined_certificate.crt;  # Certificado único
+    #    ssl_certificate_key /etc/nginx/ssl/my_combined_certificate.key;  # Chave do certificado
+    #    location / {
+    #        proxy_pass http://react-app:$app_port_react;  # Proxy para a aplicação React
+    #        proxy_set_header Host $name_host;
+    #        proxy_set_header X-Real-IP $remote_addr;
+    #        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #        proxy_set_header X-Forwarded-Proto $scheme;
+    #    }
+    #}
+    ## Aplicação PHP (com SSL)
+    #server {
+    #    listen $app_port_php;  # Ouvindo na porta 8000 (HTTP)
+    #    server_name $name_host;
+    #    location / {
+    #        proxy_pass http://php-app:$app_port_php;  # Proxy para a aplicação PHP
+    #        proxy_set_header Host $name_host;
+    #        proxy_set_header X-Real-IP $remote_addr;
+    #        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #        proxy_set_header X-Forwarded-Proto $scheme;
+    #    }
+    #}
+    ## Aplicação Python (acesso sem SSL, se necessário)
+    #server {
+    #    listen $app_port_py;  # Ouvindo na porta 8000 (HTTP)
+    #    server_name $name_host;
+    #    location / {
+    #        proxy_pass http://py-app:$app_port_py;  # Proxy para a aplicação Python
+    #        proxy_set_header Host $name_host;
+    #        proxy_set_header X-Real-IP $remote_addr;
+    #        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #        proxy_set_header X-Forwarded-Proto $scheme;
+    #    }
+    #}
 }
 EOF
 #>🧩 Passo 6: Criar o arquivo docker-compose.yml <br>
@@ -1157,10 +1174,10 @@ cat <<EOF > $docker_compose_file
           - "80:80"
           - "443:443"
         volumes:
-          - ./nginx.conf:/etc/nginx/nginx.conf:ro
-          - ./ssl:/etc/nginx/ssl:ro
-        #depends_on:
-        #  - app
+          - ./nginx.conf:/etc/nginx/nginx.conf
+          - ./php-app/src:/var/www/html  # Mapeando o volume do diretório PHP para o NGINX
+        depends_on:
+          - php-app
         #networks:
         #  - public_network
       my-db:
@@ -1206,7 +1223,7 @@ cat <<EOF > $docker_compose_file
           context: ./php-app  # Caminho para o diretório da aplicação PHP
         container_name: ${app_name}_php-app
         volumes:
-          - ./php-app:/var/www/html  # Mapeando diretório local
+          - ./php-app/src:/var/www/html  # Mapeando diretório local
         ports:
           - "$app_port_php:$app_port_php"  # Mapeando a porta 9000 para acesso externo            
       android-dev:
@@ -1250,7 +1267,7 @@ mkdir -p $app_source/py-app/app/uploads
 mkdir -p $app_source/java-app/src
 mkdir -p $app_source/my-db
 mkdir -p $app_source/react-app/src
-mkdir -p $app_source/php-app
+mkdir -p $app_source/php-app/src
 mkdir -p $app_source/adr-app
 echo_color $GREEN  "copiando arquivos de "$app_source" para $PWD"
 cp -r "$app_source"/* .
