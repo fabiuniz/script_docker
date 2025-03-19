@@ -1046,6 +1046,10 @@ cat <<EOF > php-app/Dockerfile
 FROM php:8.0-fpm
 COPY src/ /var/www/html
 WORKDIR /var/www/html
+# Ajusta as permissões: atribui propriedade ao usuário www-data e define permissões
+RUN chown -R www-data:www-data /var/www/html && \
+    chmod -R 755 /var/www/html
+EXPOSE $app_port_php
 CMD ["php-fpm"]
 EOF
 # -------------------  NGINX  ----------------------------

@@ -1,5 +1,6 @@
 #lib_bash.sh--------------------------------------------------
 # Definir cores
+source scripts/script.cfg
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
@@ -514,7 +515,7 @@ function setapplications() {
     # Usando sed para substituir a linha params_containers no arquivo de configuração.
     sed -i "s|^\(params_containers=\).*$|\1\"$apps\"|" scripts/script.cfg
     # Imprime uma mensagem de sucesso.
-    echo "A variável params_containers foi atualizada para: $apps"
+    echo_color $YELLOW "A variável params_containers foi atualizada para: $params_containers"
     show_docker_config
 }
 #mountrede_py=("username" "domain" "password" "//192.168.1.179/y/Virtual Machines/VirtualPc/vmlinux_d/plugins" "/home/userlnx/docker/relay")
