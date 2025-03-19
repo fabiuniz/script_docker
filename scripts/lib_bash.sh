@@ -505,6 +505,7 @@ function restore_img_docker() {
     echo_color $YELLOW "Restauração completa."
 }
 function setapplications() {
+    source scripts/script.cfg
     # Define o valor de aplicativos; usa o valor passado ou o padrão.
     apps="${1:-nginx py-app db}"
     # Verifica se o arquivo de configuração existe.

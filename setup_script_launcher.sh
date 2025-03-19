@@ -972,17 +972,21 @@ cat <<EOF > adr-app/Dockerfile.emu
     USER root
     # Instalação do x11vnc e outros pacotes necessários
     RUN apt-get update && apt-get install -y \
-        #lightdm \
         x11vnc \
         xvfb \
+        openbox \
+        adb \
         && apt-get clean
     # Configuração da senha para VNC
     #RUN mkdir ~/.vnc && \
     #    x11vnc -storepasswd $vnc_pass_adr ~/.vnc/passwd
+    # Copiar o arquivo APK para o contêiner
+    COPY aide.apk /workspace/app.apk
     # Comando para adicionar regras do iptables
     #RUN iptables -A INPUT -p tcp --dport 5901 -j ACCEPT
     # Iniciar o servidor VNC e o ambiente gráfico
-    CMD ["sh", "-c", "Xvfb :1 -screen 0 1280x720x24 & x11vnc -display :1 -nopw -forever -repeat -rfbport $app_port_emu -shared"]
+    #CMD ["sh", "-c", "Xvfb :1 -screen 0 1280x720x24 & x11vnc -display :1 -nopw -forever -repeat -rfbport $app_port_emu -shared"]
+    CMD ["sh", "-c", "Xvfb :1 -screen 0 1280x720x24 & /path/to/your/emulator -avd your_avd_name -no-snapshot-load -no-audio -no-boot-anim & sleep 30 && adb install /workspace/aide.apk && x11vnc -display :1 -nopw -forever -repeat -rfbport $app_port_emu -shared"]
 EOF
 # -------------------  ANDROID  ----------------------------
 mkdir -p adr-app
@@ -1244,6 +1248,8 @@ cat <<EOF > $docker_compose_file
           dockerfile: Dockerfile.emu  # Nome do Dockerfile específico para o serviço db
         #image: budtmo/docker-android
         container_name: ${app_name}_android-emulator # Usar vnc Viewer pra se conectar nessa porta (https://www.realvnc.com/) as portas VNC são atribuídas como 5900 + número da tela)
+        #devices:
+          #- /dev/kvm  # Adicionando acesso ao dispositivo KVM
         ports:
           - "$app_port_emu:$app_port_emu"   # Porta para acessar o VNC do emulador
           - "5901:5901"   # Porta para acessar o VNC do emulador
@@ -1251,6 +1257,7 @@ cat <<EOF > $docker_compose_file
         #shm_size: '2g'  # Definindo o tamanho da memória compartilhada
         volumes:
           - ./adr-app:/workspace
+          #- /home/androidusr/Android/Sdk:/opt/android 
         environment:
           - USER=$vnc_user_adr  # Definindo o usuário como root # androidusr
           - VNC_PASSWORD=$vnc_pass_adr  # Defina aqui se precisar de password
@@ -1321,7 +1328,29 @@ echo -e "\a";
 #rm ${app_name}_app --force
 
 # -------------------  SOME COMMANDS  ----------------------------
-
+#WINDOWS
+# docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Image}}\t{{.Ports}}" |   awk 'NR==1 {print $0, "IP"} NR>1 {print $0, system("docker inspect --format '{{ .NetworkSettings.IPAddress }}' " $1)}'
+# Stop-VM -Name "Vmlinux_D"
+# Set-VMProcessor -VMName "Vmlinux_D" -ExposeVirtualizationExtensions $true
+# Start-VM -Name "Vmlinux_D"
+#HOST LINUX
+# lscpu | grep Virtualization
+# apt-get update
+# apt-get install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+# modprobe kvm
+# modprobe kvm_intel  # ou kvm_amd, dependendo do seu processador
+# usermod -aG kvm $USER
+# kvm-ok
+# usermod -aG docker $USER
+#DOCKER
+# docker exec -it script_docker_con_android-emulator /bin/bash
+# emulador precisa de aceleração de hardware (KVM) para executar em modo x86_64
+# apt-get install android-sdk
+# emulator -list-avds
+# emulator -avd nexus_5_13.0 -gpu swiftshader_indirect -no-window -no-boot-anim &
+# cd ~/Downloads
+# tar -xvf android-studio-*-linux.tar.gz
+# Usei RealVNC para conectar no Android
 #ss -tuln | grep 5900
 #ps aux | grep vnc
 #ss -tuln
