@@ -47,7 +47,7 @@ Dentro da pasta home da sua instalação linux rodar:
 ```bash
 cd /home/userlnx
 apt-get install -y dos2unix
-apt-get install git
+apt-get install git -y
 apt-get update
 rm -rf docker
 mkdir -p docker
@@ -56,7 +56,9 @@ git clone https://github.com/fabiuniz/script_docker.git
 cd script_docker
 chmod -R 777 .. # ../..
 dos2unix setup_script_launcher.sh
-setapplications "py-app my-db" #"nginx py-app my-db java-app react-app php-app android-dev android-emulator"
+dos2unix scripts/lib_bash.sh
+source scripts/lib_bash.sh
+setapplications "py-app my-db" #"nginx py-app my-db java-app react-app php-app android-dev"
 .  setup_script_launcher.sh
 
 ```

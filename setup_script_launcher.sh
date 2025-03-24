@@ -8,6 +8,7 @@
 #>🐋 Preparação: construindo scripts para execução da aplicação
 appscripts="scripts"
 apt-get install -y dos2unix
+apt-get install -y android-tools-adb
 #>- Importando source de Configurações da aplicação (script.cfg)
 ls -l "$appscripts/script.cfg"
 dos2unix "$appscripts/script.cfg" #<--------------------------
@@ -186,9 +187,16 @@ def index():
     </pre>
         <li><a href='http://$name_host/' target='_blank'>(PHP)</a></li>
         <li><a href='http://$name_host:$app_port_react/' target='_blank'>(REACT)</a></li>
+        <li><a href='http://$name_host:$app_port_emu/' target='_blank'>(ANDROID)</a></li>
     <pre>    
-        http://$name_host:$app_port_emu/ (VNC ANDROID) +1 5901
-        http://$name_host:$app_port_emu/ (VNC ANDROID) +1 5901
+        No Host:
+            adb devices
+            adb connect vmlinuxd:5555
+            adb -s vmlinuxd:5555 shell
+            adb -s vmlinuxd:5555 install suaapk.apk #Instando apks 
+            adb -s vmlinuxd:5555 push /home/userlnx/MyApp/ /storage/emulated/0/AppProjects/MyApp # subindo fontes
+        Usar RealVNC para conectar no Android
+        VNC Server:$name_host:$app_port_emu/ (VNC ANDROID)         
     </pre>
     </ul>
 </body>
@@ -949,8 +957,7 @@ cat <<EOF > react-app/Dockerfile
     WORKDIR /app/react-app    
     # Constrói o aplicativo
     RUN npm run build        
-    # Usar a imagem do Nginx para servir a aplicação
-    
+    # Usar a imagem do Nginx para servir a aplicação    
     FROM ${IMAGE_NAME_react_stage2}
     # Copia os arquivos de build para o diretório do Nginx
     COPY --from=build /app/react-app/build /usr/share/nginx/html    
@@ -969,24 +976,24 @@ mkdir -p adr-app
 cat <<EOF > adr-app/Dockerfile.emu
     FROM ${IMAGE_NAME_emu_stage1}
     # Garantir que estamos como root para as próximas operações
-    USER root
+    #USER root
     # Instalação do x11vnc e outros pacotes necessários
-    RUN apt-get update && apt-get install -y \
-        x11vnc \
-        xvfb \
-        openbox \
-        adb \
-        && apt-get clean
+    #RUN apt-get update && apt-get install -y \
+    #    x11vnc \
+    #    xvfb \
+    #    openbox \
+    #    adb \
+    #    && apt-get clean
     # Configuração da senha para VNC
     #RUN mkdir ~/.vnc && \
     #    x11vnc -storepasswd $vnc_pass_adr ~/.vnc/passwd
     # Copiar o arquivo APK para o contêiner
-    COPY aide.apk /workspace/app.apk
+    #COPY aide.apk /workspace/app.apk
     # Comando para adicionar regras do iptables
     #RUN iptables -A INPUT -p tcp --dport 5901 -j ACCEPT
     # Iniciar o servidor VNC e o ambiente gráfico
     #CMD ["sh", "-c", "Xvfb :1 -screen 0 1280x720x24 & x11vnc -display :1 -nopw -forever -repeat -rfbport $app_port_emu -shared"]
-    CMD ["sh", "-c", "Xvfb :1 -screen 0 1280x720x24 & /path/to/your/emulator -avd your_avd_name -no-snapshot-load -no-audio -no-boot-anim & sleep 30 && adb install /workspace/aide.apk && x11vnc -display :1 -nopw -forever -repeat -rfbport $app_port_emu -shared"]
+    #CMD ["sh", "-c", "Xvfb :1 -screen 0 1280x720x24 & /path/to/your/emulator -avd your_avd_name -no-snapshot-load -no-audio -no-boot-anim & sleep 30 && adb install /workspace/aide.apk && x11vnc -display :1 -nopw -forever -repeat -rfbport $app_port_emu -shared"]    
 EOF
 # -------------------  ANDROID  ----------------------------
 mkdir -p adr-app
@@ -994,33 +1001,13 @@ mkdir -p adr-app
 cat <<EOF > adr-app/Dockerfile
     # Dockerfile
     FROM ${IMAGE_NAME_adr_stage1}    
-    # Instalações do Android SDK
-    RUN apt-get update && apt-get install -y \
-        wget \
-        unzip \
-        && rm -rf /var/lib/apt/lists/*    
-    # Copiando o SDK se ele já estiver disponível
-      #-->COPY ./opt/android-sdk-linux/cmdline-tools /opt/android-sdk-linux/cmdline-tools || \
-      #-->    (wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -O /tmp/android-sdk.zip && \
-      #-->    unzip /tmp/android-sdk.zip -d /opt/android-sdk-linux/cmdline-tools && \
-      #-->    rm /tmp/android-sdk.zip)
-    COPY ./opt/android-sdk-linux/cmdline-tools /opt/android-sdk-linux/cmdline-tools
-    # Garantindo que as permissões estejam corretas
-    RUN chmod -R 777 /opt/android-sdk-linux/cmdline-tools
-    # Defina as variáveis de ambiente para o SDK do Android
-    ENV ANDROID_SDK_ROOT=/opt/android-sdk-linux
-    #ENV PATH="${PATH}:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin"    
-    ENV PATH="${PATH}:/opt/android-sdk-linux/cmdline-tools/latest/bin"    
-    #RUN cd /opt/android-sdk-linux/cmdline-tools/latest/bin
-    RUN ls -l /opt/android-sdk-linux/cmdline-tools/latest/bin
-    # Aceitar licenças (descomente se necessário)
-    RUN yes | sdkmanager --licenses || true    
-    # Instale pacotes do Android SDK, por exemplo, plataformas e ferramentas
-    RUN sdkmanager "platform-tools" "platforms;android-30"
-    # Criar diretório de trabalho
-    WORKDIR /workspace        
-    # Comando para manter o contêiner ativo
-    CMD [ "sh", "-c", "while true; do sleep 30; done;" ]
+    #RUN wget https://dl.google.com/android/studio/ide-zips/2023.1.1.18/android-studio-2023.1.1.18-linux.tar.gz -O /tmp/android-studio.tar.gz && \
+    #    tar -xzf /tmp/android-studio.tar.gz -C /opt && \
+    #    rm /tmp/android-studio.tar.gz
+    #RUN appium
+    #RUN npm install -g appium
+    EXPOSE 6080 5554 5555
+    CMD ["bash"]
 EOF
 # -------------------  PHP  ----------------------------
 echo_color $LIGHT_CYAN  "PHP $PWD"
@@ -1238,32 +1225,26 @@ cat <<EOF > $docker_compose_file
         build:
           context: ./adr-app  # Caminho para o diretório onde está o Dockerfile
         container_name: ${app_name}_android-dev
+        privileged: true
         ports:
-          - "$app_port_adr:$app_port_adr"   # Exemplo de porta que você pode querer expor
-        volumes:
-          - ./adr-app:/workspace   # Mapeando seu projeto Android para o contêiner
-      android-emulator:
-        build:
-          context: ./adr-app  # Caminho para o diretório onde está o Dockerfile
-          dockerfile: Dockerfile.emu  # Nome do Dockerfile específico para o serviço db
-        #image: budtmo/docker-android
-        container_name: ${app_name}_android-emulator # Usar vnc Viewer pra se conectar nessa porta (https://www.realvnc.com/) as portas VNC são atribuídas como 5900 + número da tela)
-        #devices:
-          #- /dev/kvm  # Adicionando acesso ao dispositivo KVM
-        ports:
-          - "$app_port_emu:$app_port_emu"   # Porta para acessar o VNC do emulador
-          - "5901:5901"   # Porta para acessar o VNC do emulador
-          - "8080:8080"   # Porta para acessar HTTP
+          - "$app_port_adr:$app_port_adr"   # Mapeia a porta 6080 do host para a porta 6080 do container
+          - "5554:5554"   # Mapeia a porta 5554 do host para a porta 5554 do container
+          - "5555:5555"   # Mapeia a porta 5555 do host para a porta 5555 do container
+          - "5900:5900"      # Porta VNC padrão
+        #environment:
+          #- DEVICE=Samsung Galaxy S6  # Samsung Galaxy Tab #Define a variável de ambiente DEVICE
+          #- USER=$vnc_user_adr  # Definindo o usuário como root # androidusr
+          #- VNC_PASSWORD=$vnc_pass_adr  # Defina aqui se precisar de password
+          #- DISPLAY=:0
+        restart: always  # (Opcional) Define o comportamento de reinício
         #shm_size: '2g'  # Definindo o tamanho da memória compartilhada
         volumes:
-          - ./adr-app:/workspace
+          - ./adr-app:/workspace   # Mapeando seu projeto Android para o contêiner
           #- /home/androidusr/Android/Sdk:/opt/android 
-        environment:
-          - USER=$vnc_user_adr  # Definindo o usuário como root # androidusr
-          - VNC_PASSWORD=$vnc_pass_adr  # Defina aqui se precisar de password
-          - DISPLAY=:0
-        networks:
-          - public_network          
+        #devices:
+        #  - /dev/kvm  # Adicionando acesso ao dispositivo KVM
+        #networks:
+        #  - public_network          
     volumes:
         db_data:
     networks:
@@ -1325,32 +1306,10 @@ echo -e "\a";
 #https://profile-readme-generator.com/result
 #https://dashboard.render.com/ 
 #https://console.neon.tech/
-#rm ${app_name}_app --force
+#https://github.com/sickcodes/dock-droid?tab=readme-ov-file
 
 # -------------------  SOME COMMANDS  ----------------------------
-#WINDOWS
-# docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Image}}\t{{.Ports}}" |   awk 'NR==1 {print $0, "IP"} NR>1 {print $0, system("docker inspect --format '{{ .NetworkSettings.IPAddress }}' " $1)}'
-# Stop-VM -Name "Vmlinux_D"
-# Set-VMProcessor -VMName "Vmlinux_D" -ExposeVirtualizationExtensions $true
-# Start-VM -Name "Vmlinux_D"
-#HOST LINUX
-# lscpu | grep Virtualization
-# apt-get update
-# apt-get install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
-# modprobe kvm
-# modprobe kvm_intel  # ou kvm_amd, dependendo do seu processador
-# usermod -aG kvm $USER
-# kvm-ok
-# usermod -aG docker $USER
-#DOCKER
-# docker exec -it script_docker_con_android-emulator /bin/bash
-# emulador precisa de aceleração de hardware (KVM) para executar em modo x86_64
-# apt-get install android-sdk
-# emulator -list-avds
-# emulator -avd nexus_5_13.0 -gpu swiftshader_indirect -no-window -no-boot-anim &
-# cd ~/Downloads
-# tar -xvf android-studio-*-linux.tar.gz
-# Usei RealVNC para conectar no Android
+#rm ${app_name}_app --force
 #ss -tuln | grep 5900
 #ps aux | grep vnc
 #ss -tuln
@@ -1387,7 +1346,7 @@ echo -e "\a";
 # Remover contêineres parados
 #docker container prune
 
-# -------------------  ALTERANDO CACHE DO DOCkER  ----------------------------
+# -------------------  ALTERANDO CACHE DO RELAY DOCkER  ----------------------------
 
 #sudo systemctl stop docker
     #mkdir -p /home/userlnx/docker/relay
@@ -1395,6 +1354,7 @@ echo -e "\a";
     #mount -t cifs "//192.168.1.179/y/Virtual Machines/VirtualPc/vmlinux_d/plugins" /home/userlnx/docker/relay -o username=user,domain=sweethome,password=1111,iocharset=utf8,users,file_mode=0777,dir_mode=0777,vers=3.0
     #cd  /var/lib/docker/overlay2/
     #docker load -i /home/userlnx/docker/relay/cfa5980ffb76.tar # Restaurar
+    #docker save -o backup_docker_android.tar budtmo/docker-android
     #docker save -o /home/userlnx/docker/relay/cfa5980ffb76.tar 02193505a44fc9b4084f378b0f9fac7760b0237733ad1605b802074675ddbad3 # Salvar 
     #rsync -aP /var/lib/docker/ /home/userlnx/docker/relay
     #nano /etc/docker/daemon.json
@@ -1423,7 +1383,8 @@ echo -e "\a";
 #show_docker_commands_custons
 #dashboard_docker
 
-#cp /var/cache/apt/archives/*.deb /home/userlnx/docker/relay
+#cp /var/cache/apt/archives/*.deb /home/userlnx/docker/script_docker/relay
+#cp /home/userlnx/docker/script_docker/relay/*.deb /var/cache/apt/archives
 #cp -r ~/.cache/pip /home/userlnx/docker/relay
 
 # -------------------  IMAGENS DOCKER  ----------------------------
@@ -1455,7 +1416,9 @@ echo -e "\a";
 
 
 # -------------------  BUILDING CODE  ----------------------------
-
+#
+#CONFIGURACAO DO HOST e DOCKER CONTAINER
+#
 #"C:\Users\usuario\.ssh\config"
 # Read more about SSH config files: https://linux.die.net/man/5/ssh_config
 #Host vmlinuxd
@@ -1471,7 +1434,140 @@ echo -e "\a";
 #ssh-keygen -t rsa -b 4096 -C "seu_email@example.com"
 #icacls "C:\Users\usuario\.ssh\config" /inheritance:r
 #icacls "C:\Users\usuario\.ssh\config" /grant usuario:F
-
+#
 #apt install sudo
 #nano /etc/sudoers ---> userlnx ALL=(ALL) ALL ----> userlnx ALL=(ALL) NOPASSWD: /home/userlnx/docker/script_docker/publish_${app_name}.sh
+# 
+# SUBINDO EMULADOR ANDROID
+#
+#WINDOWS -------------------------------
+# docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Image}}\t{{.Ports}}" |   awk 'NR==1 {print $0, "IP"} NR>1 {print $0, system("docker inspect --format '{{ .NetworkSettings.IPAddress }}' " $1)}'
+# Stop-VM -Name "Vmlinux_D"
+# Set-VMProcessor -VMName "Vmlinux_D" -ExposeVirtualizationExtensions $true
+# Start-VM -Name "Vmlinux_D"
+#HOST LINUX -------------------------------
+# apt-get update
+# apt-get install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+# modprobe kvm
+# modprobe kvm_intel  # ou kvm_amd, dependendo do seu processador
+# usermod -aG kvm $USER
+# usermod -aG docker $USER
+# lscpu | grep Virtualization
+# apt-get install cpu-checker
+# kvm-ok
+# docker exec -it script_docker_con_android-emulator /bin/bash
+#DOCKER ----------------o emulador precisa de aceleração de hardware (KVM) para executar em modo x86_64 
+# apt-get update
+# apt-get install android-sdk
+# emulator -list-avds
+# emulator -avd nexus_5_13.0 -gpu swiftshader_indirect -no-window -no-boot-anim &
+# emulator -avd nexus_5_13.0 -no-window -port 5555
+# cd ~/Downloads
+# tar -xvf android-studio-*-linux.tar.gz
+# Usei RealVNC para conectar no Android
 
+#apt-get install -y docker.io
+#apt-get install -y docker-compose
+#apt-get install -y android-tools-adb
+#docker load -i budtmo_docker-android_latest.tar
+#docker images
+#docker run --privileged -d -p 6080:6080 -p 5554:5554 -p 5555:5555 -e DEVICE="Samsung Galaxy S6" --name android-container budtmo/docker-android
+#docker run --privileged -d -p 6080:6080 -p 5554:5554 -p 5555:5555 -e DEVICE="Samsung Galaxy S6" --name android-container budtmo/docker-android-x86-8.1
+#adb devices
+#adb connect vmlinuxd:5555
+#adb -s vmlinuxd:5555 shell
+#adb -s vmlinuxd:5555 install aide.apk
+#adb -s vmlinuxd:5555 push /home/userlnx/MyApp/ /storage/emulated/0/AppProjects/MyApp
+#pm list package
+#apt-get install -y net-tools lsof psmisc
+#apt install ufw
+#docker port android-container
+#docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' android-container
+#ufw enable
+#ufw allow 6080
+#netsh advfirewall firewall add rule name="Permitir Porta 6080" dir=out action=allow protocol=TCP localport=6080
+#ufw status
+#curl http://vmlinuxd:6080
+#docker stop android-container
+#docker start android-container
+#adb kill-server
+#adb start-server
+
+#cat <<EOF > docker-compose.yml
+#version: '3'  # Escolha a versão do Compose que você prefere
+#services:
+#  android:
+#    #image: budtmo/docker-android
+#    build: .
+#    container_name: android-container
+#    privileged: true
+#    ports:
+#      - "6080:6080"   # Mapeia a porta 6080 do host para a porta 6080 do container
+#      - "5554:5554"   # Mapeia a porta 5554 do host para a porta 5554 do container
+#      - "5555:5555"   # Mapeia a porta 5555 do host para a porta 5555 do container
+#      - "5900:5900"      # Porta VNC padrão
+#    environment:
+#      - DEVICE=Samsung Galaxy S6  # Samsung Galaxy Tab #Define a variável de ambiente DEVICE
+#    restart: always  # (Opcional) Define o comportamento de reinício
+#EOF
+#cat <<EOF > Dockerfile
+#FROM budtmo/docker-android  # Use a imagem base do Docker Android
+#RUN appium
+#RUN npm install -g appium
+#EXPOSE 6080 5554 5555
+#CMD ["bash"]
+#EOF
+#docker-compose up -d
+#docker-compose -f docker-compose.yml up --build -d android-emulator
+#
+# INSTALADNO VISUAL 1 -----------------------
+# 
+#apt update
+#apt upgrade -y    
+#apt install xrdp -y 
+#adduser userlnx ssl-cert
+#apt install xorgxrdp  
+#systemctl start xrdp    
+#systemctl enable xrdp    
+#ufw allow 3389    
+#
+# INSTALANDO VISUAL 2 -----------------------
+# 
+#apt install xfce4 xfce4-goodies
+#echo "xfce4-session" > ~/.xsession
+#adduser userlnx xrdp
+#systemctl restart xrdp
+#export DESKTOP_SESSION=xfce
+#apt install dbus-x11 -y
+#export XDG_SESSION_TYPE=x11
+#export XDG_SESSION_DESKTOP=xfce
+#export DBUS_SESSION_BUS_ADDRESS=/run/user/1000/bus
+#exec startxfce4
+#chmod +x ~/.xsession
+#systemctl restart xrdp
+#
+# INSTALANDO GOOGLECHROME -----------------------
+# 
+#wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+#echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee /etc/apt/sources.list.d/google-chrome.list
+#apt-get update
+#apt-get install -y google-chrome-stable
+#
+#USANDO WSL2 no windows 11 -----------------------
+#
+#wsl --list --verbose
+#wsl --unregister Ubuntu
+#nano ~/.bashrc
+#PS1='${debian_chroot:+($debian_chroot)}\u@vmlinux:\w\$ '
+#source ~/.bashrc
+#wsl --install -d Debian
+#sudo visudo
+#userlnx ALL=(ALL) NOPASSWD:ALL
+#sudo su -
+#ip addr show dev eth0 | grep inet
+#sudo apt update && sudo apt install openssh-server -y
+#sudo service ssh start
+#sudo nano /etc/ssh/sshd_config
+#PasswordAuthentication yes
+#PermitRootLogin yes
+    

@@ -359,7 +359,7 @@ function show_docker_commands_custons() {
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_java-app bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_react-app sh" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_php-app sh" # Entrar no bash do container rodando a aplicação
-    echo_color $YELLOW "docker exec --privileged -it "$app_name"_android-emulator bash" # Entrar no bash do container rodando nginx
+    echo_color $YELLOW "docker exec --privileged -it "$app_name"_android-dev bash" # Entrar no bash do container rodando nginx
     echo_color $YELLOW "docker exec "$app_name"_php-app nginx -s reload"
     echo_color $YELLOW "docker logs "$app_name"_java-app" # Consultar logs do container rodando nginx
     echo_color $YELLOW "docker logs --tail 10 "$app_name"_py-app" # Consultar logs do container rodando a aplicação
@@ -617,7 +617,7 @@ function compactdisk() {
 }
 # Nome da imagem que você deseja verificar
 # Função para verificar se a imagem existe localmente
-check_and_pull_image() {
+function check_and_pull_image() {
     IMAGE_NAME="${1:-$IMAGE_NAME}"
     if [[ "$(docker images -q $IMAGE_NAME 2> /dev/null)" == "" ]]; then
         echo "Imagem $IMAGE_NAME não encontrada localmente. Baixando do repositório..."
@@ -625,5 +625,25 @@ check_and_pull_image() {
     else
         echo "Imagem $IMAGE_NAME já existe localmente."
     fi
+}
+function setupgrafics(){
+    apt install xfce4 xfce4-goodies
+    echo "xfce4-session" > ~/.xsession
+    adduser userlnx xrdp
+    systemctl restart xrdp
+    export DESKTOP_SESSION=xfce
+    apt install dbus-x11 -y
+    export XDG_SESSION_TYPE=x11
+    export XDG_SESSION_DESKTOP=xfce
+    export DBUS_SESSION_BUS_ADDRESS=/run/user/1000/bus
+    exec startxfce4
+    chmod +x ~/.xsession
+    systemctl restart xrdp
+}
+function setupgooglechrome(){
+    wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee /etc/apt/sources.list.d/google-chrome.list
+    apt-get update
+    apt-get install -y google-chrome-stable
 }
 #lib_bash--------------------------------------------------
