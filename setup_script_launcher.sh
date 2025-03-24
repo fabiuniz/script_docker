@@ -1264,6 +1264,7 @@ mkdir -p $app_source/adr-app
 echo_color $GREEN  "copiando arquivos de "$app_source" para $PWD"
 cp -r "$app_source"/* .
 chmod -R 777 "$app_source"
+chmod -R 777 $backup_dir_py
 #>🔒 Passo 7: Gerar um certificado SSL autoassinado (opcional) <br>
 echo_color $RED  "Passo 7: Gerar um certificado SSL autoassinado (opcional)"
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout py-app/app/ssl/nginx-ssl.key -out py-app/app/ssl/nginx-ssl.crt -subj "/CN=$name_host"
