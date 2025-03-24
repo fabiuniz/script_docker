@@ -1269,7 +1269,7 @@ echo_color $RED  "Passo 7: Gerar um certificado SSL autoassinado (opcional)"
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout py-app/app/ssl/nginx-ssl.key -out py-app/app/ssl/nginx-ssl.crt -subj "/CN=$name_host"
 #>🐋 Passo 8: Criando pasta da aplicação e Verificar e instalar Docker e Docker Compose <br>
 echo_color $RED  "Passo 8: Criando pasta da aplicação e Verificar e instalar Docker e Docker Compose "
-vrf_dialog "carregar imagens de backup em $backup_dir_py?" restore_img_docker
+vrf_dialog "carregar imagens de backup de $params_containers em $backup_dir_py?" restore_img_docker
 install_docker_if_missing
 install_docker_compose_if_missing
 #>🚀 Passo 9: Construir e subir os containeres <br>
