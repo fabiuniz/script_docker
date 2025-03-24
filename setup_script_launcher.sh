@@ -1269,6 +1269,7 @@ echo_color $RED  "Passo 7: Gerar um certificado SSL autoassinado (opcional)"
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout py-app/app/ssl/nginx-ssl.key -out py-app/app/ssl/nginx-ssl.crt -subj "/CN=$name_host"
 #>🐋 Passo 8: Criando pasta da aplicação e Verificar e instalar Docker e Docker Compose <br>
 echo_color $RED  "Passo 8: Criando pasta da aplicação e Verificar e instalar Docker e Docker Compose "
+vrf_dialog "carregar imagens de backup em $backup_dir_py?" restore_img_docker
 install_docker_if_missing
 install_docker_compose_if_missing
 #>🚀 Passo 9: Construir e subir os containeres <br>
@@ -1307,6 +1308,7 @@ echo -e "\a";
 #https://dashboard.render.com/ 
 #https://console.neon.tech/
 #https://github.com/sickcodes/dock-droid?tab=readme-ov-file
+#https://www.youtube.com/watch?v=QfmSEzRXN1o Anaconda Python e Jupyter Notebook
 
 # -------------------  SOME COMMANDS  ----------------------------
 #rm ${app_name}_app --force

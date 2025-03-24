@@ -316,7 +316,6 @@ function install_docker_if_missing(){
         echo_color $RED "Docker já está instalado."
     fi
 	echo_color $RED "Restaurando Imagens."
-    restore_img_docker
 }
 #-----------------------------------------------------
 #- Função para verificar e instalar o Docker Compose se necessário <br>
@@ -482,6 +481,18 @@ function backup_img_docker() {
         docker save -o "$backup_dir_py/$image_filename.tar" "$image"
     done
     echo_color $YELLOW "Backup completo. Imagens salvas em $backup_dir_py."
+}
+function vrf_dialog() {
+    echo -n "Deseja $1 (Y/N) "
+    read resposta
+    # Verifica a resposta do usuário
+    if [[ "$resposta" =~ ^[Yy]$ ]]; then
+        echo "Executando: $1..."
+        # Chama a função passada como segundo argumento
+        "$2"  # Desreferencia a função
+    else
+        echo "Pulando o $1."
+    fi
 }
 # Diretório onde as imagens foram salvas
 function restore_img_docker() {
