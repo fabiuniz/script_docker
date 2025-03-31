@@ -358,7 +358,7 @@ function show_docker_commands_custons() {
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_java-app bash" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_react-app sh" # Entrar no bash do container rodando a aplicação
     echo_color $YELLOW "docker exec --privileged -it "$app_name"_php-app sh" # Entrar no bash do container rodando a aplicação
-    echo_color $YELLOW "docker exec --privileged -it "$app_name"_android-dev bash" # Entrar no bash do container rodando nginx
+    echo_color $YELLOW "docker exec --privileged -it "$app_name"_android-emu bash" # Entrar no bash do container rodando nginx
     echo_color $YELLOW "docker exec "$app_name"_php-app nginx -s reload"
     echo_color $YELLOW "docker logs "$app_name"_java-app" # Consultar logs do container rodando nginx
     echo_color $YELLOW "docker logs --tail 10 "$app_name"_py-app" # Consultar logs do container rodando a aplicação
@@ -656,5 +656,40 @@ function setupgooglechrome(){
     echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee /etc/apt/sources.list.d/google-chrome.list
     apt-get update
     apt-get install -y google-chrome-stable
+}
+function liberafreespace(){
+    #!/bin/bash
+    # Função para exibir o espaço em disco
+    function check_disk_space {
+        echo "Verificando espaço em disco..."
+        df -Th
+    }
+    # Checar espaço em disco antes das operações
+    check_disk_space
+    # Limpar o cache do apt
+    echo "Limpando o cache do apt..."
+    apt-get clean
+    # Remover pacotes que não são mais necessários
+    echo "Removendo pacotes não utilizados..."
+    apt-get autoremove -y
+    # Remover arquivos temporários
+    echo "Removendo arquivos temporários..."
+    rm -rf /tmp/*
+    # Remover arquivos de log antigos
+    "Removendo logs antigos..."
+    find /var/log -type f -name "*.log" -mtime +30 -exec rm {} \;  # Remove arquivos .log com mais de 30 dias
+    # Mostrar espaço em disco após limpeza
+    "Espaço em disco após limpeza:"
+    check_disk_space
+    # Optionally, you may desfragmentar (not needed for ext4 generally)
+    "Você deseja desfragmentar o sistema de arquivos? (s/n)"
+    read answer
+    if [[ "$answer" == "s" || "$answer" == "S" ]]; then
+        e4defrag /
+    fi
+    e4defrag -c /
+    fstrim -v / #desfragmentar are livre
+    # Optimize-VHD -Path "H:\vmteste\vmllinuxdx-ssh-web_db11.8.vhdx" -Mode Full
+    echo "Rotina de otimização concluída."
 }
 #lib_bash--------------------------------------------------
