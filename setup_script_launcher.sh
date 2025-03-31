@@ -974,7 +974,21 @@ mkdir -p adr-app
 # Escrevendo o Dockerfile
 #-------------------------------------------------------------------------------------
 cat <<EOF > adr-app/Dockerfile.emu
+    # Dockerfile
     FROM ${IMAGE_NAME_emu_stage1}
+    #RUN wget https://dl.google.com/android/studio/ide-zips/2023.1.1.18/android-studio-2023.1.1.18-linux.tar.gz -O /tmp/android-studio.tar.gz && \
+    #    tar -xzf /tmp/android-studio.tar.gz -C /opt && \
+    #    rm /tmp/android-studio.tar.gz
+    #RUN appium
+    #RUN npm install -g appium
+    EXPOSE 6080 5554 5555
+    CMD ["bash"]
+EOF
+# -------------------  ANDROID  ----------------------------
+mkdir -p adr-app
+#-------------------------------------------------------------------------------------
+cat <<EOF > adr-app/Dockerfile
+    FROM ${IMAGE_NAME_adr_stage1}    
     # Garantir que estamos como root para as próximas operações
     #USER root
     # Instalação do x11vnc e outros pacotes necessários
@@ -994,20 +1008,6 @@ cat <<EOF > adr-app/Dockerfile.emu
     # Iniciar o servidor VNC e o ambiente gráfico
     #CMD ["sh", "-c", "Xvfb :1 -screen 0 1280x720x24 & x11vnc -display :1 -nopw -forever -repeat -rfbport $app_port_emu -shared"]
     #CMD ["sh", "-c", "Xvfb :1 -screen 0 1280x720x24 & /path/to/your/emulator -avd your_avd_name -no-snapshot-load -no-audio -no-boot-anim & sleep 30 && adb install /workspace/aide.apk && x11vnc -display :1 -nopw -forever -repeat -rfbport $app_port_emu -shared"]    
-EOF
-# -------------------  ANDROID  ----------------------------
-mkdir -p adr-app
-#-------------------------------------------------------------------------------------
-cat <<EOF > adr-app/Dockerfile
-    # Dockerfile
-    FROM ${IMAGE_NAME_adr_stage1}    
-    #RUN wget https://dl.google.com/android/studio/ide-zips/2023.1.1.18/android-studio-2023.1.1.18-linux.tar.gz -O /tmp/android-studio.tar.gz && \
-    #    tar -xzf /tmp/android-studio.tar.gz -C /opt && \
-    #    rm /tmp/android-studio.tar.gz
-    #RUN appium
-    #RUN npm install -g appium
-    EXPOSE 6080 5554 5555
-    CMD ["bash"]
 EOF
 # -------------------  PHP  ----------------------------
 echo_color $LIGHT_CYAN  "PHP $PWD"
@@ -1224,6 +1224,7 @@ cat <<EOF > $docker_compose_file
       android-emu:
         build:
           context: ./adr-app  # Caminho para o diretório onde está o Dockerfile
+          dockerfile: Dockerfile.emu  # Nome do Dockerfile específico para o serviço db
         container_name: ${app_name}_android-emu
         privileged: true
         ports:
