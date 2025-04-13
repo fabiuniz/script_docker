@@ -692,4 +692,11 @@ function liberafreespace(){
     # Optimize-VHD -Path "H:\vmteste\vmllinuxdx-ssh-web_db11.8.vhdx" -Mode Full
     echo "Rotina de otimização concluída."
 }
+function converterbase64(){
+    apt update && apt install imagemagick -y
+    convert $1 -quality 30 $2
+    base64 -w 0 $2 > $2.txt
+    #base64 -w 0 ponte_compact.png > image_base64.txt
+    # convert input.png -quality 30 output.jpg
+}
 #lib_bash--------------------------------------------------
