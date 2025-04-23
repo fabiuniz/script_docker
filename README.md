@@ -8,7 +8,7 @@ Profissionais que atuam na prática de DevOps são responsáveis por automatizar
 
 Os testes foram feitos no debian 12 rodando dentro do Hyper-V ou WSL2, após a instalação do linux ainda pode levar vários minutos (~20 minutos) para rodar a primeira vez devido a quantidade de pacotes a serem baixados, mas depois vai ficar mas rápido nas proximas vezes já que os mesmos estarão no cache.<br> 
 
-![Distribuição linux](images/debian-12.5.0-amd64-netinst.png)
+![Projeto Script_Docker](images/scriptdocker.png)
 
 Requisitos de sistema:
 
@@ -21,7 +21,7 @@ Escolha o seu hostname preferido, nesse caso usei "vmlinuxd" (ajustar no arquivo
 Servidor SSH
 Utilitario de sistema padrão
 ```
-![Projeto Script_Docker](images/scriptdocker.png)
+![Distribuição linux](images/debian-12.5.0-amd64-netinst.png)
 
 Estrutura base do repositório 
 
