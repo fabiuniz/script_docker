@@ -1,3 +1,9 @@
+<!-- 
+  Tags: DevOps
+  Label: 🐳 Ambiente de desenvolvimento com Docker
+  Description: Configuração de ambiente de desenvolvimento utilizando Docker Compose.
+  path_hook: hookfigma.hook6
+-->
 
 # Script Docker [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![GitHub issues](https://img.shields.io/github/issues/fabiuniz/repo.svg)](https://github.com/fabiuniz/repo/issues) ![GitHub contributors](https://img.shields.io/github/contributors/fabiuniz/repo.svg)
 
@@ -67,3 +73,11 @@ setapplications "py-app my-db" #"nginx py-app my-db java-app react-app php-app a
 
 🛠️ setup_script_launcher.sh<br> 
 - [SCRIPT](putsourcehere) veja aqui detalhadamente os passos que serão realizado para criar e iniciar um docker webservice usando docker com python <br>
+
+## 👨‍💻 Autor
+
+[Fabiano Rocha/Fabiuniz]
+
+## Licença
+
+Este projeto está licenciado sob a [MIT License](LICENSE).

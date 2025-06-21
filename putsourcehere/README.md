@@ -1,3 +1,9 @@
+<!-- 
+  Tags: DevOps
+  Label: 🐳 Ambiente de desenvolvimento docker
+  Description: README de um diretório putsourcehere dentro de scripts Docker no GitHub, indicando um local para código fonte.
+  path_hook: hookfigma.hook6
+-->
 
 # Script Docker Python [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![GitHub issues](https://img.shields.io/github/issues/fabiuniz/repo.svg)](https://github.com/fabiuniz/repo/issues) ![GitHub contributors](https://img.shields.io/github/contributors/fabiuniz/repo.svg)
 
@@ -98,3 +104,12 @@ script_docker_py_db         docker-entrypoint.sh mysqld      Up (health: startin
 
 ```
 ![Web Site](../images/website.png)
+
+## 👨‍💻 Autor
+
+[Fabiano Rocha/Fabiuniz]
+
+## Licença
+
+Este projeto está licenciado sob a [MIT License](LICENSE).
+
